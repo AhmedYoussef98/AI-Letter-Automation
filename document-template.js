@@ -25,7 +25,7 @@ function populateDocumentTemplate(letterData, formData) {
     const recipientTitle = formData.get('recipient_title') || '';
     const organizationName = formData.get('organization_name') || '';
     
-    document.getElementById('recipientName').textContent = `${recipientTitle} ${recipientName}`;
+    document.getElementById('recipient').textContent = `${recipientTitle} ${recipient}`;
     
     // Update recipient section with organization if provided
     const recipientSection = document.getElementById('recipientSection');
