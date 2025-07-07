@@ -1,4 +1,4 @@
-// Document Template Functions
+// Document Template Functions - FIXED VERSION
 function populateDocumentTemplate(letterData, formData) {
     // Set current date
     const currentDate = new Date();
@@ -9,54 +9,86 @@ function populateDocumentTemplate(letterData, formData) {
         weekday: 'long'
     };
     
-    document.getElementById('currentDate').textContent = currentDate.toLocaleDateString('ar-SA', dateOptions);
-    document.getElementById('dayName').textContent = currentDate.toLocaleDateString('ar-SA', { weekday: 'long' });
+    // Check if elements exist before setting textContent
+    const currentDateEl = document.getElementById('currentDate');
+    if (currentDateEl) {
+        currentDateEl.textContent = currentDate.toLocaleDateString('ar-SA', dateOptions);
+    }
+    
+    const dayNameEl = document.getElementById('dayName');
+    if (dayNameEl) {
+        dayNameEl.textContent = currentDate.toLocaleDateString('ar-SA', { weekday: 'long' });
+    }
     
     // Set Hijri date (simplified - you might want to use a proper Hijri calendar library)
     const hijriDate = convertToHijri(currentDate);
-    document.getElementById('hijriDate').textContent = hijriDate;
+    const hijriDateEl = document.getElementById('hijriDate');
+    if (hijriDateEl) {
+        hijriDateEl.textContent = hijriDate;
+    }
     
     // Set letter number (you might want to generate this dynamically)
     const letterNumber = generateLetterNumber();
-    document.getElementById('letterNumber').textContent = letterNumber;
+    const letterNumberEl = document.getElementById('letterNumber');
+    if (letterNumberEl) {
+        letterNumberEl.textContent = letterNumber;
+    }
     
     // Set recipient information
     const recipientName = formData.get('recipient') || 'المحترم/ة';
     const recipientTitle = formData.get('recipient_title') || '';
     const organizationName = formData.get('organization_name') || '';
     
-    document.getElementById('recipient').textContent = `${recipientTitle} ${recipient}`;
+    // Check if recipient element exists before setting textContent
+    const recipientEl = document.getElementById('recipient');
+    if (recipientEl) {
+        recipientEl.textContent = `${recipientTitle} ${recipientName}`;
+    }
     
     // Update recipient section with organization if provided
     const recipientSection = document.getElementById('recipientSection');
-    if (organizationName) {
-        recipientSection.innerHTML = `
-            <p>إلى: ${recipientTitle} ${recipientName}</p>
-            <p>${organizationName}</p>
-            <p>المحترم/ة</p>
-        `;
-    } else {
-        recipientSection.innerHTML = `
-            <p>السيد/ة: ${recipientTitle} ${recipientName}</p>
-            <p>المحترم/ة</p>
-        `;
+    if (recipientSection) {
+        if (organizationName) {
+            recipientSection.innerHTML = `
+                <p>إلى: ${recipientTitle} ${recipientName}</p>
+                <p>${organizationName}</p>
+                <p>المحترم/ة</p>
+            `;
+        } else {
+            recipientSection.innerHTML = `
+                <p>السيد/ة: ${recipientTitle} ${recipientName}</p>
+                <p>المحترم/ة</p>
+            `;
+        }
     }
     
     // Set letter title based on letter type
     const letterType = formData.get('category') || 'خطاب';
     const letterPurpose = formData.get('title') || '';
-    document.getElementById('letterTitle').textContent = `${letterType} - ${letterPurpose}`;
+    const letterTitleEl = document.getElementById('letterTitle');
+    if (letterTitleEl) {
+        letterTitleEl.textContent = `${letterType} - ${letterPurpose}`;
+    }
     
     // Set main letter content
     const letterContent = letterData.Letter || letterData.content || '';
-    document.getElementById('mainLetterContent').innerHTML = formatLetterContent(letterContent);
+    const mainLetterContentEl = document.getElementById('mainLetterContent');
+    if (mainLetterContentEl) {
+        mainLetterContentEl.innerHTML = formatLetterContent(letterContent);
+    }
     
     // Set sender information
     const senderName = formData.get('member_name') || 'زياد أحمد بن حكم عسيري';
-    document.getElementById('senderName').textContent = senderName;
+    const senderNameEl = document.getElementById('senderName');
+    if (senderNameEl) {
+        senderNameEl.textContent = senderName;
+    }
     
     // Also update the hidden textarea for backward compatibility
-    document.getElementById('letterPreview').value = letterContent;
+    const letterPreviewEl = document.getElementById('letterPreview');
+    if (letterPreviewEl) {
+        letterPreviewEl.value = letterContent;
+    }
 }
 
 function formatLetterContent(content) {
@@ -97,12 +129,12 @@ function toggleTemplateView(templateType) {
     
     if (templateType === 'template1') {
         // Show document template
-        documentTemplate.style.display = 'block';
-        letterPreview.style.display = 'none';
+        if (documentTemplate) documentTemplate.style.display = 'block';
+        if (letterPreview) letterPreview.style.display = 'none';
     } else {
         // Show simple textarea
-        documentTemplate.style.display = 'none';
-        letterPreview.style.display = 'block';
+        if (documentTemplate) documentTemplate.style.display = 'none';
+        if (letterPreview) letterPreview.style.display = 'block';
     }
 }
 
@@ -129,4 +161,3 @@ if (typeof module !== 'undefined' && module.exports) {
         toggleTemplateView
     };
 }
-
