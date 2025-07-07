@@ -147,11 +147,25 @@
                                 <div>اليوم: <span id="dayName"></span></div>
                             </div>
                         </div>
+                        
+                        <!-- FIXED: Added missing recipient section -->
+                        <div class="recipient-section" id="recipientSection">
+                            <p>إلى: <span id="recipient">المحترم/ة</span></p>
+                        </div>
+                        
+                        <!-- FIXED: Added missing letter title -->
+                        <div class="letter-title">
+                            <h3 id="letterTitle">عنوان الخطاب</h3>
+                        </div>
                             
-                            <div class="letter-body" id="mainLetterContent">
-                                <!-- Generated letter content will be inserted here -->
-                            </div>
-                            
+                        <div class="letter-body" id="mainLetterContent">
+                            <!-- Generated letter content will be inserted here -->
+                        </div>
+                        
+                        <!-- FIXED: Added missing sender section -->
+                        <div class="sender-section">
+                            <p>مع أطيب التحيات،</p>
+                            <p id="senderName">زياد أحمد بن حكم عسيري</p>
                         </div>
                         
                         <div class="signature-section">
@@ -197,7 +211,7 @@
     <script src="sheets.js"></script>
     <script src="api.js"></script>
     <script src="main.js"></script>
-    <script src="document-template.js"></script>
+    <script src="document-template-fixed.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const recipientTitleSelect = document.getElementById("recipientTitle");
