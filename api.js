@@ -50,8 +50,8 @@ async function generateLetter(formData) {
             const receivedLetterSelect = document.getElementById('receivedLetter');
             const selectedOption = receivedLetterSelect.querySelector(`option[value="${receivedLetterId}"]`);
             if (selectedOption && selectedOption.dataset.content) {
-                payload.received_letter_content = selectedOption.dataset.content;
-                // Note: received_letter_id is not sent to the API as per user request
+                payload.previous_letter_content = selectedOption.dataset.content;
+                // Note: Using same key 'previous_letter_content' for both previous and received letters
             }
         }
         
