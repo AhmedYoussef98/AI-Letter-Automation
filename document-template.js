@@ -26,31 +26,33 @@ function formatLetterContent(content) {
 function toggleTemplateView(templateType) {
     const documentTemplate = document.getElementById('documentTemplate');
     const letterPreview = document.getElementById('letterPreview');
+    const editLabel = document.getElementById('editLabel');
     if (templateType === 'template1') {
         if (documentTemplate) documentTemplate.style.display = 'block';
         if (letterPreview) letterPreview.style.display = 'none';
+        if (editLabel) editLabel.style.display = 'none';
     } else {
         if (documentTemplate) documentTemplate.style.display = 'none';
         if (letterPreview) letterPreview.style.display = 'block';
+        if (editLabel) editLabel.style.display = 'block';
     }
 }
 
-// Optional: still allow template selection if the UI uses it
+// Sync edits from textarea to preview when switching back to preview mode
 document.addEventListener('DOMContentLoaded', function() {
     const templateRadios = document.querySelectorAll('input[name="template"]');
     templateRadios.forEach(radio => {
         radio.addEventListener('change', function() {
+            // If switching from edit to preview, update preview content
+            if (this.value === 'template1') {
+                const letterPreview = document.getElementById('letterPreview');
+                const mainLetterContent = document.getElementById('mainLetterContent');
+                if (letterPreview && mainLetterContent) {
+                    mainLetterContent.innerHTML = formatLetterContent(letterPreview.value);
+                }
+            }
             toggleTemplateView(this.value);
         });
     });
     toggleTemplateView('template1');
 });
-
-// Export functions for use in other files
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        populateDocumentTemplate,
-        formatLetterContent,
-        toggleTemplateView
-    };
-}
