@@ -149,15 +149,38 @@
                         </div>
                         
                         <!-- FIXED: Added missing recipient section -->
+                        <div class="recipient-section" id="recipientSection">
+                            <p>إلى: <span id="recipient">المحترم/ة</span></p>
+                        </div>
+                        
+                        <!-- FIXED: Added missing letter title -->
+                        <div class="letter-title">
+                            <h3 id="letterTitle">عنوان الخطاب</h3>
+                        </div>
+                            
                         <div class="letter-body" id="mainLetterContent">
-    <!-- Generated letter content will be inserted here -->
-</div>
+                            <!-- Generated letter content will be inserted here -->
+                        </div>
+                        
+                        <!-- FIXED: Added missing sender section -->
+                        <div class="sender-section">
+                            <p>مع أطيب التحيات،</p>
+                            <p id="senderName">زياد أحمد بن حكم عسيري</p>
+                        </div>
+                        
+                        <div class="signature-section">
+                            <div></div>
+                        </div>
+                        
+                        <div class="document-footer">
+                            <p>هذا الخطاب تم إنشاؤه باستخدام منصة الذكاء الاصطناعي لإنشاء الخطابات</p>
+                        </div>
+                    </div>
                     
                     <!-- Hidden textarea for backward compatibility -->
-                    <div id="editLabel" style="display:none; margin-bottom:10px; color:#2c3e50; font-weight:bold;">
-    يمكنك الآن تعديل الخطاب يدويًا. عند الانتهاء، عد إلى "القالب الرسمي" لمعاينة التغييرات.
-</div>
-<textarea id="letterPreview" class="letter-preview" style="display: none; width:100%; min-height:300px; font-size:16px; direction:rtl; padding:10px; border-radius:8px; border:1px solid #aaa; background:#fcfcfc;"></textarea>                    <div class="template-selection">
+                    <textarea id="letterPreview" class="letter-preview" style="display: none;"></textarea>
+                    
+                    <div class="template-selection">
                         <h3>الإجراءات</h3>
                         <div class="template-options">
                             <label class="template-option">
