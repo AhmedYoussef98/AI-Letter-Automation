@@ -46,6 +46,30 @@
                 <h2>بيانات الخطاب</h2>
                 <form id="letterForm">
                     <div class="form-group">
+                        <label for="organizationName">اسم الجهة <span class="required">*</span></label>
+                        <input type="text" id="organizationName" name="organization_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipientJobTitle">المسمى الوظيفي للمرسل إليه <span class="required">*</span></label>
+                        <input type="text" id="recipientJobTitle" name="recipient_job_title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipientTitle">لقب المرسل إليه <span class="required">*</span></label>
+                        <select id="recipientTitle" name="recipient_title" required>
+                            <option value="">اختر اللقب</option>
+                            <!-- Options will be dynamically loaded from sheets.js -->
+                        </select>
+                        <input type="text" id="otherRecipientTitle" name="other_recipient_title" style="display:none; margin-top: 10px;" placeholder="أدخل اللقب الآخر">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="recipient">المرسل إليه <span class="required">*</span></label>
+                        <input type="text" id="recipient" name="recipient" required>
+                    </div>
+
+                    <div class="form-group">
                         <label for="letterType">نوع الخطاب <span class="required">*</span></label>
                         <select id="letterType" name="category" required>
                             <option value="">اختر نوع الخطاب</option>
@@ -72,6 +96,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="letterContent">محتوى الخطاب <span class="required">*</span></label>
+                        <textarea id="letterContent" name="prompt" rows="6" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
                         <label>هل هذه أول مراسلة؟ <span class="required">*</span></label>
                         <div class="radio-group">
                             <label>
@@ -90,35 +119,6 @@
                         <select id="letterStyle" name="member_name">
                             <option value="">اختر الاسم (اختياري)</option>
                         </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="recipient">المرسل إليه <span class="required">*</span></label>
-                        <input type="text" id="recipient" name="recipient" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="recipientTitle">لقب المرسل إليه <span class="required">*</span></label>
-                        <select id="recipientTitle" name="recipient_title" required>
-                            <option value="">اختر اللقب</option>
-                            <!-- Options will be dynamically loaded from sheets.js -->
-                        </select>
-                        <input type="text" id="otherRecipientTitle" name="other_recipient_title" style="display:none; margin-top: 10px;" placeholder="أدخل اللقب الآخر">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="organizationName">اسم الجهة <span class="required">*</span></label>
-                        <input type="text" id="organizationName" name="organization_name" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="recipientJobTitle">المسمى الوظيفي للمرسل إليه <span class="required">*</span></label>
-                        <input type="text" id="recipientJobTitle" name="recipient_job_title" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="letterContent">محتوى الخطاب <span class="required">*</span></label>
-                        <textarea id="letterContent" name="prompt" rows="6" required></textarea>
                     </div>
 
                     <button type="submit" class="submit-button" id="generateButton">
