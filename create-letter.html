@@ -142,6 +142,9 @@
                                 <div class="date" id="currentDate"></div>
                                 <div>AL-HAYYAD AL-SAFRI FOR ENVIRONMENTAL SERVICES</div>
                                 <div>خدمات الحياد الصفري للبيئة</div>
+                                <div>الرقم: <span id="letterNumber">001/2024</span></div>
+                                <div>الموافق: <span id="hijriDate"></span></div>
+                                <div>اليوم: <span id="dayName"></span></div>
                             </div>
                         </div>
                         
@@ -219,19 +222,6 @@
                 }
             });
 
-            document.getElementById("letterForm").addEventListener("submit", function(event) {
-    const recipientInput = document.getElementById("recipient");
-    const recipientValue = recipientInput.value.trim();
-
-    // Count the number of words
-    if (recipientValue.split(" ").length < 2) {
-        alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
-        recipientInput.focus();
-        event.preventDefault(); // Prevent form submission
-        return; // Add return to stop further execution
-    }
-});
-
             // Handle letter type selection
             letterTypeSelect.addEventListener("change", function() {
                 if (this.value === "خطاب إلحاقي") {
@@ -262,18 +252,18 @@
                 const previousLetterSelect = document.getElementById("previousLetter");
                 
                 // Clear existing options except the first one
-                previousLetterSelect.innerHTML = \'<option value="">اختر الخطاب السابق</option>\';
+                previousLetterSelect.innerHTML = '<option value="">اختر الخطاب السابق</option>';
                 
                 // Add letters as options
                 letters.forEach(letter => {
                     const option = document.createElement("option");
                     option.value = letter.id;
                     option.textContent = `${letter.id} - ${letter.recipient} - ${letter.subject || letter.type}`;
-                    option.dataset.content = letter.content || \'\';
+                    option.dataset.content = letter.content || '';
                     previousLetterSelect.appendChild(option);
                 });
             } catch (error) {
-                console.error(\'Error loading previous letters:\', error);
+                console.error('Error loading previous letters:', error);
             }
         }
 
@@ -284,18 +274,18 @@
                 const receivedLetterSelect = document.getElementById("receivedLetter");
                 
                 // Clear existing options except the first one
-                receivedLetterSelect.innerHTML = \'<option value="">اختر الخطاب المستلم</option>\';
+                receivedLetterSelect.innerHTML = '<option value="">اختر الخطاب المستلم</option>';
                 
                 // Add letters as options
                 letters.forEach(letter => {
                     const option = document.createElement("option");
                     option.value = letter.id;
                     option.textContent = letter.id;
-                    option.dataset.content = letter.content || \'\';
+                    option.dataset.content = letter.content || '';
                     receivedLetterSelect.appendChild(option);
                 });
             } catch (error) {
-                console.error(\'Error loading received letters:\', error);
+                console.error('Error loading received letters:', error);
             }
         }
     </script>
