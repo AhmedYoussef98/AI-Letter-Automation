@@ -228,6 +228,7 @@
         alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
         recipientInput.focus();
         event.preventDefault(); // Prevent form submission
+        return; // Add return to stop further execution
     }
 });
 
@@ -261,18 +262,18 @@
                 const previousLetterSelect = document.getElementById("previousLetter");
                 
                 // Clear existing options except the first one
-                previousLetterSelect.innerHTML = '<option value="">اختر الخطاب السابق</option>';
+                previousLetterSelect.innerHTML = \'<option value="">اختر الخطاب السابق</option>\';
                 
                 // Add letters as options
                 letters.forEach(letter => {
                     const option = document.createElement("option");
                     option.value = letter.id;
                     option.textContent = `${letter.id} - ${letter.recipient} - ${letter.subject || letter.type}`;
-                    option.dataset.content = letter.content || '';
+                    option.dataset.content = letter.content || \'\';
                     previousLetterSelect.appendChild(option);
                 });
             } catch (error) {
-                console.error('Error loading previous letters:', error);
+                console.error(\'Error loading previous letters:\', error);
             }
         }
 
@@ -283,18 +284,18 @@
                 const receivedLetterSelect = document.getElementById("receivedLetter");
                 
                 // Clear existing options except the first one
-                receivedLetterSelect.innerHTML = '<option value="">اختر الخطاب المستلم</option>';
+                receivedLetterSelect.innerHTML = \'<option value="">اختر الخطاب المستلم</option>\';
                 
                 // Add letters as options
                 letters.forEach(letter => {
                     const option = document.createElement("option");
                     option.value = letter.id;
                     option.textContent = letter.id;
-                    option.dataset.content = letter.content || '';
+                    option.dataset.content = letter.content || \'\';
                     receivedLetterSelect.appendChild(option);
                 });
             } catch (error) {
-                console.error('Error loading received letters:', error);
+                console.error(\'Error loading received letters:\', error);
             }
         }
     </script>
