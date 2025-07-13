@@ -219,6 +219,18 @@
                 }
             });
 
+            document.getElementById("letterForm").addEventListener("submit", function(event) {
+    const recipientInput = document.getElementById("recipient");
+    const recipientValue = recipientInput.value.trim();
+
+    // Count the number of words
+    if (recipientValue.split(" ").length < 2) {
+        alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
+        recipientInput.focus();
+        event.preventDefault(); // Prevent form submission
+    }
+});
+
             // Handle letter type selection
             letterTypeSelect.addEventListener("change", function() {
                 if (this.value === "خطاب إلحاقي") {
