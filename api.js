@@ -131,17 +131,6 @@ if (document.getElementById('letterForm')) {
     document.getElementById('letterForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        // Validate recipient name before proceeding
-        const recipientInput = document.getElementById('recipient');
-        const recipientValue = recipientInput.value.trim();
-
-        // Count the number of words
-        if (recipientValue.split(" ").length < 2) {
-            alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
-            recipientInput.focus();
-            return; // Stop execution here
-        }
-        
         const formData = new FormData(e.target);
         const result = await generateLetter(formData);
         
