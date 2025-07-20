@@ -26,6 +26,10 @@ body {
     color: var(--text-light);
     direction: rtl;
     transition: all 0.3s ease;
+    background-image: url('logo.png'); /* Put your image file in the project directory */
+    background-size: 100px;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 body.dark-mode {
@@ -191,13 +195,6 @@ body.dark-mode .feature-card {
 
 body.dark-mode .feature-card h3 {
     color: var(--text-dark);
-}
-
-body {
-    background-image: url('logo.png'); /* Put your image file in the project directory */
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
 }
 
 .cta-button {
