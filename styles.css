@@ -193,6 +193,13 @@ body.dark-mode .feature-card h3 {
     color: var(--text-dark);
 }
 
+body {
+    background-image: url('logo.png'); /* Put your image file in the project directory */
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
 .cta-button {
     display: inline-block;
     background-color: var(--primary-color);
