@@ -19,7 +19,7 @@ async function generateLetter(formData) {
         const payload = {
             type: formData.get('type'),
             category: formData.get('category'), // Now a text field
-            recipient: formData.get('recipient'),
+            recipient: formData.get("recipient").trim() === "" ? "لا يوجد" : formData.get("recipient"),
             isFirst: formData.get('isFirst') === 'true',
             prompt: formData.get('prompt'),
             organization_name: formData.get('organization_name'), // New field
@@ -132,6 +132,16 @@ if (document.getElementById('letterForm')) {
         e.preventDefault();
         
 
+        // Validate recipient name before proceeding
+        const recipientInput = document.getElementById("recipient");
+        const recipientValue = recipientInput.value.trim();
+
+        // Count the number of words
+        if (recipientValue.length > 0 && recipientValue.split(" ").length < 2) {
+            alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
+            recipientInput.focus();
+            return; // Stop execution here
+        }
         
         const formData = new FormData(e.target);
         const result = await generateLetter(formData);
@@ -245,4 +255,3 @@ function generateUniqueId() {
     const timestamp = Date.now();
     const random = Math.random().toString(36).substring(2, 15);
     return `${timestamp}-${random}`;
-}
