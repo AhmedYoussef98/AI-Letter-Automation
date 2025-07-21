@@ -65,8 +65,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="recipient">المرسل إليه <span class="required">*</span></label>
-                        <input type="text" id="recipient" name="recipient" required placeholder="الثنائي أو الثلاثي إن وجد">
+                        <label for="recipient">المرسل إليه</label>
+                        <input type="text" id="recipient" name="recipient" placeholder="الثنائي أو الثلاثي إن وجد">
                     </div>
 
                     <div class="form-group">
@@ -220,16 +220,6 @@
             });
 
             document.getElementById("letterForm").addEventListener("submit", function(event) {
-    const recipientInput = document.getElementById("recipient");
-    const recipientValue = recipientInput.value.trim();
-
-    // Count the number of words
-    if (recipientValue.split(" ").length < 2) {
-        alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
-        recipientInput.focus();
-        event.preventDefault(); // Prevent form submission
-        return; // Add return to stop further execution
-    }
 });
 
             // Handle letter type selection
@@ -237,12 +227,16 @@
                 if (this.value === "خطاب إلحاقي") {
                     previousLetterGroup.style.display = "block";
                     previousLetterSelect.setAttribute("required", "true");
-                    // Load previous letters
+                    receivedLetterGroup.style.display = "none";
+                    receivedLetterSelect.removeAttribute("required");
+                    receivedLetterSelect.value = "";
                     loadPreviousLetters();
                 } else if (this.value === "خطاب رد على خطاب من الجهة") {
                     receivedLetterGroup.style.display = "block";
                     receivedLetterSelect.setAttribute("required", "true");
-                    // Load received letters
+                    previousLetterGroup.style.display = "none";
+                    previousLetterSelect.removeAttribute("required");
+                    previousLetterSelect.value = "";
                     loadReceivedLetters();
                 } else {
                     previousLetterGroup.style.display = "none";
