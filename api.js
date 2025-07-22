@@ -250,4 +250,3 @@ async function generatePDF(content, template) {
     }
 }
 
-}
