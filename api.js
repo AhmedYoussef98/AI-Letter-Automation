@@ -243,15 +243,11 @@ async function generatePDF(content, template) {
         return pdfBlob;
         
     } catch (error) {
-        console.error('Error generating PDF:', error);
+        console.error("Error generating PDF:", error);
         // Fallback: create a simple text file as blob
-        const textBlob = new Blob([content], { type: 'text/plain' });
+        const textBlob = new Blob([content], { type: "text/plain" });
         return textBlob;
     }
 }
 
-// Generate unique ID
-function generateUniqueId() {
-    const timestamp = Date.now();
-    const random = Math.random().toString(36).substring(2, 15);
-    return `${timestamp}-${random}`;
+}
