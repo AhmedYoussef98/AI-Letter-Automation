@@ -1,5 +1,5 @@
 // The URL for your Google Apps Script Web App
-const APPS_SCRIPT_URL = 'YOUR_NEW_APPS_SCRIPT_WEB_APP_URL'; // <-- IMPORTANT: Use your new deployment URL
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyD31en7FEq8EGS6SP4V2WpC5HsW6EV8CzE94oBKU6Fop8iaQgbxs0rhtB5tqrreFU9yg/exec'; // <-- IMPORTANT: Use your new deployment URL
 
 document.addEventListener('DOMContentLoaded', () => {
     const signupForm = document.getElementById('signupForm');
