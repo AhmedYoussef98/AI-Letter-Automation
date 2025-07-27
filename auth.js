@@ -1,50 +1,43 @@
-// The URL for your Google Apps Script Web App
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyD31en7FEq8EGS6SP4V2WpC5HsW6EV8CzE94oBKU6Fop8iaQgbxs0rhtB5tqrreFU9yg/exec'; // <-- IMPORTANT: Use your new deployment URL
+const APPS_SCRIPT_URL = 'YOUR_NEW_APPS_SCRIPT_WEB_APP_URL'; // <-- IMPORTANT: Use your new deployment URL
+
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-    const signupForm = document.getElementById('signupForm');
     const loginForm = document.getElementById('loginForm');
 
-    if (signupForm) {
-        signupForm.addEventListener('submit', async (e) => {
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const fullName = document.getElementById('name').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-
-            // In a real app, you would securely hash the password here.
-            // This is a simplified example.
-            const passwordHash = "hashed_" + password; // Replace with a real hashing function in production
+            const passwordHash = await hashPassword(password);
 
             const formData = new FormData();
-            formData.append('action', 'signup');
-            formData.append('fullName', fullName);
+            formData.append('action', 'login');
             formData.append('email', email);
             formData.append('passwordHash', passwordHash);
-            
+
             try {
-                const response = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-                
+                const response = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: formData });
                 const result = await response.json();
-                
-                if (result.status === 'success') {
-                    alert('Account created successfully! Please log in.');
-                    window.location.href = 'login.html';
+
+                if (result.success) {
+                    // Store user data in sessionStorage
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(result.user));
+                    window.location.href = 'index.html';
                 } else {
-                    alert('Error: ' + result.message);
+                    alert('Login failed: ' + result.message);
                 }
             } catch (error) {
-                console.error('Signup error:', error);
-                alert('An error occurred. Please try again.');
+                console.error('Login error:', error);
+                alert('An error occurred during login.');
             }
         });
-    }
-
-    if (loginForm) {
-        // We will add login logic here in the next step
     }
 });
