@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzEMo0hhPmzTv7IuxaD5OuqJEsTtqXaMeOi4NaXveNmGBiVZLYP-OEXiDHtelwGkIF3bg/exec'; // <-- IMPORTANT: Use your new deployment URL
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxWNSXwWj2v4cBJd2oNFv0NNglbBKpTMd9zbOr83WyuWrbxjfMI3f7HWd5KSBp6ekQ6eQ/exec'; // <-- IMPORTANT: Use your new deployment URL
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
