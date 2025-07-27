@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = 'YOUR_NEW_APPS_SCRIPT_WEB_APP_URL'; // <-- IMPORTANT: Use your new deployment URL
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwMh-OQmxPiy1_Jr7X3Ut_zLQg-atk6OkQZsbcw6il4X-9IRAULQZrXjjLh2r_McdibHA/exec'; // <-- IMPORTANT: Use your new deployment URL
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
