@@ -4,7 +4,7 @@ const API_KEY = 'AIzaSyBqF-nMxyZMrjmdFbULO9I_j75hXXaiq4A';
 const SHEETS_API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
 
 // NEW: Your Google Apps Script Web App URL
-const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwMh-OQmxPiy1_Jr7X3Ut_zLQg-atk6OkQZsbcw6il4X-9IRAULQZrXjjLh2r_McdibHA/exec'; // REPLACE THIS WITH THE URL YOU COPIED FROM APPS SCRIPT DEPLOYMENT
+const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxIB3RTkDQ7fkm_1tgroqJAJ5IhrkdbKOMh42uiWlwqjqqShg1flI-7jK7qiW2YhUeWcQ/exec'; // REPLACE THIS WITH THE URL YOU COPIED FROM APPS SCRIPT DEPLOYMENT
 
 // Load settings from Google Sheets
 async function loadSettings() {
