@@ -12,7 +12,7 @@
 <body>
     <div class="auth-container">
         <div class="auth-box">
-            <a href="index.html" class="logo">
+            <a href="#" class="logo">
                 <img src="logo.png" alt="NetZero Logo">
                 <span>AI Letter Generator</span>
             </a>
@@ -28,37 +28,8 @@
                 </div>
                 <button type="submit" class="auth-button">دخول</button>
             </form>
-            <div class="google-login">
-                <p>أو</p>
-                <button id="googleSignInButton">
-                    <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google">
-                    تسجيل الدخول باستخدام جوجل
-                </button>
-            </div>
-            <p class="auth-switch">ليس لديك حساب؟ <a href="signup.html">إنشاء حساب جديد</a></p>
         </div>
     </div>
     <script src="auth.js"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-<script>
-  function handleCredentialResponse(response) {
-    // This function is called when a user successfully signs in with Google.
-    // The 'response.credential' is a JSON Web Token (JWT) with the user's info.
-    console.log("Encoded JWT ID token: " + response.credential);
-    // You would then send this token to your backend server for verification.
-  }
-
-  window.onload = function () {
-    google.accounts.id.initialize({
-      client_id: "671992619897-iqr0sbkqkchmf40bejbvlj0dr6f717oh.apps.googleusercontent.com.apps.googleusercontent.com", // <-- Replace with your actual Client ID
-      callback: handleCredentialResponse
-    });
-
-    google.accounts.id.renderButton(
-      document.getElementById("googleSignInButton"),
-      { theme: "outline", size: "large" } // Customize the button
-    );
-  };
-</script>
 </body>
 </html>
