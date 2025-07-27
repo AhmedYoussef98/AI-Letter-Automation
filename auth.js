@@ -1,4 +1,4 @@
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzMM8jXUBlTzL6E1116DgLzeLAOR0zyX8TiXY64wWIeWb_IJ12cylqhhdHXYopDVaHRjQ/exec'; // <-- IMPORTANT: Use your new deployment URL
+const PROXY_URL = '/api/apps-script-proxy'; // Use the Vercel proxy
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -18,20 +18,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const password = document.getElementById('password').value;
             const passwordHash = await hashPassword(password);
 
-            // CHANGED: We are now using URLSearchParams instead of FormData
-            const body = new URLSearchParams();
-            body.append('action', 'login');
-            body.append('email', email);
-            body.append('passwordHash', passwordHash);
+            // Create the request data
+            const requestData = {
+                action: 'login',
+                email: email,
+                passwordHash: passwordHash
+            };
 
             try {
-                // CHANGED: We are adding a 'Content-Type' header
-                const response = await fetch(APPS_SCRIPT_URL, {
+                // Use the Vercel proxy instead of direct Apps Script call
+                const response = await fetch(PROXY_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'application/json',
                     },
-                    body: body,
+                    body: JSON.stringify(requestData),
                 });
 
                 const result = await response.json();
