@@ -5,11 +5,7 @@
     min-height: 100vh;
     background-color: var(--background-light);
 }
-
-body.dark-mode .auth-container {
-    background-color: var(--background-dark);
-}
-
+body.dark-mode .auth-container { background-color: var(--background-dark); }
 .auth-box {
     background-color: var(--card-light);
     padding: 2.5rem;
@@ -19,26 +15,9 @@ body.dark-mode .auth-container {
     max-width: 400px;
     text-align: center;
 }
-
-body.dark-mode .auth-box {
-    background-color: var(--card-dark);
-}
-
-.auth-box .logo {
-    margin-bottom: 1.5rem;
-    text-decoration: none;
-    color: var(--primary-color);
-}
-
-.auth-box h2 {
-    margin-bottom: 2rem;
-    color: var(--text-light);
-}
-
-body.dark-mode .auth-box h2 {
-    color: var(--text-dark);
-}
-
+body.dark-mode .auth-box { background-color: var(--card-dark); }
+.auth-box .logo { margin-bottom: 1.5rem; text-decoration: none; color: var(--primary-color); }
+.auth-box h2 { margin-bottom: 2rem; }
 .auth-button {
     background-color: var(--primary-color);
     color: white;
@@ -51,40 +30,4 @@ body.dark-mode .auth-box h2 {
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
-
-.auth-button:hover {
-    background-color: #008840;
-}
-
-.google-login {
-    margin: 1.5rem 0;
-}
-
-.google-login p {
-    margin-bottom: 1rem;
-    color: #888;
-}
-
-#googleSignInButton {
-    background: #fff;
-    color: #444;
-    border: 1px solid #ddd;
-    padding: 0.8rem;
-    width: 100%;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    cursor: pointer;
-    font-family: 'Cairo', sans-serif;
-}
-
-#googleSignInButton img {
-    width: 20px;
-    height: 20px;
-}
-
-.auth-switch {
-    margin-top: 2rem;
-}
+.auth-button:hover { background-color: #008840; }
