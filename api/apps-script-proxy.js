@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     
     try {
         // Your Google Apps Script URL
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwce9niKt6t2VEb5rLMDaXa4DwJaYjwZufY9WAbjTmSOlGKA2wCw_vmNgzu5EQtmdZQcQ/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzQwsA-bbredm341MaRZBpTYRZsqfnC7jZs6DeoDb30CafmlOnLP9wfKOTZ8WbQnGQ6/exec';
         
         // Parse the request body
         let requestData;
