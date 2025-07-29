@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="auth.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <div class="auth-container">
@@ -17,6 +19,29 @@
                 <span>AI Letter Generator</span>
             </a>
             <h2>إنشاء حساب جديد</h2>
+            
+            <!-- Google Sign-In Button -->
+            <div class="google-signin-container">
+                <div id="g_id_onload"
+                     data-client_id="YOUR_GOOGLE_CLIENT_ID"
+                     data-callback="handleGoogleSignUp"
+                     data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-size="large"
+                     data-theme="outline"
+                     data-text="signup_with"
+                     data-shape="rectangular"
+                     data-logo_alignment="left"
+                     data-width="100%">
+                </div>
+            </div>
+            
+            <div class="divider">
+                <span>أو</span>
+            </div>
+            
             <form id="signupForm">
                 <div class="form-group">
                     <label for="name">الاسم الكامل</label>
