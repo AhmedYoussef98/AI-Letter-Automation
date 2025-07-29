@@ -31,3 +31,64 @@ body.dark-mode .auth-box { background-color: var(--card-dark); }
     transition: background-color 0.3s ease;
 }
 .auth-button:hover { background-color: #008840; }
+
+/* Google Sign-In Styles */
+.google-signin-container {
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.google-signin-container .g_id_signin {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+}
+
+.google-signin-container .g_id_signin > div {
+    width: 100% !important;
+}
+
+/* Divider Styles */
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+}
+
+.divider span {
+    padding: 0 15px;
+    background: white;
+    color: #666;
+}
+
+/* Dark mode support for divider */
+body.dark-mode .divider span {
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+body.dark-mode .divider::before,
+body.dark-mode .divider::after {
+    background: #444;
+}
+
+/* Responsive adjustments for Google button */
+@media (max-width: 480px) {
+    .google-signin-container {
+        margin-bottom: 15px;
+    }
+    
+    .divider {
+        margin: 15px 0;
+    }
+}
