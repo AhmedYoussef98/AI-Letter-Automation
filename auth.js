@@ -14,11 +14,26 @@ function convertDriveUrlToDirectUrl(driveUrl) {
         return '';
     }
     
-    // Extract file ID from Google Drive URL
-    const match = driveUrl.match(/\/file\/d\/([a-zA-Z0-9-_]+)/);
-    if (match && match[1]) {
-        const fileId = match[1];
-        return `https://drive.google.com/uc?id=${fileId}`;
+    // Extract file ID from various Google Drive URL formats
+    const patterns = [
+        /\/file\/d\/([a-zA-Z0-9-_]+)/,
+        /open\?id=([a-zA-Z0-9-_]+)/,
+        /id=([a-zA-Z0-9-_]+)/
+    ];
+    
+    let fileId = null;
+    for (const pattern of patterns) {
+        const match = driveUrl.match(pattern);
+        if (match && match[1]) {
+            fileId = match[1];
+            break;
+        }
+    }
+    
+    if (fileId) {
+        // Try multiple Google Drive direct access formats
+        // First try the thumbnail API which is more reliable for profile images
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w200-h200`;
     }
     
     // If it's already a direct URL or different format, return as is
