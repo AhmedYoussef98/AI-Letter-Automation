@@ -311,6 +311,7 @@ async function updateReviewStatus(status) {
     const reviewerName = document.getElementById('reviewerName').value;
     const notes = document.getElementById('reviewNotes').value;
     const letterId = document.getElementById('letterSelect').value;
+    const letterContent = document.getElementById('letterContentReview').value; // NEW: Get the letter content
     
     if (!reviewerName) {
         alert('الرجاء إدخال اسم المراجع');
@@ -318,8 +319,8 @@ async function updateReviewStatus(status) {
     }
     
     try {
-        // Update the status in Google Sheets
-        await updateReviewStatusInSheet(letterId, status, reviewerName, notes);
+        // Update the status in Google Sheets (now includes letter content)
+        await updateReviewStatusInSheet(letterId, status, reviewerName, notes, letterContent);
         alert(`تم تحديث حالة المراجعة إلى: ${status}`);
         
         // Redirect to letter history
