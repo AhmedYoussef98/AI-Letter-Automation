@@ -79,6 +79,7 @@ function processReceivedData(received) {
         content: row[1] || ''
     }));
 }
+
 async function loadSubmissionsData() {
     try {
         const range = 'Submissions!A:N'; // Updated range to include columns M and N
@@ -118,7 +119,8 @@ function processSubmissions(submissions) {
 }
 
 // Update review status in Google Sheets using Apps Script
-async function updateReviewStatusInSheet(letterId, status, reviewerName, notes) {
+// UPDATED: Now includes letterContent parameter
+async function updateReviewStatusInSheet(letterId, status, reviewerName, notes, letterContent) {
     try {
         const response = await fetch(APPS_SCRIPT_WEB_APP_URL, {
             method: 'POST',
@@ -131,7 +133,8 @@ async function updateReviewStatusInSheet(letterId, status, reviewerName, notes) 
                 letterId: letterId,
                 status: status,
                 reviewerName: reviewerName,
-                notes: notes
+                notes: notes,
+                letterContent: letterContent // NEW: Include the letter content
             })
         });
 
