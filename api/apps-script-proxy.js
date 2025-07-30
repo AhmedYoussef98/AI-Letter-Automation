@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyuq1A0-PYojbyjPGfZK_8wqNJRw2iDoBrGGTUaz3xYX94qnEFG8S7Ew2Jdx83VJtjw/exec'; // Replace with your actual URL
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmPT3G-5HtaLeh4B-GwbOKrASEIRnkrUXYu1zvp0o_-mTWXq2W8kPUIXFsC_mTQWAe/exec'; // Replace with your actual URL
     
     console.log('Proxying request to Apps Script:', APPS_SCRIPT_URL);
     console.log('Request data:', new URLSearchParams(req.body).toString());
