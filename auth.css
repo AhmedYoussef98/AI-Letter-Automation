@@ -44,9 +44,7 @@ body.dark-mode .auth-box { background-color: var(--card-dark); }
     justify-content: center !important;
 }
 
-.google-signin-container .g_id_signin > div {
-    width: 100% !important;
-}
+    /* width: 100% !important; */
 
 /* Divider Styles */
 .divider {
@@ -59,7 +57,7 @@ body.dark-mode .auth-box { background-color: var(--card-dark); }
 
 .divider::before,
 .divider::after {
-    content: '';
+    content: "";
     flex: 1;
     height: 1px;
     background: #ddd;
