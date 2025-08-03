@@ -121,7 +121,7 @@ async function archiveLetter(formData) {
 
     } catch (error) {
         console.error('Error archiving letter:', error);
-        alert('حدث خطأ أثناء حفظ الخطاب. الرجاء المحاولة مرة أخرى.');
+        alert('حدث خطأ أثناء حفء المحاولة مرة أخرى.');
         return null;
     }
 }
@@ -192,61 +192,16 @@ if (document.getElementById('saveButton')) {
         // Use the ID from the generated letter data
         if (window.generatedLetterData && window.generatedLetterData.ID) {
             formData.append('ID', window.generatedLetterData.ID);
-        } else {
+         } else {
             // Fallback if ID is not available from generated data
-            formData.append('ID', generateUniqueId()); 
+            formData.append("ID", generateUniqueId()); 
         }
-        
+
+        // Add username to the payload
+        const loggedInUser = JSON.parse(sessionStorage.getItem("loggedInUser"));
+        if (loggedInUser && loggedInUser.username) {
+            formData.append("username", loggedInUser.username);
+        }
         const result = await archiveLetter(formData);
         
         if (result) {
-            alert('تم حفظ الخطاب بنجاح!');
-            // Navigate to letter history page with the letter ID to highlight it
-            const letterId = window.generatedLetterData && window.generatedLetterData.ID ? 
-                window.generatedLetterData.ID : 
-                generateUniqueId();
-            window.location.href = `letter-history.html?highlight=${letterId}`;
-        }
-    });
-}
-
-// Generate unique ID for letters
-function generateUniqueId() {
-    return 'L' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-}
-
-async function generatePDF(content, template) {
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Base64 encoded Amiri-Regular.ttf font data
-        // YOU NEED TO REPLACE THIS WITH THE ACTUAL BASE64 STRING OF YOUR FONT
-        const AMIRI_FONT_BASE64 = ""; 
-
-        // Add the font to jsPDF
-        doc.addFileToVFS("Amiri-Regular.ttf", AMIRI_FONT_BASE64);
-        doc.addFont("Amiri-Regular.ttf", "Amiri", "normal");
-
-        // Set the font for the document
-        doc.setFont("Amiri");
-        doc.setFontSize(12);
-
-        // Split content into lines to fit page width
-        const lines = doc.splitTextToSize(content, 180);
-
-        // Add content to PDF
-        doc.text(lines, 15, 20);
-
-        // Convert to blob
-        const pdfBlob = doc.output("blob");
-        return pdfBlob;
-        
-    } catch (error) {
-        console.error("Error generating PDF:", error);
-        // Fallback: create a simple text file as blob
-        const textBlob = new Blob([content], { type: "text/plain" });
-        return textBlob;
-    }
-}
-
