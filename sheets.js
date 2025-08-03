@@ -82,7 +82,7 @@ function processReceivedData(received) {
 
 async function loadSubmissionsData() {
     try {
-        const range = 'Submissions!A:N'; // Updated range to include columns M and N
+        const range = 'Submissions!A:O'; // Updated range to include column O
         const url = `${SHEETS_API_BASE}/${SPREADSHEET_ID}/values/${range}?key=${API_KEY}`;
         
         const response = await fetch(url);
@@ -110,11 +110,12 @@ function processSubmissions(submissions) {
         recipient: row[4] || '',
         subject: row[5] || '',
         content: row[6] || '', // Column G
-        letterLink: row[8] || '', // Column I - Add this line!
+        letterLink: row[8] || '', // Column I
         reviewStatus: row[9] || 'في الانتظار',
         sendStatus: row[10] || 'في الانتظار',
         reviewerName: row[12] || '', // Column M
-        reviewNotes: row[13] || '' // Column N
+        reviewNotes: row[13] || '', // Column N
+        writer: row[14] || '' // Column O - NEW: Writer column
     }));
 }
 
