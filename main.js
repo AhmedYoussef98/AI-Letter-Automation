@@ -71,6 +71,7 @@ function renderLettersTable(letters) {
             <td>${letter.subject}</td>
             <td>${letter.reviewerName || "-"}</td>
             <td>${letter.reviewNotes || "-"}</td>
+            <td>${letter.writer || "-"}</td>
             <td>
                 <div class="action-buttons">
                     <button class="action-icon" onclick="reviewLetter(\'${letter.id}\')" title="مراجعة">
@@ -141,7 +142,8 @@ function setupFilters(letters) {
         
         const filtered = letters.filter(letter => {
             const matchesSearch = letter.recipient.toLowerCase().includes(searchTerm) || 
-                                letter.id.toLowerCase().includes(searchTerm);
+                                letter.id.toLowerCase().includes(searchTerm) ||
+                                (letter.writer && letter.writer.toLowerCase().includes(searchTerm)); // Add writer to search
             const matchesType = !selectedType || translateLetterType(letter.type) === selectedType;
             const matchesReview = !selectedReview || letter.reviewStatus === selectedReview;
             
