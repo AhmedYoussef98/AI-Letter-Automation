@@ -484,14 +484,16 @@ body.dark-mode .filter-group select {
     color: var(--text-dark);
 }
 
+/* Updated Table Styles for Better Responsiveness - Replace existing table styles in styles.css */
+
 .letters-table-container {
     background-color: var(--card-light);
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    overflow-x: auto;
     width: 100%;
     max-width: 100%;
+    /* Remove overflow-x: auto to prevent horizontal scrolling */
 }
 
 body.dark-mode .letters-table-container {
@@ -501,115 +503,72 @@ body.dark-mode .letters-table-container {
 .letters-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1400px; /* Increased minimum width */
-    table-layout: fixed; /* Force fixed layout */
+    table-layout: fixed; /* Force fixed layout for better control */
+    /* Remove min-width to allow table to fit container */
 }
 
-/* Specific column widths to ensure proper distribution */
+/* Optimized column widths for better fit */
 .letters-table th:nth-child(1), /* الرقم المرجعي */
 .letters-table td:nth-child(1) {
-    width: 180px;
-    min-width: 180px;
+    width: 12%;
+    min-width: 100px;
 }
 
 .letters-table th:nth-child(2), /* التاريخ */
 .letters-table td:nth-child(2) {
-    width: 140px;
-    min-width: 140px;
+    width: 10%;
+    min-width: 90px;
 }
 
 .letters-table th:nth-child(3), /* نوع الخطاب */
 .letters-table td:nth-child(3) {
-    width: 120px;
-    min-width: 120px;
+    width: 8%;
+    min-width: 80px;
 }
 
 .letters-table th:nth-child(4), /* المراجعة */
 .letters-table td:nth-child(4) {
-    width: 130px;
-    min-width: 130px;
+    width: 10%;
+    min-width: 90px;
 }
 
 .letters-table th:nth-child(5), /* الإرسال */
 .letters-table td:nth-child(5) {
-    width: 130px;
-    min-width: 130px;
+    width: 10%;
+    min-width: 90px;
 }
 
 .letters-table th:nth-child(6), /* المستلم */
 .letters-table td:nth-child(6) {
-    width: 150px;
-    min-width: 150px;
+    width: 12%;
+    min-width: 100px;
 }
 
 .letters-table th:nth-child(7), /* الموضوع */
 .letters-table td:nth-child(7) {
-    width: 250px;
-    min-width: 250px;
+    width: 15%;
+    min-width: 120px;
 }
 
 .letters-table th:nth-child(8), /* اسم المراجع */
 .letters-table td:nth-child(8) {
-    width: 140px;
-    min-width: 140px;
+    width: 10%;
+    min-width: 90px;
 }
 
 .letters-table th:nth-child(9), /* الملاحظات */
 .letters-table td:nth-child(9) {
-    width: 150px;
-    min-width: 150px;
+    width: 13%;
+    min-width: 100px;
 }
 
 .letters-table th:nth-child(10), /* الإجراءات */
 .letters-table td:nth-child(10) {
-    width: 200px;
-    min-width: 200px;
-    max-width: 200px;
+    width: 10%;
+    min-width: 120px;
 }
 
-/* Ensure text doesn't overflow in cells */
-.letters-table td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    padding: 1rem 0.5rem; /* Reduced horizontal padding */
-}
-
-/* Allow text wrapping for subject and notes columns */
-.letters-table td:nth-child(7),
-.letters-table td:nth-child(9) {
-    white-space: normal;
-    word-wrap: break-word;
-    line-height: 1.4;
-}
-
-/* Action buttons container - ensure it never shrinks */
-.action-buttons {
-    display: flex;
-    gap: 0.3rem;
-    justify-content: center;
-    flex-wrap: nowrap;
-    min-width: 180px;
-    width: 100%;
-}
-
-.action-icon {
-    background: none;
-    border: none;
-    color: var(--primary-color);
-    font-size: 1.1rem;
-    cursor: pointer;
-    padding: 0.4rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    min-width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0; /* Prevent shrinking */
-}
-
+/* Table cell styling */
 .letters-table thead {
     background-color: var(--primary-color);
     color: white;
@@ -617,13 +576,32 @@ body.dark-mode .letters-table-container {
 
 .letters-table th,
 .letters-table td {
-    padding: 1rem 0.5rem;
+    padding: 0.75rem 0.4rem; /* Reduced padding for better fit */
     text-align: right;
     border-bottom: 1px solid var(--border-light);
+    font-size: 0.9rem; /* Slightly smaller font for better fit */
 }
 
 body.dark-mode .letters-table td {
     border-bottom-color: var(--border-dark);
+}
+
+/* Text handling in cells */
+.letters-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* Allow text wrapping for subject and notes columns */
+.letters-table td:nth-child(7), /* الموضوع */
+.letters-table td:nth-child(9) { /* الملاحظات */
+    white-space: normal;
+    word-wrap: break-word;
+    line-height: 1.3;
+    max-height: 3.6em; /* Limit height to about 3 lines */
+    overflow: hidden;
 }
 
 .letters-table tbody tr:hover {
@@ -634,12 +612,14 @@ body.dark-mode .letters-table tbody tr:hover {
     background-color: rgba(0, 166, 81, 0.1);
 }
 
+/* Status badges */
 .status-badge {
-    padding: 0.3rem 0.8rem;
+    padding: 0.2rem 0.6rem;
     border-radius: 20px;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     font-weight: 600;
     display: inline-block;
+    white-space: nowrap;
 }
 
 .status-ready {
@@ -662,8 +642,35 @@ body.dark-mode .letters-table tbody tr:hover {
     color: var(--danger);
 }
 
+/* Action buttons styling */
+.action-buttons {
+    display: flex;
+    gap: 0.25rem;
+    justify-content: center;
+    flex-wrap: nowrap;
+    align-items: center;
+}
+
+.action-icon {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.3rem;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
 .action-icon:hover {
     background-color: rgba(0, 166, 81, 0.1);
+    transform: scale(1.1);
 }
 
 .action-icon.delete {
@@ -674,6 +681,7 @@ body.dark-mode .letters-table tbody tr:hover {
     background-color: rgba(220, 53, 69, 0.1);
 }
 
+/* No data styling */
 .no-data {
     text-align: center;
     padding: 4rem;
@@ -694,6 +702,120 @@ body.dark-mode .no-data i {
     color: var(--border-dark);
 }
 
+/* Highlighted letter row styling */
+.highlighted-letter {
+    background-color: rgba(0, 166, 81, 0.1) !important;
+    border: 2px solid var(--primary-color);
+    animation: highlight-pulse 2s ease-in-out;
+}
+
+body.dark-mode .highlighted-letter {
+    background-color: rgba(0, 166, 81, 0.2) !important;
+}
+
+@keyframes highlight-pulse {
+    0% {
+        box-shadow: 0 0 5px rgba(0, 166, 81, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(0, 166, 81, 0.8);
+    }
+    100% {
+        box-shadow: 0 0 10px rgba(0, 166, 81, 0.3);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    .letters-table th,
+    .letters-table td {
+        padding: 0.6rem 0.3rem;
+        font-size: 0.85rem;
+    }
+    
+    .letters-table th:nth-child(7), /* الموضوع */
+    .letters-table td:nth-child(7) {
+        width: 14%;
+    }
+    
+    .letters-table th:nth-child(9), /* الملاحظات */
+    .letters-table td:nth-child(9) {
+        width: 12%;
+    }
+}
+
+@media (max-width: 1200px) {
+    .letters-table th,
+    .letters-table td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    .action-icon {
+        font-size: 0.9rem;
+        min-width: 24px;
+        height: 24px;
+        padding: 0.2rem;
+    }
+    
+    .status-badge {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.4rem;
+    }
+}
+
+@media (max-width: 1000px) {
+    /* For smaller screens, we can hide less important columns */
+    .letters-table th:nth-child(9), /* الملاحظات */
+    .letters-table td:nth-child(9) {
+        display: none;
+    }
+    
+    .letters-table th:nth-child(8), /* اسم المراجع */
+    .letters-table td:nth-child(8) {
+        display: none;
+    }
+    
+    /* Redistribute space for remaining columns */
+    .letters-table th:nth-child(7), /* الموضوع */
+    .letters-table td:nth-child(7) {
+        width: 20%;
+    }
+    
+    .letters-table th:nth-child(10), /* الإجراءات */
+    .letters-table td:nth-child(10) {
+        width: 15%;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Hide more columns on mobile */
+    .letters-table th:nth-child(3), /* نوع الخطاب */
+    .letters-table td:nth-child(3) {
+        display: none;
+    }
+    
+    .letters-table th:nth-child(5), /* الإرسال */
+    .letters-table td:nth-child(5) {
+        display: none;
+    }
+    
+    /* Adjust remaining columns */
+    .letters-table th:nth-child(1), /* الرقم المرجعي */
+    .letters-table td:nth-child(1) {
+        width: 20%;
+    }
+    
+    .letters-table th:nth-child(6), /* المستلم */
+    .letters-table td:nth-child(6) {
+        width: 25%;
+    }
+    
+    .letters-table th:nth-child(7), /* الموضوع */
+    .letters-table td:nth-child(7) {
+        width: 30%;
+    }
+}
 /* Review Form Styles */
 .letter-selection {
     background-color: var(--card-light);
@@ -828,308 +950,12 @@ body.dark-mode .review-form {
         width: 100%;
     }
 
-    .letters-table {
-        font-size: 0.9rem;
-    }
-
     .action-buttons {
         flex-direction: column;
     }
 
     .review-actions {
         flex-direction: column;
-    }
-}
-
-/* Highlighted Letter Styles */
-.highlighted-letter {
-    background-color: var(--primary-light) !important;
-    border: 2px solid var(--primary) !important;
-    box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
-    animation: highlight-pulse 2s ease-in-out;
-}
-
-.dark-mode .highlighted-letter {
-    background-color: rgba(52, 152, 219, 0.2) !important;
-    border-color: var(--primary) !important;
-}
-
-@keyframes highlight-pulse {
-    0% {
-        box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
-    }
-    50% {
-        box-shadow: 0 0 20px rgba(52, 152, 219, 0.8);
-    }
-    100% {
-        box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
-    }
-}
-
-
-
-/* Fix for table width and action buttons visibility */
-.letters-table-container {
-    overflow-x: auto;
-    width: 100%;
-}
-
-.letters-table {
-    min-width: 1200px; /* Ensure minimum width for all columns */
-    table-layout: fixed; /* Use fixed layout for better control */
-}
-
-/* Set specific column widths */
-.letters-table th:nth-child(1), /* الرقم المرجعي */
-.letters-table td:nth-child(1) {
-    width: 150px;
-}
-
-.letters-table th:nth-child(2), /* التاريخ */
-.letters-table td:nth-child(2) {
-    width: 120px;
-}
-
-.letters-table th:nth-child(3), /* نوع الخطاب */
-.letters-table td:nth-child(3) {
-    width: 100px;
-}
-
-.letters-table th:nth-child(4), /* المراجعة */
-.letters-table td:nth-child(4) {
-    width: 120px;
-}
-
-.letters-table th:nth-child(5), /* الإرسال */
-.letters-table td:nth-child(5) {
-    width: 120px;
-}
-
-.letters-table th:nth-child(6), /* المستلم */
-.letters-table td:nth-child(6) {
-    width: 150px;
-}
-
-.letters-table th:nth-child(7), /* الموضوع */
-.letters-table td:nth-child(7) {
-    width: 200px;
-    word-wrap: break-word;
-}
-
-.letters-table th:nth-child(8), /* اسم المراجع */
-.letters-table td:nth-child(8) {
-    width: 120px;
-}
-
-.letters-table th:nth-child(9), /* الملاحظات */
-.letters-table td:nth-child(9) {
-    width: 150px;
-    word-wrap: break-word;
-}
-
-.letters-table th:nth-child(10), /* الإجراءات */
-.letters-table td:nth-child(10) {
-    width: 160px;
-    min-width: 160px;
-}
-
-/* Ensure action buttons container doesn't shrink */
-.action-buttons {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    flex-wrap: nowrap;
-    min-width: 140px;
-}
-
-.action-icon {
-    background: none;
-    border: none;
-    color: var(--primary-color);
-    font-size: 1.1rem;
-    cursor: pointer;
-    padding: 0.4rem;
-    border-radius: 4px;
-    transition: all 0.3s ease;
-    min-width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Responsive adjustments for smaller screens */
-@media (max-width: 1400px) {
-    .letters-table {
-        min-width: 1000px;
-    }
-    
-    .letters-table th:nth-child(7), /* الموضوع */
-    .letters-table td:nth-child(7) {
-        width: 150px;
-    }
-    
-    .letters-table th:nth-child(9), /* الملاحظات */
-    .letters-table td:nth-child(9) {
-        width: 100px;
-    }
-}
-
-@media (max-width: 1200px) {
-    .letters-table {
-        min-width: 900px;
-    }
-    
-    .letters-table th:nth-child(1), /* الرقم المرجعي */
-    .letters-table td:nth-child(1) {
-        width: 120px;
-    }
-    
-    .letters-table th:nth-child(6), /* المستلم */
-    .letters-table td:nth-child(6) {
-        width: 120px;
-    }
-    
-    .letters-table th:nth-child(7), /* الموضوع */
-    .letters-table td:nth-child(7) {
-        width: 120px;
-    }
-}
-
-/* Ensure text doesn't overflow in cells */
-.letters-table td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* Allow text wrapping for subject and notes columns */
-.letters-table td:nth-child(7),
-.letters-table td:nth-child(9) {
-    white-space: normal;
-    word-wrap: break-word;
-    line-height: 1.4;
-}
-
-/* Highlighted letter row styling */
-.highlighted-letter {
-    background-color: rgba(0, 166, 81, 0.1) !important;
-    border: 2px solid var(--primary-color);
-}
-
-body.dark-mode .highlighted-letter {
-    background-color: rgba(0, 166, 81, 0.2) !important;
-}
-
-
-/* Responsive adjustments for table */
-@media (max-width: 1600px) {
-    .letters-table {
-        min-width: 1200px;
-    }
-    
-    .letters-table th:nth-child(7), /* الموضوع */
-    .letters-table td:nth-child(7) {
-        width: 200px;
-        min-width: 200px;
-    }
-}
-
-@media (max-width: 1400px) {
-    .letters-table {
-        min-width: 1000px;
-    }
-    
-    .letters-table th:nth-child(1), /* الرقم المرجعي */
-    .letters-table td:nth-child(1) {
-        width: 150px;
-        min-width: 150px;
-    }
-    
-    .letters-table th:nth-child(7), /* الموضوع */
-    .letters-table td:nth-child(7) {
-        width: 150px;
-        min-width: 150px;
-    }
-    
-    .letters-table th:nth-child(9), /* الملاحظات */
-    .letters-table td:nth-child(9) {
-        width: 120px;
-        min-width: 120px;
-    }
-}
-
-@media (max-width: 1200px) {
-    .letters-table {
-        min-width: 900px;
-    }
-    
-    .letters-table th:nth-child(6), /* المستلم */
-    .letters-table td:nth-child(6) {
-        width: 120px;
-        min-width: 120px;
-    }
-    
-    .letters-table th:nth-child(7), /* الموضوع */
-    .letters-table td:nth-child(7) {
-        width: 120px;
-        min-width: 120px;
-    }
-    
-    .letters-table th:nth-child(8), /* اسم المراجع */
-    .letters-table td:nth-child(8) {
-        width: 100px;
-        min-width: 100px;
-    }
-    
-    .letters-table th:nth-child(9), /* الملاحظات */
-    .letters-table td:nth-child(9) {
-        width: 100px;
-        min-width: 100px;
-    }
-    
-    /* Ensure action buttons remain visible even on smaller screens */
-    .letters-table th:nth-child(10), /* الإجراءات */
-    .letters-table td:nth-child(10) {
-        width: 180px;
-        min-width: 180px;
-        max-width: 180px;
-    }
-    
-    .action-buttons {
-        min-width: 160px;
-    }
-}
-
-/* Highlighted letter row styling */
-.highlighted-letter {
-    background-color: rgba(0, 166, 81, 0.1) !important;
-    border: 2px solid var(--primary-color);
-}
-
-body.dark-mode .highlighted-letter {
-    background-color: rgba(0, 166, 81, 0.2) !important;
-}
-
-
-/* Download button states */
-.action-icon:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.download-success {
-    animation: slideInRight 0.3s ease-out;
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
     }
 }
 
