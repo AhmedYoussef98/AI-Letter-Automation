@@ -484,7 +484,7 @@ body.dark-mode .filter-group select {
     color: var(--text-dark);
 }
 
-/* Updated Table Styles for Better Responsiveness - Replace existing table styles in styles.css */
+/* Updated Table Styles with Writer Column - Replace table styles in styles.css */
 
 .letters-table-container {
     background-color: var(--card-light);
@@ -493,7 +493,6 @@ body.dark-mode .filter-group select {
     overflow: hidden;
     width: 100%;
     max-width: 100%;
-    /* Remove overflow-x: auto to prevent horizontal scrolling */
 }
 
 body.dark-mode .letters-table-container {
@@ -503,69 +502,74 @@ body.dark-mode .letters-table-container {
 .letters-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Force fixed layout for better control */
-    /* Remove min-width to allow table to fit container */
+    table-layout: fixed;
 }
 
-/* Optimized column widths for better fit */
+/* Optimized column widths for 11 columns including Writer */
 .letters-table th:nth-child(1), /* الرقم المرجعي */
 .letters-table td:nth-child(1) {
-    width: 12%;
-    min-width: 100px;
+    width: 10%;
+    min-width: 90px;
 }
 
 .letters-table th:nth-child(2), /* التاريخ */
 .letters-table td:nth-child(2) {
-    width: 10%;
-    min-width: 90px;
+    width: 9%;
+    min-width: 80px;
 }
 
 .letters-table th:nth-child(3), /* نوع الخطاب */
 .letters-table td:nth-child(3) {
-    width: 8%;
-    min-width: 80px;
+    width: 7%;
+    min-width: 70px;
 }
 
 .letters-table th:nth-child(4), /* المراجعة */
 .letters-table td:nth-child(4) {
-    width: 10%;
-    min-width: 90px;
+    width: 9%;
+    min-width: 80px;
 }
 
 .letters-table th:nth-child(5), /* الإرسال */
 .letters-table td:nth-child(5) {
-    width: 10%;
-    min-width: 90px;
+    width: 9%;
+    min-width: 80px;
 }
 
 .letters-table th:nth-child(6), /* المستلم */
 .letters-table td:nth-child(6) {
-    width: 12%;
-    min-width: 100px;
+    width: 11%;
+    min-width: 90px;
 }
 
 .letters-table th:nth-child(7), /* الموضوع */
 .letters-table td:nth-child(7) {
-    width: 15%;
-    min-width: 120px;
-}
-
-.letters-table th:nth-child(8), /* اسم المراجع */
-.letters-table td:nth-child(8) {
-    width: 10%;
-    min-width: 90px;
-}
-
-.letters-table th:nth-child(9), /* الملاحظات */
-.letters-table td:nth-child(9) {
     width: 13%;
     min-width: 100px;
 }
 
-.letters-table th:nth-child(10), /* الإجراءات */
+.letters-table th:nth-child(8), /* اسم المراجع */
+.letters-table td:nth-child(8) {
+    width: 9%;
+    min-width: 80px;
+}
+
+.letters-table th:nth-child(9), /* الملاحظات */
+.letters-table td:nth-child(9) {
+    width: 11%;
+    min-width: 90px;
+}
+
+.letters-table th:nth-child(10), /* الكاتب */
 .letters-table td:nth-child(10) {
-    width: 10%;
-    min-width: 120px;
+    width: 9%;
+    min-width: 80px;
+}
+
+.letters-table th:nth-child(11), /* الإجراءات */
+.letters-table td:nth-child(11) {
+    width: 9%;
+    min-width: 100px;
 }
 
 /* Table cell styling */
@@ -576,10 +580,10 @@ body.dark-mode .letters-table-container {
 
 .letters-table th,
 .letters-table td {
-    padding: 0.75rem 0.4rem; /* Reduced padding for better fit */
+    padding: 0.6rem 0.3rem;
     text-align: right;
     border-bottom: 1px solid var(--border-light);
-    font-size: 0.9rem; /* Slightly smaller font for better fit */
+    font-size: 0.85rem;
 }
 
 body.dark-mode .letters-table td {
@@ -600,7 +604,7 @@ body.dark-mode .letters-table td {
     white-space: normal;
     word-wrap: break-word;
     line-height: 1.3;
-    max-height: 3.6em; /* Limit height to about 3 lines */
+    max-height: 3.6em;
     overflow: hidden;
 }
 
@@ -614,9 +618,9 @@ body.dark-mode .letters-table tbody tr:hover {
 
 /* Status badges */
 .status-badge {
-    padding: 0.2rem 0.6rem;
+    padding: 0.2rem 0.5rem;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     display: inline-block;
     white-space: nowrap;
@@ -645,7 +649,7 @@ body.dark-mode .letters-table tbody tr:hover {
 /* Action buttons styling */
 .action-buttons {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.2rem;
     justify-content: center;
     flex-wrap: nowrap;
     align-items: center;
@@ -655,13 +659,13 @@ body.dark-mode .letters-table tbody tr:hover {
     background: none;
     border: none;
     color: var(--primary-color);
-    font-size: 1rem;
+    font-size: 0.9rem;
     cursor: pointer;
-    padding: 0.3rem;
+    padding: 0.25rem;
     border-radius: 4px;
     transition: all 0.3s ease;
-    min-width: 28px;
-    height: 28px;
+    min-width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -729,43 +733,43 @@ body.dark-mode .highlighted-letter {
 @media (max-width: 1400px) {
     .letters-table th,
     .letters-table td {
-        padding: 0.6rem 0.3rem;
-        font-size: 0.85rem;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
     }
     
     .letters-table th:nth-child(7), /* الموضوع */
     .letters-table td:nth-child(7) {
-        width: 14%;
+        width: 12%;
     }
     
     .letters-table th:nth-child(9), /* الملاحظات */
     .letters-table td:nth-child(9) {
-        width: 12%;
+        width: 10%;
     }
 }
 
 @media (max-width: 1200px) {
     .letters-table th,
     .letters-table td {
-        padding: 0.5rem 0.25rem;
-        font-size: 0.8rem;
+        padding: 0.4rem 0.2rem;
+        font-size: 0.75rem;
     }
     
     .action-icon {
-        font-size: 0.9rem;
-        min-width: 24px;
-        height: 24px;
-        padding: 0.2rem;
+        font-size: 0.8rem;
+        min-width: 20px;
+        height: 20px;
+        padding: 0.15rem;
     }
     
     .status-badge {
-        font-size: 0.7rem;
-        padding: 0.15rem 0.4rem;
+        font-size: 0.65rem;
+        padding: 0.1rem 0.3rem;
     }
 }
 
 @media (max-width: 1000px) {
-    /* For smaller screens, we can hide less important columns */
+    /* Hide less important columns on smaller screens */
     .letters-table th:nth-child(9), /* الملاحظات */
     .letters-table td:nth-child(9) {
         display: none;
@@ -779,12 +783,17 @@ body.dark-mode .highlighted-letter {
     /* Redistribute space for remaining columns */
     .letters-table th:nth-child(7), /* الموضوع */
     .letters-table td:nth-child(7) {
-        width: 20%;
+        width: 18%;
     }
     
-    .letters-table th:nth-child(10), /* الإجراءات */
+    .letters-table th:nth-child(10), /* الكاتب */
     .letters-table td:nth-child(10) {
-        width: 15%;
+        width: 12%;
+    }
+    
+    .letters-table th:nth-child(11), /* الإجراءات */
+    .letters-table td:nth-child(11) {
+        width: 12%;
     }
 }
 
@@ -797,6 +806,11 @@ body.dark-mode .highlighted-letter {
     
     .letters-table th:nth-child(5), /* الإرسال */
     .letters-table td:nth-child(5) {
+        display: none;
+    }
+    
+    .letters-table th:nth-child(10), /* الكاتب */
+    .letters-table td:nth-child(10) {
         display: none;
     }
     
@@ -814,6 +828,11 @@ body.dark-mode .highlighted-letter {
     .letters-table th:nth-child(7), /* الموضوع */
     .letters-table td:nth-child(7) {
         width: 30%;
+    }
+    
+    .letters-table th:nth-child(11), /* الإجراءات */
+    .letters-table td:nth-child(11) {
+        width: 15%;
     }
 }
 /* Review Form Styles */
