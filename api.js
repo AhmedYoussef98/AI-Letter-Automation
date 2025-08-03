@@ -87,10 +87,22 @@ async function generateLetter(formData) {
 // Archive Letter API
 async function archiveLetter(formData) {
     try {
+        // Get the logged-in user data from sessionStorage
+        const loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
+        const username = loggedInUser ? loggedInUser.username : null;
+
         // Convert FormData to a plain JS object
         const payload = {};
         for (let [key, value] of formData.entries()) {
             payload[key] = value;
+        }
+
+        // Add the username to the payload
+        if (username) {
+            payload.username = username;
+            console.log('Adding username to archive payload:', username);
+        } else {
+            console.warn('No username found in sessionStorage');
         }
 
         const requestBody = {
