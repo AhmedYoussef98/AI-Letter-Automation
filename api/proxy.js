@@ -138,7 +138,7 @@ module.exports = async (req, res) => {
             });
             
         } else {
-            // Handle JSON requests (for generate-letter and archive-letter)
+            // Handle JSON requests (for generate-letter, archive-letter, and edit-letter)
             console.log("Processing JSON request");
             
             let requestData;
@@ -183,6 +183,40 @@ module.exports = async (req, res) => {
                         res.status(500).json({
                             error: "Internal server error",
                             message: "Failed to generate letter. Please try again later."
+                        });
+                    }
+                }
+            } else if (endpoint === "edit-letter") {
+                const targetUrl = `${API_BASE_URL}/edit-letter`;
+                
+                try {
+                    console.log("Attempting edit letter API call to:", targetUrl);
+                    console.log("Payload:", data);
+                    
+                    const response = await axios.post(targetUrl, data, {
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        httpsAgent: agent,
+                        timeout: 30000, // 30 seconds timeout
+                    });
+                    
+                    console.log("Edit letter API success:", response.status);
+                    res.status(200).json(response.data);
+                    
+                } catch (axiosError) {
+                    console.error("Edit letter API error:", axiosError.message);
+                    if (axiosError.response) {
+                        console.error("Edit letter API response data:", axiosError.response.data);
+                        console.error("Edit letter API response status:", axiosError.response.status);
+                        res.status(axiosError.response.status).json({
+                            error: "Edit letter API error",
+                            message: axiosError.response.data || axiosError.message
+                        });
+                    } else {
+                        res.status(500).json({
+                            error: "Internal server error",
+                            message: "Failed to edit letter. Please try again later."
                         });
                     }
                 }
