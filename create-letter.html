@@ -180,6 +180,18 @@
                                 <span>تعديل الخطاب</span>
                             </label>
                         </div>
+                        
+                        <!-- Edit feedback section - shown when "تعديل الخطاب" is selected -->
+                        <div id="editSection" style="display: none; margin-top: 1rem;">
+                            <div class="form-group">
+                                <label for="editFeedback">التعديلات المطلوبة</label>
+                                <textarea id="editFeedback" rows="4" placeholder="اكتب التعديلات التي تريد إجراءها على الخطاب هنا..."></textarea>
+                            </div>
+                            <button type="button" class="submit-button" id="editButton">
+                                <i class="fas fa-edit"></i>
+                                تعديل
+                            </button>
+                        </div>
                     </div>
 
                     <button class="save-button" id="saveButton">
@@ -259,6 +271,24 @@
                     receivedLetterSelect.removeAttribute("required");
                     receivedLetterSelect.value = "";
                 }
+            });
+            
+            // Handle template selection for edit functionality
+            const templateRadios = document.querySelectorAll('input[name="template"]');
+            const editSection = document.getElementById('editSection');
+            
+            templateRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'template2') {
+                        // Show edit section
+                        editSection.style.display = 'block';
+                    } else {
+                        // Hide edit section
+                        editSection.style.display = 'none';
+                        // Clear feedback if switching away from edit mode
+                        document.getElementById('editFeedback').value = '';
+                    }
+                });
             });
         });
 
