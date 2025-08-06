@@ -84,6 +84,46 @@ async function generateLetter(formData) {
     }
 }
 
+// Edit Letter API - NEW FUNCTION
+async function editLetter(letter, feedback) {
+    const loader = document.getElementById('loader');
+    loader.classList.add('active');
+    
+    try {
+        const payload = {
+            letter: letter,
+            feedback: feedback
+        };
+
+        console.log('Sending edit request:', payload); // Debug log
+
+        const response = await fetch('/api/proxy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                endpoint: 'edit-letter',
+                data: payload
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to edit letter');
+        }
+        
+        const data = await response.json();
+        return data;
+        
+    } catch (error) {
+        console.error('Error editing letter:', error);
+        alert('حدث خطأ أثناء تعديل الخطاب. الرجاء المحاولة مرة أخرى.');
+        return null;
+    } finally {
+        loader.classList.remove('active');
+    }
+}
+
 // Archive Letter API
 async function archiveLetter(formData) {
     try {
@@ -171,6 +211,57 @@ if (document.getElementById('letterForm')) {
             
             // Store the generated letter data
             window.generatedLetterData = result;
+        }
+    });
+}
+
+// Edit button handler - NEW
+if (document.getElementById('editButton')) {
+    document.getElementById('editButton').addEventListener('click', async () => {
+        const letterContent = document.getElementById('letterPreview').value;
+        const feedback = document.getElementById('editFeedback').value.trim();
+        
+        if (!feedback) {
+            alert('الرجاء إدخال التعديلات المطلوبة');
+            return;
+        }
+        
+        const result = await editLetter(letterContent, feedback);
+        
+        if (result && result.edited_letter) {
+            // Update the letter preview with the edited version
+            document.getElementById('letterPreview').value = result.edited_letter;
+            
+            // Update the document template if available
+            if (typeof populateDocumentTemplate === 'function') {
+                // Create a mock letter data object with the edited content
+                const editedLetterData = {
+                    Letter: result.edited_letter,
+                    Title: window.generatedLetterData?.Title || 'خطاب معدّل',
+                    ID: window.generatedLetterData?.ID || 'EDITED'
+                };
+                
+                // Get the original form data if available
+                const originalFormData = new FormData();
+                // Add some default values if the original form data is not available
+                originalFormData.append('recipient', 'المستلم');
+                originalFormData.append('organization_name', 'الجهة');
+                originalFormData.append('recipient_title', 'المحترم/ة');
+                originalFormData.append('category', 'خطاب معدّل');
+                originalFormData.append('title', editedLetterData.Title);
+                
+                populateDocumentTemplate(editedLetterData, originalFormData);
+            }
+            
+            // Update the stored letter data
+            if (window.generatedLetterData) {
+                window.generatedLetterData.Letter = result.edited_letter;
+            }
+            
+            // Clear the feedback field
+            document.getElementById('editFeedback').value = '';
+            
+            alert('تم تعديل الخطاب بنجاح!');
         }
     });
 }
