@@ -5,9 +5,9 @@ const FormData = require("form-data");
 const fs = require("fs");
 
 module.exports = async (req, res) => {
-    // Enable CORS
+    // Enable CORS - Updated to support new methods
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     
     if (req.method === "OPTIONS") {
@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
         return;
     }
     
-    if (req.method !== "POST") {
+    if (!["GET", "POST", "DELETE"].includes(req.method)) {
         res.status(405).json({ error: "Method not allowed" });
         return;
     }
@@ -28,7 +28,115 @@ module.exports = async (req, res) => {
             rejectUnauthorized: false // Only for self-signed certificates
         });
 
-        // Check if this is a FormData request (for archive-letter)
+        // Handle GET requests for new endpoints
+        if (req.method === "GET") {
+            const { endpoint, session_id, category, letter_id, limit, offset, include_expired } = req.query;
+            
+            let targetUrl;
+            switch (endpoint) {
+                case "letter-categories":
+                    targetUrl = `${API_BASE_URL}/api/v1/letter/categories`;
+                    break;
+                case "letter-template":
+                    targetUrl = `${API_BASE_URL}/api/v1/letter/templates/${category}`;
+                    break;
+                case "chat-sessions":
+                    targetUrl = `${API_BASE_URL}/api/v1/chat/sessions`;
+                    if (include_expired) targetUrl += `?include_expired=${include_expired}`;
+                    break;
+                case "chat-history":
+                    targetUrl = `${API_BASE_URL}/api/v1/chat/sessions/${session_id}/history`;
+                    const params = new URLSearchParams();
+                    if (limit) params.append('limit', limit);
+                    if (offset) params.append('offset', offset);
+                    if (params.toString()) targetUrl += `?${params.toString()}`;
+                    break;
+                case "chat-status":
+                    targetUrl = `${API_BASE_URL}/api/v1/chat/sessions/${session_id}/status`;
+                    break;
+                case "memory-stats":
+                    targetUrl = `${API_BASE_URL}/api/v1/chat/memory/stats`;
+                    break;
+                case "memory-instructions":
+                    targetUrl = `${API_BASE_URL}/api/v1/chat/memory/instructions`;
+                    const memParams = new URLSearchParams();
+                    if (category) memParams.append('category', category);
+                    if (session_id) memParams.append('session_id', session_id);
+                    if (memParams.toString()) targetUrl += `?${memParams.toString()}`;
+                    break;
+                case "archive-status":
+                    targetUrl = `${API_BASE_URL}/api/v1/archive/status/${letter_id}`;
+                    break;
+                default:
+                    return res.status(400).json({ error: "Invalid GET endpoint" });
+            }
+            
+            try {
+                console.log("GET request to:", targetUrl);
+                const response = await axios.get(targetUrl, {
+                    httpsAgent: agent,
+                    timeout: 30000
+                });
+                
+                console.log("GET API success:", response.status);
+                res.status(200).json(response.data);
+            } catch (axiosError) {
+                console.error(`GET ${endpoint} API error:`, axiosError.message);
+                if (axiosError.response) {
+                    res.status(axiosError.response.status).json({
+                        error: `${endpoint} API error`,
+                        message: axiosError.response.data || axiosError.message
+                    });
+                } else {
+                    res.status(500).json({
+                        error: "Internal server error",
+                        message: `Failed to call ${endpoint} endpoint`
+                    });
+                }
+            }
+            return;
+        }
+
+        // Handle DELETE requests
+        if (req.method === "DELETE") {
+            const { endpoint, session_id } = req.query;
+            
+            let targetUrl;
+            switch (endpoint) {
+                case "delete-chat-session":
+                    targetUrl = `${API_BASE_URL}/api/v1/chat/sessions/${session_id}`;
+                    break;
+                default:
+                    return res.status(400).json({ error: "Invalid DELETE endpoint" });
+            }
+            
+            try {
+                console.log("DELETE request to:", targetUrl);
+                const response = await axios.delete(targetUrl, {
+                    httpsAgent: agent,
+                    timeout: 30000
+                });
+                
+                console.log("DELETE API success:", response.status);
+                res.status(200).json(response.data);
+            } catch (axiosError) {
+                console.error(`DELETE ${endpoint} API error:`, axiosError.message);
+                if (axiosError.response) {
+                    res.status(axiosError.response.status).json({
+                        error: `${endpoint} API error`,
+                        message: axiosError.response.data || axiosError.message
+                    });
+                } else {
+                    res.status(500).json({
+                        error: "Internal server error",
+                        message: `Failed to call ${endpoint} endpoint`
+                    });
+                }
+            }
+            return;
+        }
+
+        // Handle POST requests
         const contentType = req.headers["content-type"] || "";
         
         if (contentType.includes("multipart/form-data")) {
@@ -53,7 +161,8 @@ module.exports = async (req, res) => {
                 console.log("Parsed fields:", fields);
                 console.log("Parsed files:", Object.keys(files));
 
-                const targetUrl = `${API_BASE_URL}/archive-letter`;
+                // Updated to use new API endpoint
+                const targetUrl = `${API_BASE_URL}/api/v1/archive/letter`;
                 const formData = new FormData();
 
                 // Append fields - Handle both single values and arrays properly
@@ -138,7 +247,7 @@ module.exports = async (req, res) => {
             });
             
         } else {
-            // Handle JSON requests (for generate-letter, archive-letter, and edit-letter)
+            // Handle JSON requests - Updated with new endpoints
             console.log("Processing JSON request");
             
             let requestData;
@@ -152,111 +261,66 @@ module.exports = async (req, res) => {
             
             const { endpoint, data } = requestData;
             
-            if (endpoint === "generate-letter") {
-                const targetUrl = `${API_BASE_URL}/generate-letter`;
+            // Map endpoints to new API structure
+            let targetUrl;
+            switch (endpoint) {
+                case "generate-letter":
+                    targetUrl = `${API_BASE_URL}/api/v1/letter/generate`; // Updated endpoint
+                    break;
+                case "validate-letter":
+                    targetUrl = `${API_BASE_URL}/api/v1/letter/validate`;
+                    break;
+                case "edit-letter":
+                    // For edit-letter, we need the session_id from data
+                    targetUrl = `${API_BASE_URL}/api/v1/chat/sessions/${data.session_id}/edit`;
+                    break;
+                case "create-chat-session":
+                    targetUrl = `${API_BASE_URL}/api/v1/chat/sessions`;
+                    break;
+                case "extend-chat-session":
+                    targetUrl = `${API_BASE_URL}/api/v1/chat/sessions/${data.session_id}/extend`;
+                    break;
+                case "cleanup-chat":
+                    targetUrl = `${API_BASE_URL}/api/v1/chat/cleanup`;
+                    break;
+                case "archive-letter":
+                    targetUrl = `${API_BASE_URL}/api/v1/archive/letter`; // Updated endpoint
+                    break;
+                default:
+                    console.log("Invalid endpoint:", endpoint);
+                    return res.status(400).json({ error: "Invalid endpoint" });
+            }
+            
+            try {
+                console.log(`Attempting ${endpoint} API call to:`, targetUrl);
+                console.log("Payload:", data);
                 
-                try {
-                    console.log("Attempting generate API call to:", targetUrl);
-                    console.log("Payload:", data);
-                    
-                    const response = await axios.post(targetUrl, data, {
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        httpsAgent: agent,
-                        timeout: 30000, // 30 seconds timeout
-                    });
-                    
-                    console.log("Generate API success:", response.status);
-                    res.status(200).json(response.data);
-                    
-                } catch (axiosError) {
-                    console.error("Generate API error:", axiosError.message);
-                    if (axiosError.response) {
-                        console.error("Generate API response data:", axiosError.response.data);
-                        console.error("Generate API response status:", axiosError.response.status);
-                        res.status(axiosError.response.status).json({
-                            error: "Generate API error",
-                            message: axiosError.response.data || axiosError.message
-                        });
-                    } else {
-                        res.status(500).json({
-                            error: "Internal server error",
-                            message: "Failed to generate letter. Please try again later."
-                        });
-                    }
-                }
-            } else if (endpoint === "edit-letter") {
-                const targetUrl = `${API_BASE_URL}/edit-letter`;
+                const response = await axios.post(targetUrl, data, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    httpsAgent: agent,
+                    timeout: 30000, // 30 seconds timeout
+                });
                 
-                try {
-                    console.log("Attempting edit letter API call to:", targetUrl);
-                    console.log("Payload:", data);
-                    
-                    const response = await axios.post(targetUrl, data, {
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        httpsAgent: agent,
-                        timeout: 30000, // 30 seconds timeout
-                    });
-                    
-                    console.log("Edit letter API success:", response.status);
-                    res.status(200).json(response.data);
-                    
-                } catch (axiosError) {
-                    console.error("Edit letter API error:", axiosError.message);
-                    if (axiosError.response) {
-                        console.error("Edit letter API response data:", axiosError.response.data);
-                        console.error("Edit letter API response status:", axiosError.response.status);
-                        res.status(axiosError.response.status).json({
-                            error: "Edit letter API error",
-                            message: axiosError.response.data || axiosError.message
-                        });
-                    } else {
-                        res.status(500).json({
-                            error: "Internal server error",
-                            message: "Failed to edit letter. Please try again later."
-                        });
-                    }
-                }
-            } else if (endpoint === "archive-letter") {
-                const targetUrl = `${API_BASE_URL}/archive-letter`;
+                console.log(`${endpoint} API success:`, response.status);
+                res.status(200).json(response.data);
                 
-                try {
-                    console.log("Attempting archive API call to:", targetUrl);
-                    console.log("Payload:", data);
-                    
-                    const response = await axios.post(targetUrl, data, {
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        httpsAgent: agent,
-                        timeout: 30000, // 30 seconds timeout
+            } catch (axiosError) {
+                console.error(`${endpoint} API error:`, axiosError.message);
+                if (axiosError.response) {
+                    console.error(`${endpoint} API response data:`, axiosError.response.data);
+                    console.error(`${endpoint} API response status:`, axiosError.response.status);
+                    res.status(axiosError.response.status).json({
+                        error: `${endpoint} API error`,
+                        message: axiosError.response.data || axiosError.message
                     });
-                    
-                    console.log("Archive API success:", response.status);
-                    res.status(200).json(response.data);
-                    
-                } catch (axiosError) {
-                    console.error("Archive API error:", axiosError.message);
-                    if (axiosError.response) {
-                        console.error("Archive API response data:", axiosError.response.data);
-                        console.error("Archive API response status:", axiosError.response.status);
-                        res.status(axiosError.response.status).json({
-                            error: "Archive API error",
-                            message: axiosError.response.data || axiosError.message
-                        });
-                    } else {
-                        res.status(500).json({
-                            error: "Internal server error",
-                            message: "Failed to archive letter. Please try again later."
-                        });
-                    }
+                } else {
+                    res.status(500).json({
+                        error: "Internal server error",
+                        message: `Failed to call ${endpoint}. Please try again later.`
+                    });
                 }
-            } else {
-                console.log("Invalid endpoint:", endpoint);
-                res.status(400).json({ error: "Invalid endpoint" });
             }
         }
         
