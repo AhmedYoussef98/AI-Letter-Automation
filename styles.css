@@ -1141,3 +1141,78 @@ body.dark-mode #editSection textarea::placeholder {
         padding-bottom: 1.5rem;
     }
 }
+
+/* Edit Section Styles */
+#editSection {
+    background-color: rgba(0, 166, 81, 0.05);
+    border: 1px solid rgba(0, 166, 81, 0.2);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+body.dark-mode #editSection {
+    background-color: rgba(0, 166, 81, 0.1);
+    border-color: rgba(0, 166, 81, 0.3);
+}
+
+#editSection .form-group label {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+#editSection textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 0.8rem;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.95rem;
+    background-color: var(--card-light);
+    color: var(--text-light);
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+body.dark-mode #editSection textarea {
+    background-color: var(--background-dark);
+    border-color: var(--border-dark);
+    color: var(--text-dark);
+}
+
+#editSection textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 166, 81, 0.1);
+}
+
+#editButton {
+    background-color: var(--secondary-color);
+    margin-top: 1rem;
+    width: 100%;
+}
+
+#editButton:hover {
+    background-color: #0052a3;
+}
+
+#editSection {
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 300px;
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+}
