@@ -107,11 +107,11 @@
                         <label>هل هذه أول مراسلة؟ <span class="required">*</span></label>
                         <div class="radio-group">
                             <label>
-                                <input type="radio" name="is_first" value="true" required>
+                                <input type="radio" name="isFirst" value="true" required>
                                 نعم
                             </label>
                             <label>
-                                <input type="radio" name="is_first" value="false" required>
+                                <input type="radio" name="isFirst" value="false" required>
                                 لا
                             </label>
                         </div>
@@ -278,6 +278,7 @@
                     if (this.value === 'template2') {
                         // Show edit section
                         editSection.style.display = 'block';
+                        console.log('Edit section shown'); // Debug log
                     } else {
                         // Hide edit section
                         editSection.style.display = 'none';
@@ -286,6 +287,88 @@
                     }
                 });
             });
+            
+            // CRITICAL: Edit button event handler - THIS WAS MISSING
+            const editButton = document.getElementById('editButton');
+            if (editButton) {
+                editButton.addEventListener('click', async function() {
+                    console.log('Edit button clicked'); // Debug log
+                    
+                    const letterContent = document.getElementById('letterPreview').value;
+                    const feedback = document.getElementById('editFeedback').value.trim();
+                    
+                    console.log('Letter content:', letterContent); // Debug log
+                    console.log('Feedback:', feedback); // Debug log
+                    
+                    if (!feedback) {
+                        alert('الرجاء إدخال التعديلات المطلوبة');
+                        return;
+                    }
+                    
+                    if (!letterContent) {
+                        alert('لا يوجد محتوى خطاب للتعديل. الرجاء إنشاء خطاب أولاً');
+                        return;
+                    }
+                    
+                    try {
+                        console.log('Calling editLetter function...'); // Debug log
+                        const result = await editLetter(letterContent, feedback);
+                        
+                        console.log('Edit result:', result); // Debug log
+                        
+                        if (result && result.updated_letter) {
+                            // Update the letter preview with the edited version
+                            document.getElementById('letterPreview').value = result.updated_letter;
+                            
+                            // Update the document template if available
+                            if (typeof populateDocumentTemplate === 'function') {
+                                const editedLetterData = {
+                                    Letter: result.updated_letter,
+                                    Title: window.generatedLetterData?.Title || 'خطاب معدّل',
+                                    ID: window.generatedLetterData?.ID || 'EDITED'
+                                };
+                                
+                                // Get the original form data if available
+                                const originalFormData = new FormData();
+                                originalFormData.append('recipient', 'المستلم');
+                                originalFormData.append('organization_name', 'الجهة');
+                                originalFormData.append('recipient_title', 'المحترم/ة');
+                                originalFormData.append('category', 'خطاب معدّل');
+                                originalFormData.append('title', editedLetterData.Title);
+                                
+                                populateDocumentTemplate(editedLetterData, originalFormData);
+                            }
+                            
+                            // Update the stored letter data
+                            if (window.generatedLetterData) {
+                                window.generatedLetterData.Letter = result.updated_letter;
+                            }
+                            
+                            // Clear the feedback field for next edit
+                            document.getElementById('editFeedback').value = '';
+                            
+                            // Show AI response if available
+                            let successMessage = 'تم تعديل الخطاب بنجاح!';
+                            if (result.response_text) {
+                                successMessage += `\n\nرد النظام: ${result.response_text}`;
+                            }
+                            if (result.changes_made && result.changes_made.length > 0) {
+                                successMessage += `\n\nالتعديلات المُجراة: ${result.changes_made.join(', ')}`;
+                            }
+                            
+                            alert(successMessage);
+                        } else {
+                            console.error('No updated letter in response:', result);
+                            alert('حدث خطأ: لم يتم استلام الخطاب المعدّل من الخادم');
+                        }
+                    } catch (error) {
+                        console.error('Error in edit button handler:', error);
+                        alert('حدث خطأ أثناء تعديل الخطاب: ' + error.message);
+                    }
+                });
+            } else {
+                console.error('Edit button not found!');
+            }
         });
 
         // Function to load previous letters
