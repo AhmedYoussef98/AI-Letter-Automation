@@ -59,9 +59,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="recipientTitle">لقب المرسل إليه <span class="required">*</span></label>
-                        <select id="recipientTitle" name="recipient_title" required>
-                            <option value="">اختر اللقب</option>
+                        <label for="recipientTitle">لقب المرسل إليه</label>
+                        <select id="recipientTitle" name="recipient_title">
+                            <option value="">اختر اللقب (اختياري)</option>
                             <!-- Options will be dynamically loaded from sheets.js -->
                         </select>
                         <input type="text" id="otherRecipientTitle" name="other_recipient_title" style="display:none; margin-top: 10px;" placeholder="أدخل اللقب الآخر">
@@ -95,7 +95,7 @@
 
                     <div class="form-group">
                         <label for="letterPurpose">الغرض من الخطاب <span class="required">*</span></label>
-                        <input type="text" id="letterPurpose" name="title" required> <!-- Changed to text field -->
+                        <input type="text" id="letterPurpose" name="title" required>
                     </div>
 
                     <div class="form-group">
@@ -148,13 +148,9 @@
                             </div>
                         </div>
                         
-                        <!-- FIXED: Added missing recipient section -->
-                            
                         <div class="letter-body" id="mainLetterContent">
                             <!-- Generated letter content will be inserted here -->
                         </div>
-                        
-                        <!-- FIXED: Added missing sender section -->
                         
                         <div class="signature-section">
                             <div></div>
@@ -235,17 +231,17 @@
             });
 
             document.getElementById("letterForm").addEventListener("submit", function(event) {
-    const recipientInput = document.getElementById("recipient");
-    const recipientValue = recipientInput.value.trim();
+                const recipientInput = document.getElementById("recipient");
+                const recipientValue = recipientInput.value.trim();
 
-    // Count the number of words
-    if (recipientValue.length > 0 && recipientValue.split(" ").length < 2) {
-        alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
-        recipientInput.focus();
-        event.preventDefault(); // Prevent form submission
-        return; // Add return to stop further execution
-    }
-});
+                // Count the number of words
+                if (recipientValue.length > 0 && recipientValue.split(" ").length < 2) {
+                    alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
+                    recipientInput.focus();
+                    event.preventDefault(); // Prevent form submission
+                    return;
+                }
+            });
 
             // Handle letter type selection
             letterTypeSelect.addEventListener("change", function() {
