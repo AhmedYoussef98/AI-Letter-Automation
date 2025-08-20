@@ -23,7 +23,7 @@ async function generateLetter(formData) {
             type: formData.get('type'),
             category: formData.get('category'),
             recipient: formData.get("recipient").trim() === "" ? "لا يوجد" : formData.get("recipient"),
-            isFirst: formData.get('isFirst') === 'true',
+            is_first: formData.get('is_first') === 'true',
             prompt: formData.get('prompt'),
             organization_name: formData.get('organization_name'),
             recipient_job_title: formData.get('recipient_job_title'),
