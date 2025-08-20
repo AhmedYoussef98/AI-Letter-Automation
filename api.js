@@ -23,7 +23,7 @@ async function generateLetter(formData) {
             type: formData.get('type'),
             category: formData.get('category'),
             recipient: formData.get("recipient").trim() === "" ? "لا يوجد" : formData.get("recipient"),
-            is_first: formData.get('is_first') === 'true',
+            isFirst: formData.get('isFirst') === 'true',
             prompt: formData.get('prompt'),
             organization_name: formData.get('organization_name'),
             recipient_job_title: formData.get('recipient_job_title'),
@@ -85,75 +85,6 @@ async function generateLetter(formData) {
     }
 }
 
-// Validate Letter API - NEW FUNCTION
-async function validateLetter(letterContent) {
-    try {
-        const payload = { letter: letterContent };
-
-        const response = await fetch('/api/proxy', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                endpoint: 'validate-letter',
-                data: payload
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to validate letter');
-        }
-        
-        const data = await response.json();
-        return data;
-        
-    } catch (error) {
-        console.error('Error validating letter:', error);
-        return null;
-    }
-}
-
-// Get Letter Categories - NEW FUNCTION
-async function getLetterCategories() {
-    try {
-        const response = await fetch('/api/proxy?endpoint=letter-categories', {
-            method: 'GET'
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to get letter categories');
-        }
-        
-        const data = await response.json();
-        return data;
-        
-    } catch (error) {
-        console.error('Error getting letter categories:', error);
-        return null;
-    }
-}
-
-// Get Letter Template - NEW FUNCTION
-async function getLetterTemplate(category) {
-    try {
-        const response = await fetch(`/api/proxy?endpoint=letter-template&category=${encodeURIComponent(category)}`, {
-            method: 'GET'
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to get letter template');
-        }
-        
-        const data = await response.json();
-        return data;
-        
-    } catch (error) {
-        console.error('Error getting letter template:', error);
-        return null;
-    }
-}
-
 // Create Chat Session - NEW FUNCTION
 async function createChatSession(initialLetter = null, context = null) {
     try {
@@ -186,18 +117,13 @@ async function createChatSession(initialLetter = null, context = null) {
 }
 
 // Edit Letter via Chat - UPDATED FUNCTION
-async function editLetter(letter, feedback, sessionId = null) {
+async function editLetter(letter, feedback, sessionId) {
     const loader = document.getElementById('loader');
     loader.classList.add('active');
     
     try {
-        // Create session if not provided
         if (!sessionId) {
-            const sessionResponse = await createChatSession(letter);
-            if (!sessionResponse || !sessionResponse.session_id) {
-                throw new Error('Failed to create chat session for editing');
-            }
-            sessionId = sessionResponse.session_id;
+            throw new Error('Session ID is required for editing');
         }
 
         const payload = {
@@ -237,22 +163,29 @@ async function editLetter(letter, feedback, sessionId = null) {
     }
 }
 
-// Get Chat History - NEW FUNCTION
-async function getChatHistory(sessionId, limit = 50, offset = 0) {
+// Delete Chat Session - NEW FUNCTION
+async function deleteChatSession(sessionId) {
     try {
-        const response = await fetch(`/api/proxy?endpoint=chat-history&session_id=${sessionId}&limit=${limit}&offset=${offset}`, {
-            method: 'GET'
+        if (!sessionId) {
+            console.warn('No session ID provided for deletion');
+            return true; // Don't throw error for missing session
+        }
+
+        const response = await fetch(`/api/proxy?endpoint=delete-chat-session&session_id=${sessionId}`, {
+            method: 'DELETE'
         });
         
         if (!response.ok) {
-            throw new Error('Failed to get chat history');
+            throw new Error('Failed to delete session');
         }
         
         const data = await response.json();
+        console.log('Session deleted successfully:', data);
         return data;
         
     } catch (error) {
-        console.error('Error getting chat history:', error);
+        console.error('Error deleting session:', error);
+        // Don't throw error - session cleanup should be non-blocking
         return null;
     }
 }
@@ -374,60 +307,6 @@ if (document.getElementById('letterForm')) {
                 Title: result.title || result.Title || 'خطاب',
                 ID: result.id || result.ID || generateUniqueId()
             };
-            
-            // Optional: Validate the generated letter
-            const validation = await validateLetter(letterContent);
-            if (validation && validation.validation && !validation.validation.is_valid) {
-                console.warn('Generated letter validation warnings:', validation.validation.suggestions);
-            }
-        }
-    });
-}
-
-// Save button handler
-if (document.getElementById('saveButton')) {
-    document.getElementById('saveButton').addEventListener('click', async () => {
-        const letterContent = document.getElementById('letterPreview').value;
-        const selectedTemplate = document.querySelector('input[name="template"]:checked').value;
-        
-        // Prepare archive data as FormData
-        const formData = new FormData();
-        
-        formData.append('letter_content', letterContent);
-        formData.append('letter_type', document.getElementById('letterType').value);
-        formData.append('recipient', document.getElementById('recipient').value);
-        formData.append('template', 'default_template.html');
-        
-        // Use the title from the generated letter data
-        if (window.generatedLetterData && window.generatedLetterData.Title) {
-            formData.append('title', window.generatedLetterData.Title);
-        } else {
-            formData.append('title', 'Untitled Letter'); 
-        }
-
-        formData.append('is_first', document.querySelector('input[name="isFirst"]:checked').value);
-        
-        // Use the ID from the generated letter data
-        if (window.generatedLetterData && window.generatedLetterData.ID) {
-            formData.append('ID', window.generatedLetterData.ID);
-        } else {
-            formData.append('ID', generateUniqueId()); 
-        }
-        
-        const result = await archiveLetter(formData);
-        
-        if (result) {
-            alert('تم حفظ الخطاب بنجاح!');
-            
-            // Optional: Check archive status
-            const letterId = window.generatedLetterData?.ID || generateUniqueId();
-            setTimeout(async () => {
-                const status = await getArchiveStatus(letterId);
-                console.log('Archive status:', status);
-            }, 2000);
-            
-            // Navigate to letter history page with the letter ID to highlight it
-            window.location.href = `letter-history.html?highlight=${letterId}`;
         }
     });
 }
