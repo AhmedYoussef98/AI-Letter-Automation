@@ -187,6 +187,12 @@
                                 <i class="fas fa-edit"></i>
                                 تعديل
                             </button>
+                            
+                            <!-- Session Status Indicator -->
+                            <div id="sessionStatus" style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="sessionStatusText">لم يتم إنشاء جلسة تعديل بعد</span>
+                            </div>
                         </div>
                     </div>
 
@@ -209,6 +215,9 @@
     <script src="main.js"></script>
     <script src="document-template.js"></script>
     <script>
+        // Global variable to track the current edit session
+        let currentEditSession = null;
+
         document.addEventListener("DOMContentLoaded", function() {
             const recipientTitleSelect = document.getElementById("recipientTitle");
             const otherRecipientTitleInput = document.getElementById("otherRecipientTitle");
@@ -226,7 +235,7 @@
                 } else {
                     otherRecipientTitleInput.style.display = "none";
                     otherRecipientTitleInput.removeAttribute("required");
-                    otherRecipientTitleInput.value = ""; // Clear value when hidden
+                    otherRecipientTitleInput.value = "";
                 }
             });
 
@@ -234,11 +243,10 @@
                 const recipientInput = document.getElementById("recipient");
                 const recipientValue = recipientInput.value.trim();
 
-                // Count the number of words
                 if (recipientValue.length > 0 && recipientValue.split(" ").length < 2) {
                     alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
                     recipientInput.focus();
-                    event.preventDefault(); // Prevent form submission
+                    event.preventDefault();
                     return;
                 }
             });
@@ -278,27 +286,25 @@
                     if (this.value === 'template2') {
                         // Show edit section
                         editSection.style.display = 'block';
-                        console.log('Edit section shown'); // Debug log
+                        console.log('Edit section shown');
+                        updateSessionStatus();
                     } else {
-                        // Hide edit section
+                        // Hide edit section and cleanup session
                         editSection.style.display = 'none';
-                        // Clear feedback if switching away from edit mode
                         document.getElementById('editFeedback').value = '';
+                        cleanupEditSession();
                     }
                 });
             });
             
-            // CRITICAL: Edit button event handler - THIS WAS MISSING
+            // Edit button event handler with session management
             const editButton = document.getElementById('editButton');
             if (editButton) {
                 editButton.addEventListener('click', async function() {
-                    console.log('Edit button clicked'); // Debug log
+                    console.log('Edit button clicked');
                     
                     const letterContent = document.getElementById('letterPreview').value;
                     const feedback = document.getElementById('editFeedback').value.trim();
-                    
-                    console.log('Letter content:', letterContent); // Debug log
-                    console.log('Feedback:', feedback); // Debug log
                     
                     if (!feedback) {
                         alert('الرجاء إدخال التعديلات المطلوبة');
@@ -311,10 +317,33 @@
                     }
                     
                     try {
-                        console.log('Calling editLetter function...'); // Debug log
-                        const result = await editLetter(letterContent, feedback);
+                        // Create session only if it doesn't exist
+                        if (!currentEditSession) {
+                            console.log('Creating new chat session...');
+                            updateSessionStatus('إنشاء جلسة تعديل...', 'creating');
+                            
+                            const sessionResponse = await createChatSession(letterContent);
+                            if (!sessionResponse || !sessionResponse.session_id) {
+                                throw new Error('Failed to create chat session for editing');
+                            }
+                            
+                            currentEditSession = {
+                                id: sessionResponse.session_id,
+                                expiresIn: sessionResponse.expires_in,
+                                createdAt: new Date()
+                            };
+                            
+                            console.log('Chat session created:', currentEditSession.id);
+                            updateSessionStatus(`جلسة نشطة: ${currentEditSession.id.substring(0, 8)}...`, 'active');
+                        } else {
+                            console.log('Using existing session:', currentEditSession.id);
+                        }
                         
-                        console.log('Edit result:', result); // Debug log
+                        // Use existing session for edit
+                        console.log('Calling editLetter function with session:', currentEditSession.id);
+                        const result = await editLetter(letterContent, feedback, currentEditSession.id);
+                        
+                        console.log('Edit result:', result);
                         
                         if (result && result.updated_letter) {
                             // Update the letter preview with the edited version
@@ -328,7 +357,6 @@
                                     ID: window.generatedLetterData?.ID || 'EDITED'
                                 };
                                 
-                                // Get the original form data if available
                                 const originalFormData = new FormData();
                                 originalFormData.append('recipient', 'المستلم');
                                 originalFormData.append('organization_name', 'الجهة');
@@ -347,7 +375,7 @@
                             // Clear the feedback field for next edit
                             document.getElementById('editFeedback').value = '';
                             
-                            // Show AI response if available
+                            // Show success message
                             let successMessage = 'تم تعديل الخطاب بنجاح!';
                             if (result.response_text) {
                                 successMessage += `\n\nرد النظام: ${result.response_text}`;
@@ -364,12 +392,116 @@
                     } catch (error) {
                         console.error('Error in edit button handler:', error);
                         alert('حدث خطأ أثناء تعديل الخطاب: ' + error.message);
+                        
+                        // Reset session on error
+                        currentEditSession = null;
+                        updateSessionStatus('حدث خطأ في الجلسة', 'error');
                     }
                 });
-            } else {
-                console.error('Edit button not found!');
+            }
+            
+            // Save button event handler with session cleanup
+            const saveButton = document.getElementById('saveButton');
+            if (saveButton) {
+                // Remove existing event listeners to avoid duplicates
+                const newSaveButton = saveButton.cloneNode(true);
+                saveButton.parentNode.replaceChild(newSaveButton, saveButton);
+                
+                newSaveButton.addEventListener('click', async function() {
+                    console.log('Save button clicked - cleaning up edit session');
+                    
+                    // Cleanup edit session before saving
+                    await cleanupEditSession();
+                    
+                    // Original save functionality
+                    const letterContent = document.getElementById('letterPreview').value;
+                    
+                    const formData = new FormData();
+                    formData.append('letter_content', letterContent);
+                    formData.append('letter_type', document.getElementById('letterType').value);
+                    formData.append('recipient', document.getElementById('recipient').value);
+                    formData.append('template', 'default_template.html');
+                    
+                    if (window.generatedLetterData && window.generatedLetterData.Title) {
+                        formData.append('title', window.generatedLetterData.Title);
+                    } else {
+                        formData.append('title', 'Untitled Letter'); 
+                    }
+
+                    formData.append('is_first', document.querySelector('input[name="isFirst"]:checked').value);
+                    
+                    if (window.generatedLetterData && window.generatedLetterData.ID) {
+                        formData.append('ID', window.generatedLetterData.ID);
+                    } else {
+                        formData.append('ID', generateUniqueId()); 
+                    }
+                    
+                    const result = await archiveLetter(formData);
+                    
+                    if (result) {
+                        alert('تم حفظ الخطاب بنجاح!');
+                        
+                        const letterId = window.generatedLetterData?.ID || generateUniqueId();
+                        setTimeout(async () => {
+                            const status = await getArchiveStatus(letterId);
+                            console.log('Archive status:', status);
+                        }, 2000);
+                        
+                        window.location.href = `letter-history.html?highlight=${letterId}`;
+                    }
+                });
             }
         });
+
+        // Function to update session status indicator
+        function updateSessionStatus(message = null, status = 'inactive') {
+            const statusElement = document.getElementById('sessionStatusText');
+            if (statusElement) {
+                if (message) {
+                    statusElement.textContent = message;
+                } else {
+                    if (currentEditSession) {
+                        statusElement.textContent = `جلسة نشطة: ${currentEditSession.id.substring(0, 8)}...`;
+                    } else {
+                        statusElement.textContent = 'لم يتم إنشاء جلسة تعديل بعد';
+                    }
+                }
+                
+                // Update status styling
+                const statusContainer = document.getElementById('sessionStatus');
+                statusContainer.className = `session-status-${status}`;
+            }
+        }
+
+        // Function to cleanup edit session
+        async function cleanupEditSession() {
+            if (currentEditSession) {
+                try {
+                    console.log('Cleaning up edit session:', currentEditSession.id);
+                    updateSessionStatus('إنهاء الجلسة...', 'cleanup');
+                    
+                    // Delete the session from backend
+                    await deleteChatSession(currentEditSession.id);
+                    
+                    console.log('Edit session cleaned up successfully');
+                } catch (error) {
+                    console.error('Error cleaning up edit session:', error);
+                } finally {
+                    currentEditSession = null;
+                    updateSessionStatus('تم إنهاء الجلسة', 'cleanup-complete');
+                    
+                    // Reset status after a short delay
+                    setTimeout(() => {
+                        updateSessionStatus();
+                    }, 2000);
+                }
+            }
+        }
+
+        // Generate unique ID for letters
+        function generateUniqueId() {
+            return 'L' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        }
 
         // Function to load previous letters
         async function loadPreviousLetters() {
@@ -377,10 +509,8 @@
                 const letters = await loadSubmissionsData();
                 const previousLetterSelect = document.getElementById("previousLetter");
                 
-                // Clear existing options except the first one
                 previousLetterSelect.innerHTML = '<option value="">اختر الخطاب السابق</option>';
                 
-                // Add letters as options
                 letters.forEach(letter => {
                     const option = document.createElement("option");
                     option.value = letter.id;
@@ -399,10 +529,8 @@
                 const letters = await loadReceivedData();
                 const receivedLetterSelect = document.getElementById("receivedLetter");
                 
-                // Clear existing options except the first one
                 receivedLetterSelect.innerHTML = '<option value="">اختر الخطاب المستلم</option>';
                 
-                // Add letters as options
                 letters.forEach(letter => {
                     const option = document.createElement("option");
                     option.value = letter.id;
@@ -414,6 +542,14 @@
                 console.error('Error loading received letters:', error);
             }
         }
+
+        // Cleanup session when user leaves the page
+        window.addEventListener('beforeunload', function() {
+            if (currentEditSession) {
+                // Note: This might not always work due to browser restrictions
+                cleanupEditSession();
+            }
+        });
     </script>
 </body>
 </html>
