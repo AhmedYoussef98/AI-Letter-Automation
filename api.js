@@ -85,6 +85,35 @@ async function generateLetter(formData) {
     }
 }
 
+// Validate Letter API - NEW FUNCTION
+async function validateLetter(letterContent) {
+    try {
+        const payload = { letter: letterContent };
+
+        const response = await fetch('/api/proxy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                endpoint: 'validate-letter',
+                data: payload
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to validate letter');
+        }
+        
+        const data = await response.json();
+        return data;
+        
+    } catch (error) {
+        console.error('Error validating letter:', error);
+        return null;
+    }
+}
+
 // Create Chat Session - NEW FUNCTION
 async function createChatSession(initialLetter = null, context = null) {
     try {
@@ -307,6 +336,11 @@ if (document.getElementById('letterForm')) {
                 Title: result.title || result.Title || 'خطاب',
                 ID: result.id || result.ID || generateUniqueId()
             };
+            
+            // Automatically validate the generated letter and display results
+            if (typeof validateAndDisplayResults === 'function') {
+                await validateAndDisplayResults(letterContent);
+            }
         }
     });
 }
