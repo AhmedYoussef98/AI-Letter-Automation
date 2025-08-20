@@ -1216,3 +1216,87 @@ body.dark-mode #editSection textarea {
         padding-bottom: 1.5rem;
     }
 }
+
+
+/* Session Status Indicator Styles - Add to styles.css */
+
+#sessionStatus {
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+}
+
+.session-status-inactive {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border-color: #dee2e6;
+}
+
+.session-status-creating {
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffd43b;
+}
+
+.session-status-active {
+    background-color: #d1edff;
+    color: #084298;
+    border-color: #0d6efd;
+}
+
+.session-status-error {
+    background-color: #f8d7da;
+    color: #842029;
+    border-color: #f5c2c7;
+}
+
+.session-status-cleanup {
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffd43b;
+}
+
+.session-status-cleanup-complete {
+    background-color: #d1e7dd;
+    color: #0f5132;
+    border-color: #badbcc;
+}
+
+/* Dark mode support for session status */
+body.dark-mode .session-status-inactive {
+    background-color: #2d3748;
+    color: #a0aec0;
+    border-color: #4a5568;
+}
+
+body.dark-mode .session-status-creating {
+    background-color: #2d3748;
+    color: #f6e05e;
+    border-color: #d69e2e;
+}
+
+body.dark-mode .session-status-active {
+    background-color: #2a4365;
+    color: #90cdf4;
+    border-color: #3182ce;
+}
+
+body.dark-mode .session-status-error {
+    background-color: #742a2a;
+    color: #feb2b2;
+    border-color: #e53e3e;
+}
+
+body.dark-mode .session-status-cleanup {
+    background-color: #2d3748;
+    color: #f6e05e;
+    border-color: #d69e2e;
+}
+
+body.dark-mode .session-status-cleanup-complete {
+    background-color: #22543d;
+    color: #9ae6b4;
+    border-color: #38a169;
+}
