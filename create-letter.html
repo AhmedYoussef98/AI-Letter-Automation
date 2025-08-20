@@ -200,6 +200,23 @@
                         <i class="fas fa-save"></i>
                         حفظ ومتابعة
                     </button>
+                    
+                    <!-- Letter Validation Display Section -->
+                    <div id="validationSection" class="validation-section" style="display: none; margin-top: 1.5rem;">
+                        <h4>
+                            <i class="fas fa-check-circle"></i>
+                            تحليل جودة الخطاب
+                        </h4>
+                        
+                        <div id="validationContent" class="validation-content">
+                            <!-- Validation results will be displayed here -->
+                        </div>
+                        
+                        <button id="refreshValidationButton" class="validation-refresh-btn">
+                            <i class="fas fa-sync-alt"></i>
+                            إعادة تحليل
+                        </button>
+                    </div>
                 </div>
             </section>
         </div>
@@ -217,6 +234,7 @@
     <script>
         // Global variable to track the current edit session
         let currentEditSession = null;
+        let currentValidation = null;
 
         document.addEventListener("DOMContentLoaded", function() {
             const recipientTitleSelect = document.getElementById("recipientTitle");
@@ -375,6 +393,9 @@
                             // Clear the feedback field for next edit
                             document.getElementById('editFeedback').value = '';
                             
+                            // Re-validate the edited letter
+                            await validateAndDisplayResults(result.updated_letter);
+                            
                             // Show success message
                             let successMessage = 'تم تعديل الخطاب بنجاح!';
                             if (result.response_text) {
@@ -451,7 +472,111 @@
                     }
                 });
             }
+            
+            // Validation refresh button
+            const refreshValidationButton = document.getElementById('refreshValidationButton');
+            if (refreshValidationButton) {
+                refreshValidationButton.addEventListener('click', async function() {
+                    const letterContent = document.getElementById('letterPreview').value;
+                    if (letterContent) {
+                        await validateAndDisplayResults(letterContent);
+                    } else {
+                        alert('لا يوجد محتوى خطاب للتحليل');
+                    }
+                });
+            }
         });
+
+        // Function to validate letter and display results
+        async function validateAndDisplayResults(letterContent) {
+            try {
+                console.log('Validating letter...');
+                const validation = await validateLetter(letterContent);
+                
+                if (validation && validation.status === 'success') {
+                    currentValidation = validation.validation;
+                    displayValidationResults(validation.validation);
+                    
+                    // Show validation section
+                    document.getElementById('validationSection').style.display = 'block';
+                } else {
+                    console.error('Validation failed:', validation);
+                }
+            } catch (error) {
+                console.error('Error validating letter:', error);
+            }
+        }
+
+        // Function to display validation results
+        function displayValidationResults(validationData) {
+            const validationContent = document.getElementById('validationContent');
+            
+            const isValid = validationData.is_valid;
+            const checks = validationData.checks;
+            const metrics = validationData.metrics;
+            const suggestions = validationData.suggestions || [];
+            
+            let html = '';
+            
+            // Overall status
+            html += `<div class="validation-status ${isValid ? 'status-valid' : 'status-invalid'}">`;
+            html += `<i class="fas fa-${isValid ? 'check-circle' : 'exclamation-triangle'}"></i>`;
+            html += `<span>${isValid ? 'الخطاب يحتوي على جودة جيدة' : 'الخطاب يحتاج إلى تحسينات'}</span>`;
+            html += `</div>`;
+            
+            // Checks
+            html += `<div class="validation-checks">`;
+            html += `<h5><i class="fas fa-list-check"></i> فحص العناصر:</h5>`;
+            html += `<div class="checks-grid">`;
+            
+            const checkLabels = {
+                has_arabic_content: 'المحتوى العربي',
+                has_bismillah: 'البسملة',
+                has_greeting: 'التحية',
+                sufficient_length: 'الطول المناسب'
+            };
+            
+            for (const [check, passed] of Object.entries(checks)) {
+                const label = checkLabels[check] || check;
+                html += `<div class="check-item ${passed ? 'check-passed' : 'check-failed'}">`;
+                html += `<i class="fas fa-${passed ? 'check' : 'times'}"></i>`;
+                html += `<span>${label}</span>`;
+                html += `</div>`;
+            }
+            
+            html += `</div></div>`;
+            
+            // Metrics
+            html += `<div class="validation-metrics">`;
+            html += `<h5><i class="fas fa-chart-bar"></i> إحصائيات الخطاب:</h5>`;
+            html += `<div class="metrics-grid">`;
+            html += `<div class="metric-item">`;
+            html += `<span class="metric-label">عدد الكلمات:</span>`;
+            html += `<span class="metric-value">${metrics.word_count}</span>`;
+            html += `</div>`;
+            html += `<div class="metric-item">`;
+            html += `<span class="metric-label">عدد الأحرف:</span>`;
+            html += `<span class="metric-value">${metrics.character_count}</span>`;
+            html += `</div>`;
+            html += `<div class="metric-item">`;
+            html += `<span class="metric-label">عدد الأسطر:</span>`;
+            html += `<span class="metric-value">${metrics.line_count}</span>`;
+            html += `</div>`;
+            html += `</div></div>`;
+            
+            // Suggestions
+            if (suggestions.length > 0) {
+                html += `<div class="validation-suggestions">`;
+                html += `<h5><i class="fas fa-lightbulb"></i> اقتراحات التحسين:</h5>`;
+                html += `<ul>`;
+                suggestions.forEach(suggestion => {
+                    html += `<li>${suggestion}</li>`;
+                });
+                html += `</ul></div>`;
+            }
+            
+            validationContent.innerHTML = html;
+        }
 
         // Function to update session status indicator
         function updateSessionStatus(message = null, status = 'inactive') {
