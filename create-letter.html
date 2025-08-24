@@ -421,56 +421,109 @@
                 });
             }
             
-            // Save button event handler with session cleanup
+            // FIXED: Save button event handler with proper error handling
             const saveButton = document.getElementById('saveButton');
             if (saveButton) {
-                // Remove existing event listeners to avoid duplicates
-                const newSaveButton = saveButton.cloneNode(true);
-                saveButton.parentNode.replaceChild(newSaveButton, saveButton);
-                
-                newSaveButton.addEventListener('click', async function() {
-                    console.log('Save button clicked - cleaning up edit session');
+                saveButton.addEventListener('click', async function() {
+                    console.log('🔥 Save button clicked - starting save process');
                     
-                    // Cleanup edit session before saving
-                    await cleanupEditSession();
-                    
-                    // Original save functionality
-                    const letterContent = document.getElementById('letterPreview').value;
-                    
-                    const formData = new FormData();
-                    formData.append('letter_content', letterContent);
-                    formData.append('letter_type', document.getElementById('letterType').value);
-                    formData.append('recipient', document.getElementById('recipient').value);
-                    formData.append('template', 'default_template.html');
-                    
-                    if (window.generatedLetterData && window.generatedLetterData.Title) {
-                        formData.append('title', window.generatedLetterData.Title);
-                    } else {
-                        formData.append('title', 'Untitled Letter'); 
-                    }
-
-                    formData.append('is_first', document.querySelector('input[name="isFirst"]:checked').value);
-                    
-                    if (window.generatedLetterData && window.generatedLetterData.ID) {
-                        formData.append('ID', window.generatedLetterData.ID);
-                    } else {
-                        formData.append('ID', generateUniqueId()); 
-                    }
-                    
-                    const result = await archiveLetter(formData);
-                    
-                    if (result) {
-                        alert('تم حفظ الخطاب بنجاح!');
+                    try {
+                        // Step 1: Get letter content and validate
+                        const letterContent = document.getElementById('letterPreview').value;
+                        if (!letterContent || letterContent.trim() === '') {
+                            alert('لا يوجد محتوى خطاب للحفظ. الرجاء إنشاء خطاب أولاً');
+                            return;
+                        }
+                        console.log('✅ Letter content validated:', letterContent.substring(0, 100) + '...');
                         
-                        const letterId = window.generatedLetterData?.ID || generateUniqueId();
-                        setTimeout(async () => {
-                            const status = await getArchiveStatus(letterId);
-                            console.log('Archive status:', status);
-                        }, 2000);
+                        // Step 2: Get required form fields
+                        const letterTypeElement = document.getElementById('letterType');
+                        const recipientElement = document.getElementById('recipient');
+                        const isFirstRadio = document.querySelector('input[name="isFirst"]:checked');
                         
-                        window.location.href = `letter-history.html?highlight=${letterId}`;
+                        if (!letterTypeElement.value) {
+                            alert('الرجاء اختيار نوع الخطاب');
+                            return;
+                        }
+                        
+                        if (!isFirstRadio) {
+                            alert('الرجاء تحديد ما إذا كانت هذه أول مراسلة');
+                            return;
+                        }
+                        
+                        console.log('✅ Form fields validated');
+                        
+                        // Step 3: Cleanup edit session (if exists) - but don't let it fail the save
+                        try {
+                            if (currentEditSession) {
+                                console.log('🧹 Cleaning up edit session...');
+                                await cleanupEditSession();
+                                console.log('✅ Edit session cleaned up');
+                            }
+                        } catch (cleanupError) {
+                            console.warn('⚠️ Session cleanup failed (non-critical):', cleanupError);
+                            // Don't stop the save process for session cleanup errors
+                        }
+                        
+                        // Step 4: Prepare archive data
+                        console.log('📦 Preparing archive data...');
+                        const formData = new FormData();
+                        
+                        formData.append('letter_content', letterContent);
+                        formData.append('letter_type', letterTypeElement.value);
+                        formData.append('recipient', recipientElement.value || 'غير محدد');
+                        formData.append('template', 'default_template.html');
+                        formData.append('is_first', isFirstRadio.value);
+                        
+                        // Add title
+                        if (window.generatedLetterData && window.generatedLetterData.Title) {
+                            formData.append('title', window.generatedLetterData.Title);
+                        } else {
+                            formData.append('title', 'خطاب جديد');
+                        }
+                        
+                        // Add ID
+                        if (window.generatedLetterData && window.generatedLetterData.ID) {
+                            formData.append('ID', window.generatedLetterData.ID);
+                        } else {
+                            formData.append('ID', generateUniqueId());
+                        }
+                        
+                        console.log('✅ FormData prepared');
+                        
+                        // Step 5: Call archive API
+                        console.log('🚀 Calling archive API...');
+                        const result = await archiveLetter(formData);
+                        
+                        if (result) {
+                            console.log('✅ Archive successful:', result);
+                            alert('تم حفظ الخطاب بنجاح!');
+                            
+                            // Optional: Check archive status
+                            const letterId = window.generatedLetterData?.ID || generateUniqueId();
+                            setTimeout(async () => {
+                                try {
+                                    const status = await getArchiveStatus(letterId);
+                                    console.log('📊 Archive status:', status);
+                                } catch (statusError) {
+                                    console.warn('⚠️ Archive status check failed:', statusError);
+                                }
+                            }, 2000);
+                            
+                            // Navigate to letter history
+                            window.location.href = `letter-history.html?highlight=${letterId}`;
+                        } else {
+                            console.error('❌ Archive failed - no result returned');
+                            alert('فشل في حفظ الخطاب. الرجاء المحاولة مرة أخرى.');
+                        }
+                        
+                    } catch (error) {
+                        console.error('❌ Save process failed:', error);
+                        alert('حدث خطأ أثناء حفظ الخطاب: ' + error.message);
                     }
                 });
+            } else {
+                console.error('❌ Save button not found!');
             }
             
             // Validation refresh button
@@ -521,7 +574,7 @@
             // Overall status
             html += `<div class="validation-status ${isValid ? 'status-valid' : 'status-invalid'}">`;
             html += `<i class="fas fa-${isValid ? 'check-circle' : 'exclamation-triangle'}"></i>`;
-            html += `<span>${isValid ? 'الخطاب يحتوي على جودة ممتازة' : 'الخطاب يحتاج إلى تحسينات'}</span>`;
+            html += `<span>${isValid ? 'الخطاب يحتوي على جودة جيدة' : 'الخطاب يحتاج إلى تحسينات'}</span>`;
             html += `</div>`;
             
             // Checks
@@ -611,6 +664,7 @@
                     console.log('Edit session cleaned up successfully');
                 } catch (error) {
                     console.error('Error cleaning up edit session:', error);
+                    throw error; // Re-throw so caller knows cleanup failed
                 } finally {
                     currentEditSession = null;
                     updateSessionStatus('تم إنهاء الجلسة', 'cleanup-complete');
