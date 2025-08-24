@@ -1,30 +1,33 @@
 // API Configuration
-const API_BASE_URL = 'https://128.140.37.194:5000';
+const API_BASE_URL = 'https://128.140.37.194:5000'; // This goes through Vercel proxy
 
-// Generate Letter API
+// Generate Letter API - Updated for new endpoint with optional title
 async function generateLetter(formData) {
     const loader = document.getElementById('loader');
     loader.classList.add('active');
     
     try {
-        // Determine the recipient_title to send
+        // Determine the recipient_title to send - UPDATED LOGIC
         let finalRecipientTitle = formData.get('recipient_title');
         const otherRecipientTitle = formData.get('other_recipient_title');
 
         if (finalRecipientTitle === 'أخرى' && otherRecipientTitle) {
             finalRecipientTitle = otherRecipientTitle;
+        } else if (!finalRecipientTitle || finalRecipientTitle.trim() === '') {
+            // NEW: If no title selected, send fixed value
+            finalRecipientTitle = 'لا يوجد لقب';
         }
 
-        // Prepare the payload
+        // Prepare the payload for new API structure
         const payload = {
             type: formData.get('type'),
-            category: formData.get('category'), // Now a text field
+            category: formData.get('category'),
             recipient: formData.get("recipient").trim() === "" ? "لا يوجد" : formData.get("recipient"),
-            isFirst: formData.get('isFirst') === 'true',
+            is_first: formData.get('is_first') === 'true',
             prompt: formData.get('prompt'),
-            organization_name: formData.get('organization_name'), // New field
-            recipient_job_title: formData.get('recipient_job_title'), // New field
-            recipient_title: finalRecipientTitle, // Updated logic for recipient_title
+            organization_name: formData.get('organization_name'),
+            recipient_job_title: formData.get('recipient_job_title'),
+            recipient_title: finalRecipientTitle, // Updated logic for optional recipient_title
         };
 
         // Only include member_name if a value is selected
@@ -51,12 +54,10 @@ async function generateLetter(formData) {
             const selectedOption = receivedLetterSelect.querySelector(`option[value="${receivedLetterId}"]`);
             if (selectedOption && selectedOption.dataset.content) {
                 payload.previous_letter_content = selectedOption.dataset.content;
-                // Note: Using same key 'previous_letter_content' for both previous and received letters
             }
         }
         
-        // Since we can't directly call HTTPS with self-signed cert from browser,
-        // we'll use a proxy endpoint
+        // All requests go through Vercel proxy
         const response = await fetch('/api/proxy', {
             method: 'POST',
             headers: {
@@ -84,7 +85,161 @@ async function generateLetter(formData) {
     }
 }
 
-// Archive Letter API
+// Validate Letter API - NEW FUNCTION
+async function validateLetter(letterContent) {
+    try {
+        const payload = { letter: letterContent };
+
+        const response = await fetch('/api/proxy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                endpoint: 'validate-letter',
+                data: payload
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to validate letter');
+        }
+        
+        const data = await response.json();
+        return data;
+        
+    } catch (error) {
+        console.error('Error validating letter:', error);
+        return null;
+    }
+}
+
+// Create Chat Session - NEW FUNCTION
+async function createChatSession(initialLetter = null, context = null) {
+    try {
+        const payload = {};
+        if (initialLetter) payload.initial_letter = initialLetter;
+        if (context) payload.context = context;
+
+        const response = await fetch('/api/proxy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                endpoint: 'create-chat-session',
+                data: payload
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to create chat session');
+        }
+        
+        const data = await response.json();
+        return data;
+        
+    } catch (error) {
+        console.error('Error creating chat session:', error);
+        return null;
+    }
+}
+
+// Edit Letter via Chat - UPDATED FUNCTION
+async function editLetter(letter, feedback, sessionId) {
+    const loader = document.getElementById('loader');
+    loader.classList.add('active');
+    
+    try {
+        if (!sessionId) {
+            throw new Error('Session ID is required for editing');
+        }
+
+        const payload = {
+            session_id: sessionId,
+            message: feedback,
+            current_letter: letter,
+            editing_instructions: feedback,
+            preserve_formatting: true
+        };
+
+        console.log('Sending edit request:', payload);
+
+        const response = await fetch('/api/proxy', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                endpoint: 'edit-letter',
+                data: payload
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to edit letter');
+        }
+        
+        const data = await response.json();
+        return data;
+        
+    } catch (error) {
+        console.error('Error editing letter:', error);
+        alert('حدث خطأ أثناء تعديل الخطاب. الرجاء المحاولة مرة أخرى.');
+        return null;
+    } finally {
+        loader.classList.remove('active');
+    }
+}
+
+// Delete Chat Session - NEW FUNCTION
+async function deleteChatSession(sessionId) {
+    try {
+        if (!sessionId) {
+            console.warn('No session ID provided for deletion');
+            return true; // Don't throw error for missing session
+        }
+
+        const response = await fetch(`/api/proxy?endpoint=delete-chat-session&session_id=${sessionId}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to delete session');
+        }
+        
+        const data = await response.json();
+        console.log('Session deleted successfully:', data);
+        return data;
+        
+    } catch (error) {
+        console.error('Error deleting session:', error);
+        // Don't throw error - session cleanup should be non-blocking
+        return null;
+    }
+}
+
+// Get Archive Status - NEW FUNCTION
+async function getArchiveStatus(letterId) {
+    try {
+        const response = await fetch(`/api/proxy?endpoint=archive-status&letter_id=${letterId}`, {
+            method: 'GET'
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to get archive status');
+        }
+        
+        const data = await response.json();
+        return data;
+        
+    } catch (error) {
+        console.error('Error getting archive status:', error);
+        return null;
+    }
+}
+
+// Archive Letter API - Updated for new endpoint
 async function archiveLetter(formData) {
     try {
         // Get the logged-in user data from sessionStorage
@@ -110,7 +265,7 @@ async function archiveLetter(formData) {
             data: payload
         };
 
-        console.log('Sending archive request:', requestBody); // Debug log
+        console.log('Sending archive request:', requestBody);
 
         const response = await fetch('/api/proxy', {
             method: 'POST',
@@ -120,7 +275,7 @@ async function archiveLetter(formData) {
             body: JSON.stringify(requestBody)
         });
 
-        console.log('Response status:', response.status); // Debug log
+        console.log('Response status:', response.status);
         
         if (!response.ok) {
             const errorText = await response.text();
@@ -143,7 +298,6 @@ if (document.getElementById('letterForm')) {
     document.getElementById('letterForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         
-
         // Validate recipient name before proceeding
         const recipientInput = document.getElementById("recipient");
         const recipientValue = recipientInput.value.trim();
@@ -152,72 +306,41 @@ if (document.getElementById('letterForm')) {
         if (recipientValue.length > 0 && recipientValue.split(" ").length < 2) {
             alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
             recipientInput.focus();
-            return; // Stop execution here
+            return;
         }
         
         const formData = new FormData(e.target);
         const result = await generateLetter(formData);
         
         if (result) {
+            // Handle new API response structure
+            const letterContent = result.letter || result.Letter || 'محتوى الخطاب المُنشأ سيظهر هنا...';
+            
             // Display the generated letter in both formats
-            document.getElementById('letterPreview').value = result.Letter || 'محتوى الخطاب المُنشأ سيظهر هنا...';
+            document.getElementById('letterPreview').value = letterContent;
             
             // Populate the document template
             if (typeof populateDocumentTemplate === 'function') {
-                populateDocumentTemplate(result, formData);
+                populateDocumentTemplate({
+                    Letter: letterContent,
+                    Title: result.title || result.Title || 'خطاب',
+                    ID: result.id || result.ID || generateUniqueId()
+                }, formData);
             }
             
             document.getElementById('previewSection').style.display = 'block';
             
             // Store the generated letter data
-            window.generatedLetterData = result;
-        }
-    });
-}
-
-// Save button handler
-if (document.getElementById('saveButton')) {
-    document.getElementById('saveButton').addEventListener('click', async () => {
-        const letterContent = document.getElementById('letterPreview').value;
-        const selectedTemplate = document.querySelector('input[name="template"]:checked').value;
-        
-        // Generate PDF from letter content
-        
-        
-        // Prepare archive data as FormData
-        const formData = new FormData();
-        
-        formData.append('letter_content', letterContent);
-        formData.append('letter_type', document.getElementById('letterType').value);
-        formData.append('recipient', document.getElementById('recipient').value);
-        formData.append('template', 'default_template.html');
-        // Use the title from the generated letter data
-        if (window.generatedLetterData && window.generatedLetterData.Title) {
-            formData.append('title', window.generatedLetterData.Title);
-        } else {
-            // Fallback if title is not available from generated data
-            formData.append('title', 'Untitled Letter'); 
-        }
-
-        formData.append('is_first', document.querySelector('input[name="isFirst"]:checked').value);
-        
-        // Use the ID from the generated letter data
-        if (window.generatedLetterData && window.generatedLetterData.ID) {
-            formData.append('ID', window.generatedLetterData.ID);
-        } else {
-            // Fallback if ID is not available from generated data
-            formData.append('ID', generateUniqueId()); 
-        }
-        
-        const result = await archiveLetter(formData);
-        
-        if (result) {
-            alert('تم حفظ الخطاب بنجاح!');
-            // Navigate to letter history page with the letter ID to highlight it
-            const letterId = window.generatedLetterData && window.generatedLetterData.ID ? 
-                window.generatedLetterData.ID : 
-                generateUniqueId();
-            window.location.href = `letter-history.html?highlight=${letterId}`;
+            window.generatedLetterData = {
+                Letter: letterContent,
+                Title: result.title || result.Title || 'خطاب',
+                ID: result.id || result.ID || generateUniqueId()
+            };
+            
+            // Automatically validate the generated letter and display results
+            if (typeof validateAndDisplayResults === 'function') {
+                await validateAndDisplayResults(letterContent);
+            }
         }
     });
 }
@@ -225,39 +348,4 @@ if (document.getElementById('saveButton')) {
 // Generate unique ID for letters
 function generateUniqueId() {
     return 'L' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-}
-
-async function generatePDF(content, template) {
-    try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        
-        // Base64 encoded Amiri-Regular.ttf font data
-        // YOU NEED TO REPLACE THIS WITH THE ACTUAL BASE64 STRING OF YOUR FONT
-        const AMIRI_FONT_BASE64 = ""; 
-
-        // Add the font to jsPDF
-        doc.addFileToVFS("Amiri-Regular.ttf", AMIRI_FONT_BASE64);
-        doc.addFont("Amiri-Regular.ttf", "Amiri", "normal");
-
-        // Set the font for the document
-        doc.setFont("Amiri");
-        doc.setFontSize(12);
-
-        // Split content into lines to fit page width
-        const lines = doc.splitTextToSize(content, 180);
-
-        // Add content to PDF
-        doc.text(lines, 15, 20);
-
-        // Convert to blob
-        const pdfBlob = doc.output("blob");
-        return pdfBlob;
-        
-    } catch (error) {
-        console.error("Error generating PDF:", error);
-        // Fallback: create a simple text file as blob
-        const textBlob = new Blob([content], { type: "text/plain" });
-        return textBlob;
-    }
 }

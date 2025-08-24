@@ -59,9 +59,9 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="recipientTitle">لقب المرسل إليه <span class="required">*</span></label>
-                        <select id="recipientTitle" name="recipient_title" required>
-                            <option value="">اختر اللقب</option>
+                        <label for="recipientTitle">لقب المرسل إليه</label>
+                        <select id="recipientTitle" name="recipient_title">
+                            <option value="">اختر اللقب (اختياري)</option>
                             <!-- Options will be dynamically loaded from sheets.js -->
                         </select>
                         <input type="text" id="otherRecipientTitle" name="other_recipient_title" style="display:none; margin-top: 10px;" placeholder="أدخل اللقب الآخر">
@@ -95,7 +95,7 @@
 
                     <div class="form-group">
                         <label for="letterPurpose">الغرض من الخطاب <span class="required">*</span></label>
-                        <input type="text" id="letterPurpose" name="title" required> <!-- Changed to text field -->
+                        <input type="text" id="letterPurpose" name="title" required>
                     </div>
 
                     <div class="form-group">
@@ -107,11 +107,11 @@
                         <label>هل هذه أول مراسلة؟ <span class="required">*</span></label>
                         <div class="radio-group">
                             <label>
-                                <input type="radio" name="isFirst" value="true" required>
+                                <input type="radio" name="is_first" value="true" required>
                                 نعم
                             </label>
                             <label>
-                                <input type="radio" name="isFirst" value="false" required>
+                                <input type="radio" name="is_first" value="false" required>
                                 لا
                             </label>
                         </div>
@@ -148,13 +148,9 @@
                             </div>
                         </div>
                         
-                        <!-- FIXED: Added missing recipient section -->
-                            
                         <div class="letter-body" id="mainLetterContent">
                             <!-- Generated letter content will be inserted here -->
                         </div>
-                        
-                        <!-- FIXED: Added missing sender section -->
                         
                         <div class="signature-section">
                             <div></div>
@@ -180,12 +176,47 @@
                                 <span>تعديل الخطاب</span>
                             </label>
                         </div>
+                        
+                        <!-- Edit feedback section - shown when "تعديل الخطاب" is selected -->
+                        <div id="editSection" style="display: none; margin-top: 1rem;">
+                            <div class="form-group">
+                                <label for="editFeedback">التعديلات المطلوبة</label>
+                                <textarea id="editFeedback" rows="4" placeholder="اكتب التعديلات التي تريد إجراءها على الخطاب هنا..."></textarea>
+                            </div>
+                            <button type="button" class="submit-button" id="editButton">
+                                <i class="fas fa-edit"></i>
+                                تعديل
+                            </button>
+                            
+                            <!-- Session Status Indicator -->
+                            <div id="sessionStatus" style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="sessionStatusText">لم يتم إنشاء جلسة تعديل بعد</span>
+                            </div>
+                        </div>
                     </div>
 
                     <button class="save-button" id="saveButton">
                         <i class="fas fa-save"></i>
                         حفظ ومتابعة
                     </button>
+                    
+                    <!-- Letter Validation Display Section -->
+                    <div id="validationSection" class="validation-section" style="display: none; margin-top: 1.5rem;">
+                        <h4>
+                            <i class="fas fa-check-circle"></i>
+                            تحليل جودة الخطاب
+                        </h4>
+                        
+                        <div id="validationContent" class="validation-content">
+                            <!-- Validation results will be displayed here -->
+                        </div>
+                        
+                        <button id="refreshValidationButton" class="validation-refresh-btn">
+                            <i class="fas fa-sync-alt"></i>
+                            إعادة تحليل
+                        </button>
+                    </div>
                 </div>
             </section>
         </div>
@@ -201,6 +232,10 @@
     <script src="main.js"></script>
     <script src="document-template.js"></script>
     <script>
+        // Global variable to track the current edit session
+        let currentEditSession = null;
+        let currentValidation = null;
+
         document.addEventListener("DOMContentLoaded", function() {
             const recipientTitleSelect = document.getElementById("recipientTitle");
             const otherRecipientTitleInput = document.getElementById("otherRecipientTitle");
@@ -218,22 +253,21 @@
                 } else {
                     otherRecipientTitleInput.style.display = "none";
                     otherRecipientTitleInput.removeAttribute("required");
-                    otherRecipientTitleInput.value = ""; // Clear value when hidden
+                    otherRecipientTitleInput.value = "";
                 }
             });
 
             document.getElementById("letterForm").addEventListener("submit", function(event) {
-    const recipientInput = document.getElementById("recipient");
-    const recipientValue = recipientInput.value.trim();
+                const recipientInput = document.getElementById("recipient");
+                const recipientValue = recipientInput.value.trim();
 
-    // Count the number of words
-    if (recipientValue.length > 0 && recipientValue.split(" ").length < 2) {
-        alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
-        recipientInput.focus();
-        event.preventDefault(); // Prevent form submission
-        return; // Add return to stop further execution
-    }
-});
+                if (recipientValue.length > 0 && recipientValue.split(" ").length < 2) {
+                    alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
+                    recipientInput.focus();
+                    event.preventDefault();
+                    return;
+                }
+            });
 
             // Handle letter type selection
             letterTypeSelect.addEventListener("change", function() {
@@ -260,7 +294,393 @@
                     receivedLetterSelect.value = "";
                 }
             });
+            
+            // Handle template selection for edit functionality
+            const templateRadios = document.querySelectorAll('input[name="template"]');
+            const editSection = document.getElementById('editSection');
+            
+            templateRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'template2') {
+                        // Show edit section
+                        editSection.style.display = 'block';
+                        console.log('Edit section shown');
+                        updateSessionStatus();
+                    } else {
+                        // Hide edit section and cleanup session
+                        editSection.style.display = 'none';
+                        document.getElementById('editFeedback').value = '';
+                        cleanupEditSession();
+                    }
+                });
+            });
+            
+            // Edit button event handler with session management
+            const editButton = document.getElementById('editButton');
+            if (editButton) {
+                editButton.addEventListener('click', async function() {
+                    console.log('Edit button clicked');
+                    
+                    const letterContent = document.getElementById('letterPreview').value;
+                    const feedback = document.getElementById('editFeedback').value.trim();
+                    
+                    if (!feedback) {
+                        alert('الرجاء إدخال التعديلات المطلوبة');
+                        return;
+                    }
+                    
+                    if (!letterContent) {
+                        alert('لا يوجد محتوى خطاب للتعديل. الرجاء إنشاء خطاب أولاً');
+                        return;
+                    }
+                    
+                    try {
+                        // Create session only if it doesn't exist
+                        if (!currentEditSession) {
+                            console.log('Creating new chat session...');
+                            updateSessionStatus('إنشاء جلسة تعديل...', 'creating');
+                            
+                            const sessionResponse = await createChatSession(letterContent);
+                            if (!sessionResponse || !sessionResponse.session_id) {
+                                throw new Error('Failed to create chat session for editing');
+                            }
+                            
+                            currentEditSession = {
+                                id: sessionResponse.session_id,
+                                expiresIn: sessionResponse.expires_in,
+                                createdAt: new Date()
+                            };
+                            
+                            console.log('Chat session created:', currentEditSession.id);
+                            updateSessionStatus(`جلسة نشطة: ${currentEditSession.id.substring(0, 8)}...`, 'active');
+                        } else {
+                            console.log('Using existing session:', currentEditSession.id);
+                        }
+                        
+                        // Use existing session for edit
+                        console.log('Calling editLetter function with session:', currentEditSession.id);
+                        const result = await editLetter(letterContent, feedback, currentEditSession.id);
+                        
+                        console.log('Edit result:', result);
+                        
+                        if (result && result.updated_letter) {
+                            // Update the letter preview with the edited version
+                            document.getElementById('letterPreview').value = result.updated_letter;
+                            
+                            // Update the document template if available
+                            if (typeof populateDocumentTemplate === 'function') {
+                                const editedLetterData = {
+                                    Letter: result.updated_letter,
+                                    Title: window.generatedLetterData?.Title || 'خطاب معدّل',
+                                    ID: window.generatedLetterData?.ID || 'EDITED'
+                                };
+                                
+                                const originalFormData = new FormData();
+                                originalFormData.append('recipient', 'المستلم');
+                                originalFormData.append('organization_name', 'الجهة');
+                                originalFormData.append('recipient_title', 'المحترم/ة');
+                                originalFormData.append('category', 'خطاب معدّل');
+                                originalFormData.append('title', editedLetterData.Title);
+                                
+                                populateDocumentTemplate(editedLetterData, originalFormData);
+                            }
+                            
+                            // Update the stored letter data
+                            if (window.generatedLetterData) {
+                                window.generatedLetterData.Letter = result.updated_letter;
+                            }
+                            
+                            // Clear the feedback field for next edit
+                            document.getElementById('editFeedback').value = '';
+                            
+                            // Re-validate the edited letter
+                            await validateAndDisplayResults(result.updated_letter);
+                            
+                            // Show success message
+                            let successMessage = 'تم تعديل الخطاب بنجاح!';
+                            if (result.response_text) {
+                                successMessage += `\n\nرد النظام: ${result.response_text}`;
+                            }
+                            if (result.changes_made && result.changes_made.length > 0) {
+                                successMessage += `\n\nالتعديلات المُجراة: ${result.changes_made.join(', ')}`;
+                            }
+                            
+                            alert(successMessage);
+                        } else {
+                            console.error('No updated letter in response:', result);
+                            alert('حدث خطأ: لم يتم استلام الخطاب المعدّل من الخادم');
+                        }
+                    } catch (error) {
+                        console.error('Error in edit button handler:', error);
+                        alert('حدث خطأ أثناء تعديل الخطاب: ' + error.message);
+                        
+                        // Reset session on error
+                        currentEditSession = null;
+                        updateSessionStatus('حدث خطأ في الجلسة', 'error');
+                    }
+                });
+            }
+            
+            // FIXED: Save button event handler with proper error handling
+            const saveButton = document.getElementById('saveButton');
+            if (saveButton) {
+                saveButton.addEventListener('click', async function() {
+                    console.log('🔥 Save button clicked - starting save process');
+                    
+                    try {
+                        // Step 1: Get letter content and validate
+                        const letterContent = document.getElementById('letterPreview').value;
+                        if (!letterContent || letterContent.trim() === '') {
+                            alert('لا يوجد محتوى خطاب للحفظ. الرجاء إنشاء خطاب أولاً');
+                            return;
+                        }
+                        console.log('✅ Letter content validated:', letterContent.substring(0, 100) + '...');
+                        
+                        // Step 2: Get required form fields
+                        const letterTypeElement = document.getElementById('letterType');
+                        const recipientElement = document.getElementById('recipient');
+                        const is_firstRadio = document.querySelector('input[name="is_first"]:checked');
+                        
+                        if (!letterTypeElement.value) {
+                            alert('الرجاء اختيار نوع الخطاب');
+                            return;
+                        }
+                        
+                        if (!is_firstRadio) {
+                            alert('الرجاء تحديد ما إذا كانت هذه أول مراسلة');
+                            return;
+                        }
+                        
+                        console.log('✅ Form fields validated');
+                        
+                        // Step 3: Cleanup edit session (if exists) - but don't let it fail the save
+                        try {
+                            if (currentEditSession) {
+                                console.log('🧹 Cleaning up edit session...');
+                                await cleanupEditSession();
+                                console.log('✅ Edit session cleaned up');
+                            }
+                        } catch (cleanupError) {
+                            console.warn('⚠️ Session cleanup failed (non-critical):', cleanupError);
+                            // Don't stop the save process for session cleanup errors
+                        }
+                        
+                        // Step 4: Prepare archive data
+                        console.log('📦 Preparing archive data...');
+                        const formData = new FormData();
+                        
+                        formData.append('letter_content', letterContent);
+                        formData.append('letter_type', letterTypeElement.value);
+                        formData.append('recipient', recipientElement.value || 'غير محدد');
+                        formData.append('template', 'default_template.html');
+                        formData.append('is_first', is_firstRadio.value);
+                        
+                        // Add title
+                        if (window.generatedLetterData && window.generatedLetterData.Title) {
+                            formData.append('title', window.generatedLetterData.Title);
+                        } else {
+                            formData.append('title', 'خطاب جديد');
+                        }
+                        
+                        // Add ID
+                        if (window.generatedLetterData && window.generatedLetterData.ID) {
+                            formData.append('ID', window.generatedLetterData.ID);
+                        } else {
+                            formData.append('ID', generateUniqueId());
+                        }
+                        
+                        console.log('✅ FormData prepared');
+                        
+                        // Step 5: Call archive API
+                        console.log('🚀 Calling archive API...');
+                        const result = await archiveLetter(formData);
+                        
+                        if (result) {
+                            console.log('✅ Archive successful:', result);
+                            alert('تم حفظ الخطاب بنجاح!');
+                            
+                            // Optional: Check archive status
+                            const letterId = window.generatedLetterData?.ID || generateUniqueId();
+                            setTimeout(async () => {
+                                try {
+                                    const status = await getArchiveStatus(letterId);
+                                    console.log('📊 Archive status:', status);
+                                } catch (statusError) {
+                                    console.warn('⚠️ Archive status check failed:', statusError);
+                                }
+                            }, 2000);
+                            
+                            // Navigate to letter history
+                            window.location.href = `letter-history.html?highlight=${letterId}`;
+                        } else {
+                            console.error('❌ Archive failed - no result returned');
+                            alert('فشل في حفظ الخطاب. الرجاء المحاولة مرة أخرى.');
+                        }
+                        
+                    } catch (error) {
+                        console.error('❌ Save process failed:', error);
+                        alert('حدث خطأ أثناء حفظ الخطاب: ' + error.message);
+                    }
+                });
+            } else {
+                console.error('❌ Save button not found!');
+            }
+            
+            // Validation refresh button
+            const refreshValidationButton = document.getElementById('refreshValidationButton');
+            if (refreshValidationButton) {
+                refreshValidationButton.addEventListener('click', async function() {
+                    const letterContent = document.getElementById('letterPreview').value;
+                    if (letterContent) {
+                        await validateAndDisplayResults(letterContent);
+                    } else {
+                        alert('لا يوجد محتوى خطاب للتحليل');
+                    }
+                });
+            }
         });
+
+        // Function to validate letter and display results
+        async function validateAndDisplayResults(letterContent) {
+            try {
+                console.log('Validating letter...');
+                const validation = await validateLetter(letterContent);
+                
+                if (validation && validation.status === 'success') {
+                    currentValidation = validation.validation;
+                    displayValidationResults(validation.validation);
+                    
+                    // Show validation section
+                    document.getElementById('validationSection').style.display = 'block';
+                } else {
+                    console.error('Validation failed:', validation);
+                }
+            } catch (error) {
+                console.error('Error validating letter:', error);
+            }
+        }
+
+        // Function to display validation results
+        function displayValidationResults(validationData) {
+            const validationContent = document.getElementById('validationContent');
+            
+            const isValid = validationData.is_valid;
+            const checks = validationData.checks;
+            const metrics = validationData.metrics;
+            const suggestions = validationData.suggestions || [];
+            
+            let html = '';
+            
+            // Overall status
+            html += `<div class="validation-status ${isValid ? 'status-valid' : 'status-invalid'}">`;
+            html += `<i class="fas fa-${isValid ? 'check-circle' : 'exclamation-triangle'}"></i>`;
+            html += `<span>${isValid ? 'الخطاب يحتوي على جودة جيدة' : 'الخطاب يحتاج إلى تحسينات'}</span>`;
+            html += `</div>`;
+            
+            // Checks
+            html += `<div class="validation-checks">`;
+            html += `<h5><i class="fas fa-list-check"></i> فحص العناصر:</h5>`;
+            html += `<div class="checks-grid">`;
+            
+            const checkLabels = {
+                has_arabic_content: 'المحتوى العربي',
+                has_bismillah: 'البسملة',
+                has_greeting: 'التحية',
+                sufficient_length: 'الطول المناسب'
+            };
+            
+            for (const [check, passed] of Object.entries(checks)) {
+                const label = checkLabels[check] || check;
+                html += `<div class="check-item ${passed ? 'check-passed' : 'check-failed'}">`;
+                html += `<i class="fas fa-${passed ? 'check' : 'times'}"></i>`;
+                html += `<span>${label}</span>`;
+                html += `</div>`;
+            }
+            
+            html += `</div></div>`;
+            
+            // Metrics
+            html += `<div class="validation-metrics">`;
+            html += `<h5><i class="fas fa-chart-bar"></i> إحصائيات الخطاب:</h5>`;
+            html += `<div class="metrics-grid">`;
+            html += `<div class="metric-item">`;
+            html += `<span class="metric-label">عدد الكلمات:</span>`;
+            html += `<span class="metric-value">${metrics.word_count}</span>`;
+            html += `</div>`;
+            html += `<div class="metric-item">`;
+            html += `<span class="metric-label">عدد الأحرف:</span>`;
+            html += `<span class="metric-value">${metrics.character_count}</span>`;
+            html += `</div>`;
+            html += `<div class="metric-item">`;
+            html += `<span class="metric-label">عدد الأسطر:</span>`;
+            html += `<span class="metric-value">${metrics.line_count}</span>`;
+            html += `</div>`;
+            html += `</div></div>`;
+            
+            // Suggestions
+            if (suggestions.length > 0) {
+                html += `<div class="validation-suggestions">`;
+                html += `<h5><i class="fas fa-lightbulb"></i> اقتراحات التحسين:</h5>`;
+                html += `<ul>`;
+                suggestions.forEach(suggestion => {
+                    html += `<li>${suggestion}</li>`;
+                });
+                html += `</ul></div>`;
+            }
+            
+            validationContent.innerHTML = html;
+        }
+
+        // Function to update session status indicator
+        function updateSessionStatus(message = null, status = 'inactive') {
+            const statusElement = document.getElementById('sessionStatusText');
+            if (statusElement) {
+                if (message) {
+                    statusElement.textContent = message;
+                } else {
+                    if (currentEditSession) {
+                        statusElement.textContent = `جلسة نشطة: ${currentEditSession.id.substring(0, 8)}...`;
+                    } else {
+                        statusElement.textContent = 'لم يتم إنشاء جلسة تعديل بعد';
+                    }
+                }
+                
+                // Update status styling
+                const statusContainer = document.getElementById('sessionStatus');
+                statusContainer.className = `session-status-${status}`;
+            }
+        }
+
+        // Function to cleanup edit session
+        async function cleanupEditSession() {
+            if (currentEditSession) {
+                try {
+                    console.log('Cleaning up edit session:', currentEditSession.id);
+                    updateSessionStatus('إنهاء الجلسة...', 'cleanup');
+                    
+                    // Delete the session from backend
+                    await deleteChatSession(currentEditSession.id);
+                    
+                    console.log('Edit session cleaned up successfully');
+                } catch (error) {
+                    console.error('Error cleaning up edit session:', error);
+                    throw error; // Re-throw so caller knows cleanup failed
+                } finally {
+                    currentEditSession = null;
+                    updateSessionStatus('تم إنهاء الجلسة', 'cleanup-complete');
+                    
+                    // Reset status after a short delay
+                    setTimeout(() => {
+                        updateSessionStatus();
+                    }, 2000);
+                }
+            }
+        }
+
+        // Generate unique ID for letters
+        function generateUniqueId() {
+            return 'L' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+        }
 
         // Function to load previous letters
         async function loadPreviousLetters() {
@@ -268,10 +688,8 @@
                 const letters = await loadSubmissionsData();
                 const previousLetterSelect = document.getElementById("previousLetter");
                 
-                // Clear existing options except the first one
                 previousLetterSelect.innerHTML = '<option value="">اختر الخطاب السابق</option>';
                 
-                // Add letters as options
                 letters.forEach(letter => {
                     const option = document.createElement("option");
                     option.value = letter.id;
@@ -290,10 +708,8 @@
                 const letters = await loadReceivedData();
                 const receivedLetterSelect = document.getElementById("receivedLetter");
                 
-                // Clear existing options except the first one
                 receivedLetterSelect.innerHTML = '<option value="">اختر الخطاب المستلم</option>';
                 
-                // Add letters as options
                 letters.forEach(letter => {
                     const option = document.createElement("option");
                     option.value = letter.id;
@@ -305,6 +721,14 @@
                 console.error('Error loading received letters:', error);
             }
         }
+
+        // Cleanup session when user leaves the page
+        window.addEventListener('beforeunload', function() {
+            if (currentEditSession) {
+                // Note: This might not always work due to browser restrictions
+                cleanupEditSession();
+            }
+        });
     </script>
 </body>
 </html>
