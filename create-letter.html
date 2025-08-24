@@ -439,14 +439,14 @@
                         // Step 2: Get required form fields
                         const letterTypeElement = document.getElementById('letterType');
                         const recipientElement = document.getElementById('recipient');
-                        const isFirstRadio = document.querySelector('input[name="isFirst"]:checked');
+                        const is_firstRadio = document.querySelector('input[name="is_first"]:checked');
                         
                         if (!letterTypeElement.value) {
                             alert('الرجاء اختيار نوع الخطاب');
                             return;
                         }
                         
-                        if (!isFirstRadio) {
+                        if (!is_firstRadio) {
                             alert('الرجاء تحديد ما إذا كانت هذه أول مراسلة');
                             return;
                         }
@@ -473,7 +473,7 @@
                         formData.append('letter_type', letterTypeElement.value);
                         formData.append('recipient', recipientElement.value || 'غير محدد');
                         formData.append('template', 'default_template.html');
-                        formData.append('is_first', isFirstRadio.value);
+                        formData.append('is_first', is_firstRadio.value);
                         
                         // Add title
                         if (window.generatedLetterData && window.generatedLetterData.Title) {
