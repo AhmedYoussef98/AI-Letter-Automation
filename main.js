@@ -130,32 +130,113 @@ function translateLetterType(type) {
     return typeMap[type] || type;
 }
 
+// NEW: Sort letters function
+function sortLetters(letters, sortType) {
+    if (!sortType) return letters;
+    
+    const sortedLetters = [...letters]; // Create a copy to avoid mutating original array
+    
+    switch (sortType) {
+        case 'date-new-old':
+            return sortedLetters.sort((a, b) => {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                return dateB - dateA; // Newest first
+            });
+            
+        case 'date-old-new':
+            return sortedLetters.sort((a, b) => {
+                const dateA = new Date(a.date);
+                const dateB = new Date(b.date);
+                return dateA - dateB; // Oldest first
+            });
+            
+        case 'recipient-a-z':
+            return sortedLetters.sort((a, b) => {
+                return a.recipient.localeCompare(b.recipient, 'ar');
+            });
+            
+        case 'recipient-z-a':
+            return sortedLetters.sort((a, b) => {
+                return b.recipient.localeCompare(a.recipient, 'ar');
+            });
+            
+        case 'subject-a-z':
+            return sortedLetters.sort((a, b) => {
+                return a.subject.localeCompare(b.subject, 'ar');
+            });
+            
+        case 'subject-z-a':
+            return sortedLetters.sort((a, b) => {
+                return b.subject.localeCompare(a.subject, 'ar');
+            });
+            
+        case 'type-a-z':
+            return sortedLetters.sort((a, b) => {
+                return translateLetterType(a.type).localeCompare(translateLetterType(b.type), 'ar');
+            });
+            
+        case 'review-status':
+            // Sort by review status priority: جاهز للإرسال > في الانتظار > يحتاج إلى تحسينات > مرفوض
+            const statusPriority = {
+                'جاهز للإرسال': 1,
+                'في الانتظار': 2,
+                'يحتاج إلى تحسينات': 3,
+                'مرفوض': 4
+            };
+            return sortedLetters.sort((a, b) => {
+                const priorityA = statusPriority[a.reviewStatus] || 5;
+                const priorityB = statusPriority[b.reviewStatus] || 5;
+                return priorityA - priorityB;
+            });
+            
+        case 'writer-a-z':
+            return sortedLetters.sort((a, b) => {
+                const writerA = a.writer || 'zzz'; // Put empty writers at the end
+                const writerB = b.writer || 'zzz';
+                return writerA.localeCompare(writerB, 'ar');
+            });
+            
+        default:
+            return sortedLetters;
+    }
+}
+
+// UPDATED: Setup filters function with sorting
 function setupFilters(letters) {
     const searchInput = document.getElementById('searchInput');
     const typeFilter = document.getElementById('letterTypeFilter');
     const reviewFilter = document.getElementById('reviewStatusFilter');
+    const sortFilter = document.getElementById('sortFilter'); // NEW: Sort filter
     
-    const filterLetters = () => {
+    const filterAndSortLetters = () => {
         const searchTerm = searchInput.value.toLowerCase();
         const selectedType = typeFilter.value;
         const selectedReview = reviewFilter.value;
+        const selectedSort = sortFilter.value; // NEW: Get sort selection
         
-        const filtered = letters.filter(letter => {
+        // First, apply filters
+        let filtered = letters.filter(letter => {
             const matchesSearch = letter.recipient.toLowerCase().includes(searchTerm) || 
                                 letter.id.toLowerCase().includes(searchTerm) ||
-                                (letter.writer && letter.writer.toLowerCase().includes(searchTerm)); // Add writer to search
+                                (letter.writer && letter.writer.toLowerCase().includes(searchTerm));
             const matchesType = !selectedType || translateLetterType(letter.type) === selectedType;
             const matchesReview = !selectedReview || letter.reviewStatus === selectedReview;
             
             return matchesSearch && matchesType && matchesReview;
         });
         
+        // Then, apply sorting
+        filtered = sortLetters(filtered, selectedSort);
+        
         renderLettersTable(filtered);
     };
     
-    searchInput.addEventListener('input', filterLetters);
-    typeFilter.addEventListener('change', filterLetters);
-    reviewFilter.addEventListener('change', filterLetters);
+    // Add event listeners for all filters including sort
+    searchInput.addEventListener('input', filterAndSortLetters);
+    typeFilter.addEventListener('change', filterAndSortLetters);
+    reviewFilter.addEventListener('change', filterAndSortLetters);
+    sortFilter.addEventListener('change', filterAndSortLetters); // NEW: Sort event listener
 }
 
 // Letter Actions
@@ -212,7 +293,6 @@ function extractGoogleDriveFileId(url) {
     
     return null;
 }
-
 
 async function deleteLetter(id) {
     if (confirm("هل أنت متأكد من حذف هذا الخطاب؟")) {
