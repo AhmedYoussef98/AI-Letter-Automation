@@ -58,10 +58,10 @@
                         <input type="text" id="recipientJobTitle" name="recipient_job_title" required>
                     </div>
 
-                    <div class="form-group">
-                        <label for="recipientTitle">لقب المرسل إليه</label>
-                        <select id="recipientTitle" name="recipient_title">
-                            <option value="">اختر اللقب (اختياري)</option>
+                   <div class="form-group">
+                        <label for="recipientTitle">لقب المرسل إليه <span class="required">*</span></label>
+                        <select id="recipientTitle" name="recipient_title" required>
+                            <option value="">اختر اللقب</option>
                             <!-- Options will be dynamically loaded from sheets.js -->
                         </select>
                         <input type="text" id="otherRecipientTitle" name="other_recipient_title" style="display:none; margin-top: 10px;" placeholder="أدخل اللقب الآخر">
