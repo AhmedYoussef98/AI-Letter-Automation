@@ -628,7 +628,9 @@ if (typeof module !== 'undefined' && module.exports) {
 }
 // ADD THIS TO YOUR mobile.js FILE FOR DEBUGGING
 
-// Enhanced Mobile Navigation with Debug Logging
+// SIMPLIFIED HAMBURGER MENU FIX
+// Replace your existing setupMobileNavigation function with this:
+
 function setupMobileNavigation() {
     console.log('🔧 Setting up mobile navigation...');
     
@@ -640,17 +642,17 @@ function setupMobileNavigation() {
         return;
     }
     
-    // Create hamburger menu button
+    // Find or create hamburger
     let hamburger = document.querySelector('.hamburger');
     if (!hamburger) {
         hamburger = document.createElement('div');
         hamburger.className = 'hamburger';
         hamburger.innerHTML = '<span></span><span></span><span></span>';
-        navContainer.insertBefore(hamburger, navLinks);
-        console.log('✅ Hamburger button created');
+        document.body.appendChild(hamburger); // Append to body instead of nav-container
+        console.log('✅ Hamburger button created and added to body');
     }
     
-    // Create overlay for mobile menu
+    // Find or create overlay
     let overlay = document.querySelector('.nav-overlay');
     if (!overlay) {
         overlay = document.createElement('div');
@@ -659,104 +661,99 @@ function setupMobileNavigation() {
         console.log('✅ Overlay created');
     }
     
-    // ENHANCED: Toggle menu functionality with debug logging
-    hamburger.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('🍔 Hamburger clicked!');
+    // CRITICAL: Remove any existing event listeners
+    hamburger.replaceWith(hamburger.cloneNode(true));
+    hamburger = document.querySelector('.hamburger');
+    
+    // Simple toggle function
+    function toggleMenu() {
+        console.log('🍔 Toggle menu called');
         
         const isActive = hamburger.classList.contains('active');
-        console.log('📱 Menu is currently:', isActive ? 'OPEN' : 'CLOSED');
         
         if (isActive) {
             // Close menu
+            console.log('❌ Closing menu...');
             hamburger.classList.remove('active');
             navLinks.classList.remove('active');
             overlay.classList.remove('active');
             document.body.classList.remove('nav-open');
             document.body.style.overflow = '';
-            console.log('❌ Menu closed');
         } else {
             // Open menu
+            console.log('✅ Opening menu...');
             hamburger.classList.add('active');
             navLinks.classList.add('active');
             overlay.classList.add('active');
             document.body.classList.add('nav-open');
             document.body.style.overflow = 'hidden';
-            console.log('✅ Menu opened');
         }
+    }
+    
+    // Add multiple event types to hamburger for better compatibility
+    hamburger.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🍔 Hamburger CLICKED');
+        toggleMenu();
     });
     
-    // ENHANCED: Close menu when overlay is clicked
+    hamburger.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('👆 Hamburger TOUCHED');
+    });
+    
+    hamburger.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('👆 Hamburger TOUCH END');
+        toggleMenu();
+    });
+    
+    // Close menu when overlay clicked
     overlay.addEventListener('click', function(e) {
-        console.log('🌫️ Overlay clicked - closing menu');
-        hamburger.classList.remove('active');
-        navLinks.classList.remove('active');
-        overlay.classList.remove('active');
-        document.body.classList.remove('nav-open');
-        document.body.style.overflow = '';
+        console.log('🌫️ Overlay clicked');
+        toggleMenu();
     });
     
-    // ENHANCED: Close menu when nav link is clicked with better event handling
+    // Close menu when nav link clicked
     navLinks.addEventListener('click', function(e) {
-        console.log('🔗 Nav links container clicked, target:', e.target.tagName, e.target.className);
-        
-        // Check if clicked element is a nav link or contains a nav link
-        const clickedLink = e.target.closest('.nav-link');
-        if (clickedLink) {
-            console.log('✅ Nav link clicked:', clickedLink.textContent.trim());
-            
-            // Close menu
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.classList.remove('nav-open');
-            document.body.style.overflow = '';
-            
-            console.log('🔄 Menu closed after nav link click');
-            
-            // Let the link navigation happen naturally
-            return true;
-        } else {
-            console.log('❌ Click was not on a nav link');
+        if (e.target.classList.contains('nav-link') || e.target.closest('.nav-link')) {
+            console.log('🔗 Nav link clicked - closing menu');
+            setTimeout(() => toggleMenu(), 100); // Small delay for UX
         }
     });
     
-    // ADDITIONAL: Add click event to each nav link individually
-    const navLinkElements = navLinks.querySelectorAll('.nav-link');
-    console.log(`🔗 Found ${navLinkElements.length} nav links`);
+    // Test hamburger visibility and clickability
+    function testHamburger() {
+        const rect = hamburger.getBoundingClientRect();
+        const isVisible = rect.width > 0 && rect.height > 0;
+        const computedStyle = window.getComputedStyle(hamburger);
+        
+        console.log('🔍 Hamburger test:', {
+            visible: isVisible,
+            width: rect.width,
+            height: rect.height,
+            zIndex: computedStyle.zIndex,
+            position: computedStyle.position,
+            pointerEvents: computedStyle.pointerEvents,
+            display: computedStyle.display
+        });
+        
+        // Make hamburger flash to show its location
+        hamburger.style.backgroundColor = 'red';
+        setTimeout(() => {
+            hamburger.style.backgroundColor = '';
+        }, 500);
+    }
     
-    navLinkElements.forEach((link, index) => {
-        link.addEventListener('click', function(e) {
-            console.log(`🎯 Direct click on nav link ${index + 1}:`, link.textContent.trim());
-            
-            // Close menu
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.classList.remove('nav-open');
-            document.body.style.overflow = '';
-            
-            console.log('✅ Menu closed after direct nav link click');
-        });
-        
-        // Add touch events for better mobile support
-        link.addEventListener('touchstart', function(e) {
-            console.log(`👆 Touch start on nav link ${index + 1}`);
-            link.style.backgroundColor = 'rgba(0, 166, 81, 0.1)';
-        });
-        
-        link.addEventListener('touchend', function(e) {
-            console.log(`👆 Touch end on nav link ${index + 1}`);
-            setTimeout(() => {
-                link.style.backgroundColor = '';
-            }, 150);
-        });
-    });
+    // Run test after setup
+    setTimeout(testHamburger, 1000);
     
     // Handle window resize
     function handleResize() {
         if (window.innerWidth > 768) {
-            console.log('💻 Desktop view - hiding hamburger');
             hamburger.style.display = 'none';
             navLinks.classList.remove('active');
             overlay.classList.remove('active');
@@ -764,37 +761,27 @@ function setupMobileNavigation() {
             document.body.classList.remove('nav-open');
             document.body.style.overflow = '';
         } else {
-            console.log('📱 Mobile view - showing hamburger');
             hamburger.style.display = 'flex';
         }
     }
     
     window.addEventListener('resize', handleResize);
-    handleResize(); // Initial call
+    handleResize();
     
     console.log('✅ Mobile navigation setup complete!');
+    
+    // Add click test area around hamburger
+    document.addEventListener('click', function(e) {
+        const rect = hamburger.getBoundingClientRect();
+        const clickX = e.clientX;
+        const clickY = e.clientY;
+        
+        if (clickX >= rect.left && clickX <= rect.right && 
+            clickY >= rect.top && clickY <= rect.bottom) {
+            console.log('🎯 Click detected in hamburger area!');
+        }
+    });
 }
 
-// DEBUGGING: Test if navigation elements exist
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🔍 Checking navigation elements...');
-    console.log('Nav container:', document.querySelector('.nav-container') ? '✅ Found' : '❌ Missing');
-    console.log('Nav links:', document.querySelector('.nav-links') ? '✅ Found' : '❌ Missing');
-    console.log('Individual nav links:', document.querySelectorAll('.nav-link').length + ' found');
-    
-    // Initialize mobile navigation
-    setupMobileNavigation();
-    
-    // Test click detection on nav links
-    setTimeout(() => {
-        const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach((link, index) => {
-            const rect = link.getBoundingClientRect();
-            console.log(`📐 Nav link ${index + 1} dimensions:`, {
-                width: rect.width,
-                height: rect.height,
-                visible: rect.width > 0 && rect.height > 0
-            });
-        });
-    }, 1000);
-});
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', setupMobileNavigation);
