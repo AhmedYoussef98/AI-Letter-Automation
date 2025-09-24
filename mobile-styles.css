@@ -841,3 +841,151 @@
         padding: 1.5rem;
     }
 }
+
+/* ============================================
+   MOBILE NAVIGATION FIXES - Add these to your mobile-styles.css
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* FIX 1: Ensure navigation links have proper z-index and pointer events */
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background-color: var(--card-light);
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: stretch;
+        padding: 4rem 0 2rem 0;
+        transition: right 0.3s ease;
+        z-index: 1002; /* INCREASED: Higher than overlay */
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        pointer-events: none; /* ADDED: Disable when hidden */
+    }
+
+    /* FIX 2: Enable pointer events when menu is active */
+    .nav-links.active {
+        right: 0;
+        pointer-events: auto; /* ADDED: Enable when visible */
+    }
+
+    /* FIX 3: Ensure nav links are clickable */
+    .nav-links li {
+        width: 100%;
+        margin: 0;
+        pointer-events: auto; /* ADDED: Ensure list items are clickable */
+    }
+
+    .nav-link {
+        padding: 1.5rem 2rem;
+        border-radius: 0;
+        border-bottom: 1px solid var(--border-light);
+        justify-content: flex-start;
+        font-size: 1.1rem;
+        min-height: 44px;
+        display: flex; /* ADDED: Ensure proper display */
+        align-items: center;
+        pointer-events: auto; /* ADDED: Ensure links are clickable */
+        position: relative; /* ADDED: Ensure proper stacking */
+        z-index: 1; /* ADDED: Ensure links are on top */
+    }
+
+    /* FIX 4: Hamburger menu fixes */
+    .hamburger {
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+        padding: 0.5rem;
+        z-index: 1003; /* INCREASED: Highest z-index */
+        position: relative;
+        min-height: 44px;
+        min-width: 44px;
+        justify-content: center;
+        align-items: center;
+        pointer-events: auto; /* ADDED: Ensure hamburger is clickable */
+    }
+
+    /* FIX 5: Overlay fixes */
+    .nav-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1001; /* DECREASED: Lower than nav-links */
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        pointer-events: none; /* ADDED: Don't block clicks when hidden */
+    }
+
+    .nav-overlay.active {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto; /* ADDED: Enable when visible */
+    }
+
+    /* FIX 6: Ensure body doesn't interfere */
+    body.nav-open {
+        overflow: hidden;
+        position: relative;
+    }
+
+    /* FIX 7: Additional safety for nav container */
+    .nav-container {
+        position: relative;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        z-index: 1000; /* ADDED: Ensure proper stacking */
+    }
+
+    /* FIX 8: Dark mode support for the fixes */
+    body.dark-mode .nav-links {
+        background-color: var(--card-dark);
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+    }
+
+    body.dark-mode .nav-link {
+        border-bottom-color: var(--border-dark);
+    }
+
+    /* FIX 9: Touch-friendly improvements */
+    .nav-link:hover,
+    .nav-link:focus,
+    .nav-link:active {
+        background-color: rgba(0, 166, 81, 0.1);
+        transform: none; /* ADDED: Prevent transform issues on mobile */
+    }
+
+    /* FIX 10: Force visibility when active */
+    .nav-links.active .nav-link {
+        visibility: visible;
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   ADDITIONAL DEBUGGING STYLES (Remove after testing)
+   ============================================ */
+@media (max-width: 768px) {
+    /* Temporary debugging - add colored backgrounds to see elements */
+    /*
+    .nav-links.active {
+        border: 2px solid red !important;
+    }
+    
+    .nav-link {
+        background-color: rgba(255, 0, 0, 0.1) !important;
+    }
+    
+    .nav-overlay.active {
+        background-color: rgba(0, 255, 0, 0.3) !important;
+    }
+    */
+}
