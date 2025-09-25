@@ -958,3 +958,318 @@ window.testNavigation = function() {
 
 console.log('✅ Navigation click fix loaded!');
 console.log('💡 You can test navigation by typing: window.testNavigation() in console');
+// ============================================
+// FORCE NAVIGATION LINKS TO BE CLICKABLE
+// Add this to the END of your mobile.js file
+// ============================================
+
+function forceNavigationVisibility() {
+    console.log('💪 FORCING navigation visibility...');
+    
+    const navLinks = document.querySelector('.nav-links');
+    const hamburger = document.querySelector('.hamburger');
+    
+    if (!navLinks || !hamburger) {
+        console.error('❌ Critical elements missing');
+        return;
+    }
+    
+    // Override the openMenu function to force visibility
+    window.forceOpenMenu = function() {
+        console.log('🔥 FORCE opening menu...');
+        
+        // Style the main nav container aggressively
+        navLinks.style.cssText = `
+            position: fixed !important;
+            top: 0 !important;
+            right: 0 !important;
+            width: 250px !important;
+            height: 100vh !important;
+            background-color: white !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: flex-start !important;
+            align-items: stretch !important;
+            padding: 20px 0 !important;
+            z-index: 9995 !important;
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3) !important;
+            pointer-events: auto !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            overflow: visible !important;
+            transform: none !important;
+        `;
+        
+        // Check if dark mode
+        if (document.body.classList.contains('dark-mode')) {
+            navLinks.style.backgroundColor = '#2a2a2a !important';
+        }
+        
+        navLinks.classList.add('active');
+        
+        // Force each navigation link to be visible and clickable
+        const navLinkElements = navLinks.querySelectorAll('a, .nav-link');
+        console.log(`🔗 Forcing ${navLinkElements.length} nav links to be visible`);
+        
+        navLinkElements.forEach((link, index) => {
+            // Force dimensions and visibility
+            link.style.cssText = `
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: 100% !important;
+                height: 50px !important;
+                min-height: 50px !important;
+                max-height: none !important;
+                padding: 15px 20px !important;
+                margin: 0 !important;
+                border: none !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+                background-color: rgba(0, 255, 0, 0.1) !important;
+                color: #333 !important;
+                font-size: 16px !important;
+                font-weight: 500 !important;
+                text-decoration: none !important;
+                box-sizing: border-box !important;
+                position: relative !important;
+                z-index: 9999 !important;
+                pointer-events: auto !important;
+                cursor: pointer !important;
+                line-height: 20px !important;
+                white-space: nowrap !important;
+                overflow: visible !important;
+                transform: none !important;
+                clip: none !important;
+                clip-path: none !important;
+            `;
+            
+            // Dark mode color
+            if (document.body.classList.contains('dark-mode')) {
+                link.style.color = '#ffffff !important';
+                link.style.borderBottomColor = 'rgba(255, 255, 255, 0.1) !important';
+            }
+            
+            // Remove all existing event listeners by cloning
+            const newLink = link.cloneNode(true);
+            link.parentNode.replaceChild(newLink, link);
+            
+            // Add new click handler
+            newLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log(`✅ CLICKED: ${newLink.textContent.trim()}`);
+                
+                // Visual feedback
+                this.style.backgroundColor = 'rgba(0, 166, 81, 0.3) !important';
+                
+                // Close menu
+                forceCloseMenu();
+                
+                // Navigate after delay
+                setTimeout(() => {
+                    const href = newLink.getAttribute('href');
+                    if (href && href !== '#') {
+                        window.location.href = href;
+                    }
+                }, 300);
+            });
+            
+            // Add touch handler
+            newLink.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log(`👆 TOUCHED: ${newLink.textContent.trim()}`);
+                
+                // Visual feedback
+                this.style.backgroundColor = 'rgba(0, 166, 81, 0.3) !important';
+                
+                // Close menu
+                forceCloseMenu();
+                
+                // Navigate after delay
+                setTimeout(() => {
+                    const href = newLink.getAttribute('href');
+                    if (href && href !== '#') {
+                        window.location.href = href;
+                    }
+                }, 300);
+            });
+            
+            // Hover effect
+            newLink.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = 'rgba(0, 166, 81, 0.1) !important';
+            });
+            
+            newLink.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = 'rgba(0, 255, 0, 0.1) !important';
+            });
+            
+            console.log(`✅ Forced nav link ${index + 1}: ${newLink.textContent.trim()}`);
+        });
+        
+        // Force hamburger to show active state
+        hamburger.classList.add('active');
+        const spans = hamburger.querySelectorAll('span');
+        if (spans.length >= 3) {
+            spans[0].style.transform = 'rotate(-45deg) translate(-5px, 6px)';
+            spans[1].style.opacity = '0';
+            spans[2].style.transform = 'rotate(45deg) translate(-5px, -6px)';
+        }
+        
+        // Show overlay
+        const overlay = document.querySelector('.nav-overlay');
+        if (overlay) {
+            overlay.style.cssText = `
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background-color: rgba(0, 0, 0, 0.5) !important;
+                z-index: 9990 !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+            `;
+            overlay.classList.add('active');
+        }
+        
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+        document.body.classList.add('nav-open');
+        
+        console.log('✅ Menu FORCE opened successfully!');
+        
+        // Test link dimensions after opening
+        setTimeout(() => {
+            testForcedLinks();
+        }, 500);
+    };
+    
+    window.forceCloseMenu = function() {
+        console.log('❌ FORCE closing menu...');
+        
+        navLinks.style.right = '-100%';
+        navLinks.classList.remove('active');
+        
+        hamburger.classList.remove('active');
+        const spans = hamburger.querySelectorAll('span');
+        if (spans.length >= 3) {
+            spans[0].style.transform = 'none';
+            spans[1].style.opacity = '1';
+            spans[2].style.transform = 'none';
+        }
+        
+        const overlay = document.querySelector('.nav-overlay');
+        if (overlay) {
+            overlay.style.opacity = '0';
+            overlay.style.visibility = 'hidden';
+            overlay.style.pointerEvents = 'none';
+            overlay.classList.remove('active');
+        }
+        
+        document.body.style.overflow = '';
+        document.body.classList.remove('nav-open');
+        
+        console.log('✅ Menu FORCE closed!');
+    };
+    
+    // Replace hamburger click handler
+    hamburger.onclick = null;
+    hamburger.ontouchend = null;
+    
+    // Remove all event listeners by cloning hamburger
+    const newHamburger = hamburger.cloneNode(true);
+    hamburger.parentNode.replaceChild(newHamburger, hamburger);
+    
+    let isMenuOpen = false;
+    
+    newHamburger.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🍔 FORCE hamburger clicked');
+        
+        if (isMenuOpen) {
+            forceCloseMenu();
+            isMenuOpen = false;
+        } else {
+            forceOpenMenu();
+            isMenuOpen = true;
+        }
+    });
+    
+    newHamburger.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('👆 FORCE hamburger touched');
+        
+        if (isMenuOpen) {
+            forceCloseMenu();
+            isMenuOpen = false;
+        } else {
+            forceOpenMenu();
+            isMenuOpen = true;
+        }
+    });
+    
+    function testForcedLinks() {
+        console.log('🧪 Testing FORCED navigation links...');
+        
+        const links = document.querySelectorAll('.nav-links a, .nav-links .nav-link');
+        links.forEach((link, index) => {
+            const rect = link.getBoundingClientRect();
+            const computedStyle = window.getComputedStyle(link);
+            
+            console.log(`🔗 FORCED Nav link ${index + 1}:`, {
+                text: link.textContent.trim(),
+                visible: rect.width > 0 && rect.height > 0,
+                width: rect.width,
+                height: rect.height,
+                zIndex: computedStyle.zIndex,
+                pointerEvents: computedStyle.pointerEvents,
+                display: computedStyle.display,
+                backgroundColor: computedStyle.backgroundColor,
+                clickable: rect.width > 0 && rect.height > 0
+            });
+            
+            // Flash green to show it's detected
+            const originalBg = link.style.backgroundColor;
+            link.style.backgroundColor = 'lime !important';
+            setTimeout(() => {
+                link.style.backgroundColor = originalBg;
+            }, 500 + (index * 300));
+        });
+        
+        console.log('🟢 Links should flash LIME GREEN one by one');
+        console.log('🎯 Try clicking them now - they should have green backgrounds!');
+    }
+    
+    console.log('✅ Force navigation setup complete!');
+}
+
+// Initialize force navigation
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(forceNavigationVisibility, 1000);
+    });
+} else {
+    setTimeout(forceNavigationVisibility, 1000);
+}
+
+// Add test function to window
+window.testForceNavigation = function() {
+    console.log('🧪 MANUAL FORCE TEST');
+    forceOpenMenu();
+    setTimeout(() => {
+        const links = document.querySelectorAll('.nav-links a, .nav-links .nav-link');
+        console.log(`Found ${links.length} links`);
+        links.forEach(link => {
+            const rect = link.getBoundingClientRect();
+            console.log(`Link: ${link.textContent.trim()}, Visible: ${rect.width > 0 && rect.height > 0}`);
+        });
+    }, 500);
+};
+
+console.log('💪 FORCE navigation system loaded!');
+console.log('🧪 Test manually: window.testForceNavigation()');
+console.log('🔥 This will FORCE the menu open with green backgrounds!');
