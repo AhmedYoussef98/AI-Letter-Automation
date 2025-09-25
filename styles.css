@@ -1744,3 +1744,137 @@ body.dark-mode #sortFilter:not([value=""]) {
     font-size: 0.9rem;
     z-index: 10;
 }
+/* ============================================
+   HAMBURGER MENU - MOBILE ONLY FIX
+   Add this CSS to your styles.css file
+   ============================================ */
+
+/* DESKTOP: Hide hamburger menu completely */
+.hamburger {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* MOBILE: Show hamburger menu only on mobile devices */
+@media (max-width: 768px) {
+    .hamburger {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        flex-direction: column;
+        cursor: pointer;
+        padding: 0.5rem;
+        z-index: 1002;
+        position: relative;
+        min-height: 44px;
+        min-width: 44px;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    /* Hamburger spans styling for mobile */
+    .hamburger span {
+        width: 25px;
+        height: 3px;
+        background-color: var(--text-light);
+        margin: 3px 0;
+        transition: 0.3s;
+        border-radius: 2px;
+        display: block;
+    }
+
+    body.dark-mode .hamburger span {
+        background-color: var(--text-dark);
+    }
+
+    /* Hamburger animation states */
+    .hamburger.active span:nth-child(1) {
+        transform: rotate(-45deg) translate(-5px, 6px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+        transform: rotate(45deg) translate(-5px, -6px);
+    }
+}
+
+/* DESKTOP: Ensure navigation links are visible normally */
+@media (min-width: 769px) {
+    .nav-links {
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        background-color: transparent !important;
+        flex-direction: row !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        right: auto !important;
+        top: auto !important;
+        z-index: auto !important;
+        pointer-events: auto !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: flex !important;
+    }
+    
+    .nav-link {
+        padding: 0.5rem 1rem;
+        border-bottom: none !important;
+        font-size: 1rem;
+        min-height: auto;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link:hover {
+        color: var(--primary-color);
+        background-color: rgba(0, 166, 81, 0.1);
+    }
+    
+    /* Remove any mobile-specific nav overlay on desktop */
+    .nav-overlay {
+        display: none !important;
+    }
+}
+
+/* ============================================
+   ADDITIONAL DESKTOP NAVIGATION IMPROVEMENTS
+   ============================================ */
+
+/* Desktop navigation container improvements */
+@media (min-width: 769px) {
+    .nav-container {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+    }
+    
+    .nav-links {
+        gap: 2rem;
+        margin: 0;
+    }
+    
+    .nav-links li {
+        margin: 0;
+        width: auto;
+    }
+    
+    /* Ensure profile container and theme toggle are properly positioned */
+    #profile-container {
+        order: 0;
+        margin-right: 1rem;
+        padding-right: 0;
+    }
+    
+    .theme-toggle {
+        order: 0;
+        margin-left: 1rem;
+    }
+}
