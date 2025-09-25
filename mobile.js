@@ -1,5 +1,5 @@
 // Mobile Enhancements for AI Letter Generator
-// Complete mobile.js file
+// Complete mobile.js file - Updated with Hide Hamburger Navigation
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeMobileEnhancements();
@@ -14,9 +14,11 @@ function initializeMobileEnhancements() {
     setupMobileFormValidation();
 }
 
-// Mobile Navigation with Hamburger Menu
+// ============================================
+// HIDE HAMBURGER NAVIGATION SYSTEM
+// ============================================
 function setupMobileNavigation() {
-    console.log('🔧 Setting up mobile navigation...');
+    console.log('🔧 Setting up HIDE HAMBURGER navigation...');
     
     const navContainer = document.querySelector('.nav-container');
     const navLinks = document.querySelector('.nav-links');
@@ -38,12 +40,12 @@ function setupMobileNavigation() {
         existingHamburger.remove();
     }
 
-    // Create hamburger menu button with inline styles for immediate visibility
+    // Create hamburger menu button
     const hamburger = document.createElement('div');
     hamburger.className = 'hamburger';
     hamburger.innerHTML = '<span></span><span></span><span></span>';
     
-    // Apply critical styles directly to ensure visibility
+    // Style hamburger for visibility
     hamburger.style.cssText = `
         display: flex !important;
         flex-direction: column !important;
@@ -67,9 +69,9 @@ function setupMobileNavigation() {
         -webkit-tap-highlight-color: transparent !important;
     `;
     
-    // Style the hamburger lines
+    // Style hamburger spans
     const spans = hamburger.querySelectorAll('span');
-    spans.forEach((span, index) => {
+    spans.forEach(span => {
         span.style.cssText = `
             width: 25px !important;
             height: 3px !important;
@@ -78,245 +80,290 @@ function setupMobileNavigation() {
             margin: 3px 0 !important;
             border-radius: 2px !important;
             transition: all 0.3s ease !important;
-            transform-origin: center !important;
         `;
     });
     
-    // Add hamburger to body
     document.body.appendChild(hamburger);
-    console.log('✅ Hamburger button created and added to body');
+    console.log('✅ Hamburger created');
 
-    // Create or find overlay
-    let overlay = document.querySelector('.nav-overlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.className = 'nav-overlay';
-        overlay.style.cssText = `
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            background-color: rgba(0, 0, 0, 0.5) !important;
-            z-index: 9998 !important;
-            opacity: 0 !important;
-            visibility: hidden !important;
-            transition: all 0.3s ease !important;
-            pointer-events: none !important;
-        `;
-        document.body.appendChild(overlay);
-        console.log('✅ Overlay created');
-    }
-
-    // Style nav-links for mobile
+    // Style navigation for full-screen mode
     navLinks.style.cssText = `
         position: fixed !important;
         top: 0 !important;
         right: -100% !important;
-        width: 80% !important;
-        max-width: 300px !important;
+        width: 100% !important;
         height: 100vh !important;
         background-color: var(--card-light, #ffffff) !important;
         flex-direction: column !important;
         justify-content: flex-start !important;
         align-items: stretch !important;
-        padding: 80px 0 20px 0 !important;
+        padding-top: 80px !important;
         transition: right 0.3s ease !important;
         z-index: 9999 !important;
-        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2) !important;
         pointer-events: none !important;
         overflow-y: auto !important;
+        box-shadow: none !important;
     `;
+    
+    // Check for dark mode
+    if (document.body.classList.contains('dark-mode')) {
+        navLinks.style.backgroundColor = 'var(--card-dark, #2a2a2a) !important';
+    }
 
-    // Navigation state management
     let isMenuOpen = false;
     
-    function toggleMenu() {
-        console.log('🍔 Toggle menu called, current state:', isMenuOpen);
-        
-        if (isMenuOpen) {
-            closeMenu();
-        } else {
-            openMenu();
-        }
-    }
-    
     function openMenu() {
-        console.log('✅ Opening menu...');
+        console.log('✅ Opening full-screen menu...');
         isMenuOpen = true;
         
-        // Update hamburger
+        // HIDE hamburger completely
+        hamburger.style.display = 'none';
         hamburger.classList.add('active');
-        const spans = hamburger.querySelectorAll('span');
-        spans[0].style.transform = 'rotate(-45deg) translate(-5px, 6px)';
-        spans[1].style.opacity = '0';
-        spans[2].style.transform = 'rotate(45deg) translate(-5px, -6px)';
         
-        // Show navigation
+        // Show navigation full-screen
         navLinks.style.right = '0';
         navLinks.style.pointerEvents = 'auto';
         navLinks.classList.add('active');
-        
-        // Show overlay
-        overlay.style.opacity = '1';
-        overlay.style.visibility = 'visible';
-        overlay.style.pointerEvents = 'auto';
-        overlay.classList.add('active');
         
         // Prevent body scroll
         document.body.style.overflow = 'hidden';
         document.body.classList.add('nav-open');
         
-        // Style individual nav links for mobile
-        const navLinksElements = navLinks.querySelectorAll('.nav-link');
-        navLinksElements.forEach(link => {
+        // Style navigation links for full-screen
+        const navLinkElements = navLinks.querySelectorAll('.nav-link');
+        navLinkElements.forEach((link, index) => {
             link.style.cssText = `
-                padding: 15px 20px !important;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
                 display: flex !important;
                 align-items: center !important;
-                font-size: 16px !important;
-                min-height: 50px !important;
+                justify-content: flex-start !important;
+                padding: 20px 30px !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+                font-size: 18px !important;
+                min-height: 60px !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
                 color: var(--text-light, #333) !important;
                 text-decoration: none !important;
-                transition: background-color 0.3s ease !important;
+                background-color: transparent !important;
+                position: relative !important;
+                z-index: 9998 !important;
+                pointer-events: auto !important;
+                cursor: pointer !important;
+                transition: all 0.3s ease !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                margin: 0 !important;
             `;
             
-            // Add hover effect
+            // Dark mode
+            if (document.body.classList.contains('dark-mode')) {
+                link.style.color = 'var(--text-dark, #ffffff) !important';
+                link.style.borderBottomColor = 'rgba(255, 255, 255, 0.1) !important';
+            }
+            
+            // Hover effects
             link.addEventListener('mouseenter', () => {
                 link.style.backgroundColor = 'rgba(0, 166, 81, 0.1)';
+                link.style.paddingLeft = '40px';
+                link.style.transform = 'translateX(10px)';
             });
             
             link.addEventListener('mouseleave', () => {
                 link.style.backgroundColor = 'transparent';
+                link.style.paddingLeft = '30px';
+                link.style.transform = 'translateX(0)';
             });
         });
+        
+        console.log('✅ Full-screen menu opened');
     }
     
     function closeMenu() {
-        console.log('❌ Closing menu...');
+        console.log('❌ Closing full-screen menu...');
         isMenuOpen = false;
         
-        // Reset hamburger
+        // SHOW hamburger again
+        hamburger.style.display = 'flex';
         hamburger.classList.remove('active');
-        const spans = hamburger.querySelectorAll('span');
-        spans[0].style.transform = 'none';
-        spans[1].style.opacity = '1';
-        spans[2].style.transform = 'none';
         
         // Hide navigation
         navLinks.style.right = '-100%';
         navLinks.style.pointerEvents = 'none';
         navLinks.classList.remove('active');
         
-        // Hide overlay
-        overlay.style.opacity = '0';
-        overlay.style.visibility = 'hidden';
-        overlay.style.pointerEvents = 'none';
-        overlay.classList.remove('active');
-        
         // Restore body scroll
         document.body.style.overflow = '';
         document.body.classList.remove('nav-open');
+        
+        console.log('✅ Full-screen menu closed');
     }
 
-    // Event listeners with better mobile support
+    // Hamburger click handler
     hamburger.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        console.log('🍔 Hamburger CLICKED');
-        toggleMenu();
-    });
-
-    hamburger.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('👆 Hamburger TOUCH START');
-        hamburger.style.transform = 'scale(0.95)';
+        console.log('🍔 Hamburger clicked - opening full-screen menu');
+        openMenu();
     });
 
     hamburger.addEventListener('touchend', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        console.log('👆 Hamburger TOUCH END');
-        hamburger.style.transform = 'scale(1)';
-        toggleMenu();
+        console.log('👆 Hamburger touched - opening full-screen menu');
+        openMenu();
     });
 
-    // Close menu when overlay clicked
-    overlay.addEventListener('click', function(e) {
-        console.log('🌫️ Overlay clicked - closing menu');
-        closeMenu();
-    });
-
-    // Close menu when nav link clicked
+    // Close menu when clicking the X button (CSS ::before element)
     navLinks.addEventListener('click', function(e) {
+        const rect = navLinks.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Check if click is in the close button area (top-right corner)
+        if (x > rect.width - 80 && y < 80) {
+            console.log('✕ Close button clicked');
+            closeMenu();
+            return;
+        }
+        
+        // Check if clicked on a navigation link
         const clickedLink = e.target.closest('.nav-link');
         if (clickedLink) {
             console.log('🔗 Nav link clicked:', clickedLink.textContent.trim());
-            setTimeout(() => closeMenu(), 150); // Small delay for UX
+            
+            // Visual feedback
+            clickedLink.style.backgroundColor = 'rgba(0, 166, 81, 0.2)';
+            
+            // Close menu after short delay
+            setTimeout(() => {
+                closeMenu();
+                
+                // Navigate after menu closes
+                setTimeout(() => {
+                    const href = clickedLink.getAttribute('href');
+                    if (href && href !== '#') {
+                        window.location.href = href;
+                    }
+                }, 300);
+            }, 200);
         }
     });
 
+    // Enhanced navigation link click handling
+    setTimeout(() => {
+        setupEnhancedNavLinks();
+    }, 500);
+    
+    function setupEnhancedNavLinks() {
+        const navLinkElements = navLinks.querySelectorAll('.nav-link');
+        console.log(`🔗 Setting up ${navLinkElements.length} enhanced nav links`);
+        
+        navLinkElements.forEach((link, index) => {
+            // Remove existing listeners by cloning
+            const newLink = link.cloneNode(true);
+            link.parentNode.replaceChild(newLink, link);
+            
+            // Add dedicated click handler
+            newLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log(`✅ Direct click on nav link ${index + 1}:`, newLink.textContent.trim());
+                
+                // Visual feedback
+                this.style.backgroundColor = 'rgba(0, 166, 81, 0.3)';
+                
+                // Close menu
+                setTimeout(() => {
+                    closeMenu();
+                    
+                    // Navigate
+                    setTimeout(() => {
+                        const href = newLink.getAttribute('href');
+                        if (href && href !== '#') {
+                            window.location.href = href;
+                        }
+                    }, 300);
+                }, 150);
+            });
+            
+            // Touch handler
+            newLink.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log(`👆 Touch on nav link ${index + 1}:`, newLink.textContent.trim());
+                
+                // Visual feedback
+                this.style.backgroundColor = 'rgba(0, 166, 81, 0.3)';
+                
+                // Close menu
+                setTimeout(() => {
+                    closeMenu();
+                    
+                    // Navigate
+                    setTimeout(() => {
+                        const href = newLink.getAttribute('href');
+                        if (href && href !== '#') {
+                            window.location.href = href;
+                        }
+                    }, 300);
+                }, 150);
+            });
+        });
+        
+        console.log('✅ Enhanced nav links setup complete');
+    }
+
     // Handle window resize
     function handleResize() {
-        const isMobile = window.innerWidth <= 768;
-        
-        if (isMobile) {
-            console.log('📱 Mobile view - showing hamburger');
-            hamburger.style.display = 'flex';
-        } else {
+        if (window.innerWidth > 768) {
             console.log('💻 Desktop view - hiding hamburger');
             hamburger.style.display = 'none';
             closeMenu();
-            
-            // Reset nav-links for desktop
-            navLinks.style.cssText = '';
-            navLinks.classList.remove('active');
+            navLinks.style.cssText = ''; // Reset nav styles for desktop
+        } else {
+            console.log('📱 Mobile view - showing hamburger');
+            if (!isMenuOpen) {
+                hamburger.style.display = 'flex';
+            }
         }
     }
     
     window.addEventListener('resize', handleResize);
-    handleResize(); // Initial call
+    handleResize();
 
-    // Test hamburger functionality
+    // Test function
     setTimeout(() => {
-        testHamburgerFunctionality();
+        testFullScreenNavigation();
     }, 1000);
     
-    function testHamburgerFunctionality() {
-        const rect = hamburger.getBoundingClientRect();
-        const computedStyle = window.getComputedStyle(hamburger);
+    function testFullScreenNavigation() {
+        console.log('🧪 Testing full-screen navigation...');
         
-        console.log('🔍 Hamburger test:', {
-            visible: rect.width > 0 && rect.height > 0,
-            width: rect.width,
-            height: rect.height,
-            top: rect.top,
-            right: rect.right,
-            zIndex: computedStyle.zIndex,
-            position: computedStyle.position,
-            display: computedStyle.display,
-            pointerEvents: computedStyle.pointerEvents,
-            backgroundColor: computedStyle.backgroundColor
+        const hamburgerRect = hamburger.getBoundingClientRect();
+        console.log('🍔 Hamburger test:', {
+            visible: hamburgerRect.width > 0 && hamburgerRect.height > 0,
+            width: hamburgerRect.width,
+            height: hamburgerRect.height,
+            display: window.getComputedStyle(hamburger).display
         });
         
-        // Visual test - make hamburger flash
+        // Flash hamburger
         const originalBg = hamburger.style.backgroundColor;
         hamburger.style.backgroundColor = 'red';
         setTimeout(() => {
             hamburger.style.backgroundColor = originalBg;
         }, 1000);
         
-        console.log('🔴 Hamburger should flash red for 1 second');
+        console.log('🔴 Hamburger should flash RED for 1 second');
+        console.log('🎯 Click hamburger to test full-screen menu');
     }
 
-    console.log('✅ Mobile navigation setup complete!');
+    console.log('✅ Hide hamburger navigation setup complete!');
 }
 
-// Convert Tables to Mobile Cards
+// ============================================
+// MOBILE TABLE TO CARDS CONVERSION
+// ============================================
 function setupMobileTableConversion() {
     const tableContainer = document.querySelector('.letters-table-container');
     const table = document.querySelector('.letters-table');
@@ -467,7 +514,9 @@ function setupMobileTableConversion() {
     }
 }
 
-// Mobile Filters Enhancement
+// ============================================
+// MOBILE FILTERS ENHANCEMENT
+// ============================================
 function setupMobileFilters() {
     const filtersSection = document.querySelector('.filters-section');
     if (!filtersSection) return;
@@ -569,7 +618,9 @@ function setupMobileFilters() {
     window.addEventListener('resize', setupMobileFilterToggle);
 }
 
-// Touch Enhancements
+// ============================================
+// TOUCH ENHANCEMENTS
+// ============================================
 function setupTouchEnhancements() {
     // Add touch feedback to buttons
     const buttons = document.querySelectorAll('button, .nav-link, .action-icon');
@@ -589,7 +640,9 @@ function setupTouchEnhancements() {
     });
 }
 
-// Mobile Form Validation Enhancements
+// ============================================
+// MOBILE FORM VALIDATION
+// ============================================
 function setupMobileFormValidation() {
     const forms = document.querySelectorAll('form');
     
@@ -696,7 +749,9 @@ function isValidEmail(email) {
     return emailRegex.test(email);
 }
 
-// Utility function to get status class (if not already defined)
+// ============================================
+// UTILITY FUNCTIONS
+// ============================================
 function getStatusClass(status) {
     const statusMap = {
         'جاهز للإرسال': 'status-ready',
@@ -708,7 +763,52 @@ function getStatusClass(status) {
     return statusMap[status] || 'status-waiting';
 }
 
-// Add CSS for animations
+// ============================================
+// TEST FUNCTIONS (Global)
+// ============================================
+window.testFullScreenMenu = function() {
+    console.log('🧪 MANUAL FULL-SCREEN TEST');
+    
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (hamburger && navLinks) {
+        console.log('🍔 Simulating hamburger click...');
+        hamburger.click();
+        
+        setTimeout(() => {
+            const links = navLinks.querySelectorAll('.nav-link');
+            console.log(`🔗 Found ${links.length} navigation links in full-screen mode`);
+            
+            links.forEach((link, index) => {
+                const rect = link.getBoundingClientRect();
+                console.log(`Link ${index + 1}: ${link.textContent.trim()}`, {
+                    visible: rect.width > 0 && rect.height > 0,
+                    width: rect.width,
+                    height: rect.height,
+                    clickable: true
+                });
+                
+                // Flash yellow to show detection
+                link.style.backgroundColor = 'yellow';
+                setTimeout(() => {
+                    link.style.backgroundColor = '';
+                }, 1000 + (index * 500));
+            });
+            
+            console.log('🟡 Navigation links should flash YELLOW one by one');
+            console.log('✕ Click top-right corner to close menu');
+            console.log('🔗 Or click any navigation link to navigate');
+            
+        }, 500);
+    } else {
+        console.error('❌ Hamburger or nav-links not found');
+    }
+};
+
+// ============================================
+// CSS ANIMATIONS
+// ============================================
 const style = document.createElement('style');
 style.textContent = `
     @keyframes shake {
@@ -741,10 +841,34 @@ style.textContent = `
         background-color: rgba(220, 53, 69, 0.3);
         color: var(--danger, #dc3545);
     }
+    
+    /* Mobile card hover effects */
+    .mobile-letter-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+    
+    /* Mobile action button hover effects */
+    .mobile-action-btn.primary:hover {
+        background-color: #008840 !important;
+        transform: scale(0.98);
+    }
+    
+    .mobile-action-btn.secondary:hover {
+        background-color: var(--secondary-color, #0066cc) !important;
+        color: white !important;
+    }
+    
+    .mobile-action-btn.danger:hover {
+        background-color: var(--danger, #dc3545) !important;
+        color: white !important;
+    }
 `;
 document.head.appendChild(style);
 
-console.log('✅ Mobile.js loaded successfully!');
+console.log('✅ Complete Mobile.js loaded successfully!');
+console.log('🧪 Test full-screen menu: window.testFullScreenMenu()');
+console.log('🎯 Features loaded: Navigation, Table Conversion, Filters, Touch, Form Validation');
 
 // Export functions for use in other files
 if (typeof module !== 'undefined' && module.exports) {
@@ -752,524 +876,7 @@ if (typeof module !== 'undefined' && module.exports) {
         setupMobileNavigation,
         setupMobileTableConversion,
         setupMobileFilters,
-        setupTouchEnhancements
+        setupTouchEnhancements,
+        setupMobileFormValidation
     };
 }
-
-// ============================================
-// NAVIGATION CLICK FIX - Add to end of mobile.js
-// ============================================
-
-// Enhanced navigation link click handling
-function fixNavigationClicks() {
-    console.log('🔧 Fixing navigation clicks...');
-    
-    const navLinks = document.querySelector('.nav-links');
-    const hamburger = document.querySelector('.hamburger');
-    
-    if (!navLinks || !hamburger) {
-        console.error('❌ Navigation elements not found for click fix');
-        return;
-    }
-    
-    // Remove all existing event listeners and re-add them
-    const navLinkElements = navLinks.querySelectorAll('.nav-link');
-    console.log(`🔗 Found ${navLinkElements.length} nav links to fix`);
-    
-    navLinkElements.forEach((link, index) => {
-        // Clone the element to remove all existing event listeners
-        const newLink = link.cloneNode(true);
-        link.parentNode.replaceChild(newLink, link);
-        
-        // Add enhanced click handling
-        newLink.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log(`✅ Nav link ${index + 1} clicked:`, newLink.textContent.trim());
-            
-            // Close menu immediately
-            closeMenuImmediate();
-            
-            // Navigate after a small delay
-            setTimeout(() => {
-                const href = newLink.getAttribute('href');
-                if (href && href !== '#') {
-                    window.location.href = href;
-                }
-            }, 200);
-        });
-        
-        // Add touch handling
-        newLink.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log(`👆 Nav link ${index + 1} touched:`, newLink.textContent.trim());
-            
-            // Visual feedback
-            newLink.style.backgroundColor = 'rgba(0, 166, 81, 0.2)';
-            setTimeout(() => {
-                newLink.style.backgroundColor = '';
-            }, 150);
-            
-            // Close menu and navigate
-            closeMenuImmediate();
-            
-            setTimeout(() => {
-                const href = newLink.getAttribute('href');
-                if (href && href !== '#') {
-                    window.location.href = href;
-                }
-            }, 200);
-        });
-        
-        // Add hover effects for desktop
-        newLink.addEventListener('mouseenter', function() {
-            if (window.innerWidth > 768) return; // Only on mobile
-            this.style.backgroundColor = 'rgba(0, 166, 81, 0.1)';
-        });
-        
-        newLink.addEventListener('mouseleave', function() {
-            if (window.innerWidth > 768) return; // Only on mobile
-            this.style.backgroundColor = '';
-        });
-        
-        // Style the link to ensure it's clickable
-        newLink.style.cssText = `
-            display: flex !important;
-            align-items: center !important;
-            padding: 15px 20px !important;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
-            font-size: 16px !important;
-            min-height: 50px !important;
-            width: 100% !important;
-            box-sizing: border-box !important;
-            color: var(--text-light, #333) !important;
-            text-decoration: none !important;
-            transition: background-color 0.3s ease !important;
-            position: relative !important;
-            z-index: 10000 !important;
-            pointer-events: auto !important;
-            cursor: pointer !important;
-            background-color: transparent !important;
-        `;
-        
-        console.log(`✅ Fixed nav link ${index + 1}`);
-    });
-    
-    // Function to close menu immediately
-    function closeMenuImmediate() {
-        console.log('❌ Closing menu immediately...');
-        
-        // Update hamburger
-        hamburger.classList.remove('active');
-        const spans = hamburger.querySelectorAll('span');
-        spans[0].style.transform = 'none';
-        spans[1].style.opacity = '1';
-        spans[2].style.transform = 'none';
-        
-        // Hide navigation
-        navLinks.style.right = '-100%';
-        navLinks.style.pointerEvents = 'none';
-        navLinks.classList.remove('active');
-        
-        // Hide overlay
-        const overlay = document.querySelector('.nav-overlay');
-        if (overlay) {
-            overlay.style.opacity = '0';
-            overlay.style.visibility = 'hidden';
-            overlay.style.pointerEvents = 'none';
-            overlay.classList.remove('active');
-        }
-        
-        // Restore body scroll
-        document.body.style.overflow = '';
-        document.body.classList.remove('nav-open');
-    }
-    
-    // Test navigation links
-    setTimeout(() => {
-        testNavigationLinks();
-    }, 1000);
-    
-    function testNavigationLinks() {
-        console.log('🧪 Testing navigation links...');
-        
-        navLinkElements.forEach((link, index) => {
-            const rect = link.getBoundingClientRect();
-            const computedStyle = window.getComputedStyle(link);
-            
-            console.log(`🔗 Nav link ${index + 1} test:`, {
-                text: link.textContent.trim(),
-                visible: rect.width > 0 && rect.height > 0,
-                width: rect.width,
-                height: rect.height,
-                zIndex: computedStyle.zIndex,
-                pointerEvents: computedStyle.pointerEvents,
-                position: computedStyle.position,
-                clickable: rect.width > 0 && rect.height > 0 && computedStyle.pointerEvents !== 'none'
-            });
-            
-            // Visual test - flash the link
-            const originalBg = link.style.backgroundColor;
-            link.style.backgroundColor = 'yellow';
-            setTimeout(() => {
-                link.style.backgroundColor = originalBg;
-            }, 500 + (index * 200)); // Stagger the flashes
-        });
-        
-        console.log('🟡 Navigation links should flash yellow one by one');
-    }
-    
-    console.log('✅ Navigation click fix complete!');
-}
-
-// Call the fix function when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', fixNavigationClicks);
-} else {
-    fixNavigationClicks();
-}
-
-// Also fix navigation when the mobile navigation is set up
-const originalSetupMobileNavigation = setupMobileNavigation;
-setupMobileNavigation = function() {
-    originalSetupMobileNavigation.call(this);
-    setTimeout(fixNavigationClicks, 500); // Fix after setup
-};
-
-// Add a test function you can call from console
-window.testNavigation = function() {
-    console.log('🧪 Manual navigation test...');
-    
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach((link, index) => {
-        console.log(`Testing link ${index + 1}:`, link.textContent.trim());
-        
-        // Simulate click
-        link.style.backgroundColor = 'red';
-        setTimeout(() => {
-            link.style.backgroundColor = '';
-        }, 1000);
-    });
-    
-    console.log('🔴 All navigation links should flash red');
-    console.log('💡 Try clicking them now!');
-};
-
-console.log('✅ Navigation click fix loaded!');
-console.log('💡 You can test navigation by typing: window.testNavigation() in console');
-// ============================================
-// FORCE NAVIGATION LINKS TO BE CLICKABLE
-// Add this to the END of your mobile.js file
-// ============================================
-
-function forceNavigationVisibility() {
-    console.log('💪 FORCING navigation visibility...');
-    
-    const navLinks = document.querySelector('.nav-links');
-    const hamburger = document.querySelector('.hamburger');
-    
-    if (!navLinks || !hamburger) {
-        console.error('❌ Critical elements missing');
-        return;
-    }
-    
-    // Override the openMenu function to force visibility
-    window.forceOpenMenu = function() {
-        console.log('🔥 FORCE opening menu...');
-        
-        // Style the main nav container aggressively
-        navLinks.style.cssText = `
-            position: fixed !important;
-            top: 0 !important;
-            right: 0 !important;
-            width: 250px !important;
-            height: 100vh !important;
-            background-color: white !important;
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-start !important;
-            align-items: stretch !important;
-            padding: 20px 0 !important;
-            z-index: 9995 !important;
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3) !important;
-            pointer-events: auto !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            overflow: visible !important;
-            transform: none !important;
-        `;
-        
-        // Check if dark mode
-        if (document.body.classList.contains('dark-mode')) {
-            navLinks.style.backgroundColor = '#2a2a2a !important';
-        }
-        
-        navLinks.classList.add('active');
-        
-        // Force each navigation link to be visible and clickable
-        const navLinkElements = navLinks.querySelectorAll('a, .nav-link');
-        console.log(`🔗 Forcing ${navLinkElements.length} nav links to be visible`);
-        
-        navLinkElements.forEach((link, index) => {
-            // Force dimensions and visibility
-            link.style.cssText = `
-                display: block !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-                width: 100% !important;
-                height: 50px !important;
-                min-height: 50px !important;
-                max-height: none !important;
-                padding: 15px 20px !important;
-                margin: 0 !important;
-                border: none !important;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
-                background-color: rgba(0, 255, 0, 0.1) !important;
-                color: #333 !important;
-                font-size: 16px !important;
-                font-weight: 500 !important;
-                text-decoration: none !important;
-                box-sizing: border-box !important;
-                position: relative !important;
-                z-index: 9999 !important;
-                pointer-events: auto !important;
-                cursor: pointer !important;
-                line-height: 20px !important;
-                white-space: nowrap !important;
-                overflow: visible !important;
-                transform: none !important;
-                clip: none !important;
-                clip-path: none !important;
-            `;
-            
-            // Dark mode color
-            if (document.body.classList.contains('dark-mode')) {
-                link.style.color = '#ffffff !important';
-                link.style.borderBottomColor = 'rgba(255, 255, 255, 0.1) !important';
-            }
-            
-            // Remove all existing event listeners by cloning
-            const newLink = link.cloneNode(true);
-            link.parentNode.replaceChild(newLink, link);
-            
-            // Add new click handler
-            newLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log(`✅ CLICKED: ${newLink.textContent.trim()}`);
-                
-                // Visual feedback
-                this.style.backgroundColor = 'rgba(0, 166, 81, 0.3) !important';
-                
-                // Close menu
-                forceCloseMenu();
-                
-                // Navigate after delay
-                setTimeout(() => {
-                    const href = newLink.getAttribute('href');
-                    if (href && href !== '#') {
-                        window.location.href = href;
-                    }
-                }, 300);
-            });
-            
-            // Add touch handler
-            newLink.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log(`👆 TOUCHED: ${newLink.textContent.trim()}`);
-                
-                // Visual feedback
-                this.style.backgroundColor = 'rgba(0, 166, 81, 0.3) !important';
-                
-                // Close menu
-                forceCloseMenu();
-                
-                // Navigate after delay
-                setTimeout(() => {
-                    const href = newLink.getAttribute('href');
-                    if (href && href !== '#') {
-                        window.location.href = href;
-                    }
-                }, 300);
-            });
-            
-            // Hover effect
-            newLink.addEventListener('mouseenter', function() {
-                this.style.backgroundColor = 'rgba(0, 166, 81, 0.1) !important';
-            });
-            
-            newLink.addEventListener('mouseleave', function() {
-                this.style.backgroundColor = 'rgba(0, 255, 0, 0.1) !important';
-            });
-            
-            console.log(`✅ Forced nav link ${index + 1}: ${newLink.textContent.trim()}`);
-        });
-        
-        // Force hamburger to show active state
-        hamburger.classList.add('active');
-        const spans = hamburger.querySelectorAll('span');
-        if (spans.length >= 3) {
-            spans[0].style.transform = 'rotate(-45deg) translate(-5px, 6px)';
-            spans[1].style.opacity = '0';
-            spans[2].style.transform = 'rotate(45deg) translate(-5px, -6px)';
-        }
-        
-        // Show overlay
-        const overlay = document.querySelector('.nav-overlay');
-        if (overlay) {
-            overlay.style.cssText = `
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                background-color: rgba(0, 0, 0, 0.5) !important;
-                z-index: 9990 !important;
-                opacity: 1 !important;
-                visibility: visible !important;
-                pointer-events: auto !important;
-            `;
-            overlay.classList.add('active');
-        }
-        
-        // Prevent body scroll
-        document.body.style.overflow = 'hidden';
-        document.body.classList.add('nav-open');
-        
-        console.log('✅ Menu FORCE opened successfully!');
-        
-        // Test link dimensions after opening
-        setTimeout(() => {
-            testForcedLinks();
-        }, 500);
-    };
-    
-    window.forceCloseMenu = function() {
-        console.log('❌ FORCE closing menu...');
-        
-        navLinks.style.right = '-100%';
-        navLinks.classList.remove('active');
-        
-        hamburger.classList.remove('active');
-        const spans = hamburger.querySelectorAll('span');
-        if (spans.length >= 3) {
-            spans[0].style.transform = 'none';
-            spans[1].style.opacity = '1';
-            spans[2].style.transform = 'none';
-        }
-        
-        const overlay = document.querySelector('.nav-overlay');
-        if (overlay) {
-            overlay.style.opacity = '0';
-            overlay.style.visibility = 'hidden';
-            overlay.style.pointerEvents = 'none';
-            overlay.classList.remove('active');
-        }
-        
-        document.body.style.overflow = '';
-        document.body.classList.remove('nav-open');
-        
-        console.log('✅ Menu FORCE closed!');
-    };
-    
-    // Replace hamburger click handler
-    hamburger.onclick = null;
-    hamburger.ontouchend = null;
-    
-    // Remove all event listeners by cloning hamburger
-    const newHamburger = hamburger.cloneNode(true);
-    hamburger.parentNode.replaceChild(newHamburger, hamburger);
-    
-    let isMenuOpen = false;
-    
-    newHamburger.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('🍔 FORCE hamburger clicked');
-        
-        if (isMenuOpen) {
-            forceCloseMenu();
-            isMenuOpen = false;
-        } else {
-            forceOpenMenu();
-            isMenuOpen = true;
-        }
-    });
-    
-    newHamburger.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('👆 FORCE hamburger touched');
-        
-        if (isMenuOpen) {
-            forceCloseMenu();
-            isMenuOpen = false;
-        } else {
-            forceOpenMenu();
-            isMenuOpen = true;
-        }
-    });
-    
-    function testForcedLinks() {
-        console.log('🧪 Testing FORCED navigation links...');
-        
-        const links = document.querySelectorAll('.nav-links a, .nav-links .nav-link');
-        links.forEach((link, index) => {
-            const rect = link.getBoundingClientRect();
-            const computedStyle = window.getComputedStyle(link);
-            
-            console.log(`🔗 FORCED Nav link ${index + 1}:`, {
-                text: link.textContent.trim(),
-                visible: rect.width > 0 && rect.height > 0,
-                width: rect.width,
-                height: rect.height,
-                zIndex: computedStyle.zIndex,
-                pointerEvents: computedStyle.pointerEvents,
-                display: computedStyle.display,
-                backgroundColor: computedStyle.backgroundColor,
-                clickable: rect.width > 0 && rect.height > 0
-            });
-            
-            // Flash green to show it's detected
-            const originalBg = link.style.backgroundColor;
-            link.style.backgroundColor = 'lime !important';
-            setTimeout(() => {
-                link.style.backgroundColor = originalBg;
-            }, 500 + (index * 300));
-        });
-        
-        console.log('🟢 Links should flash LIME GREEN one by one');
-        console.log('🎯 Try clicking them now - they should have green backgrounds!');
-    }
-    
-    console.log('✅ Force navigation setup complete!');
-}
-
-// Initialize force navigation
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-        setTimeout(forceNavigationVisibility, 1000);
-    });
-} else {
-    setTimeout(forceNavigationVisibility, 1000);
-}
-
-// Add test function to window
-window.testForceNavigation = function() {
-    console.log('🧪 MANUAL FORCE TEST');
-    forceOpenMenu();
-    setTimeout(() => {
-        const links = document.querySelectorAll('.nav-links a, .nav-links .nav-link');
-        console.log(`Found ${links.length} links`);
-        links.forEach(link => {
-            const rect = link.getBoundingClientRect();
-            console.log(`Link: ${link.textContent.trim()}, Visible: ${rect.width > 0 && rect.height > 0}`);
-        });
-    }, 500);
-};
-
-console.log('💪 FORCE navigation system loaded!');
-console.log('🧪 Test manually: window.testForceNavigation()');
-console.log('🔥 This will FORCE the menu open with green backgrounds!');
