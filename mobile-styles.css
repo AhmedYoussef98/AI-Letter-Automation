@@ -1230,3 +1230,220 @@
         cursor: pointer !important;
     }
 }
+/* ============================================
+   FORCE NAVIGATION VISIBLE - Add to END of mobile-styles.css
+   This aggressively overrides any CSS that's hiding the nav links
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* NUCLEAR OPTION: Force navigation links to be visible and clickable */
+    
+    .nav-links.active {
+        right: 0 !important;
+        pointer-events: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        background-color: white !important;
+        width: 250px !important;
+        height: 100vh !important;
+        position: fixed !important;
+        top: 0 !important;
+        z-index: 9995 !important;
+        padding: 20px 0 !important;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    /* Force dark mode background if needed */
+    body.dark-mode .nav-links.active {
+        background-color: #2a2a2a !important;
+    }
+    
+    /* CRITICAL: Force individual navigation links to be visible */
+    .nav-links.active .nav-link {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 50px !important;
+        max-height: none !important;
+        padding: 15px 20px !important;
+        margin: 0 !important;
+        border: none !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+        background-color: transparent !important;
+        color: #333 !important;
+        font-size: 16px !important;
+        font-weight: 500 !important;
+        text-decoration: none !important;
+        box-sizing: border-box !important;
+        position: relative !important;
+        z-index: 9999 !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        line-height: 1.5 !important;
+        white-space: nowrap !important;
+        overflow: visible !important;
+        transform: none !important;
+        clip: none !important;
+        clip-path: none !important;
+    }
+    
+    /* Dark mode nav link colors */
+    body.dark-mode .nav-links.active .nav-link {
+        color: #ffffff !important;
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Force list items to be visible too */
+    .nav-links.active li {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+        position: relative !important;
+        z-index: 9998 !important;
+        pointer-events: auto !important;
+        overflow: visible !important;
+        transform: none !important;
+        clip: none !important;
+        clip-path: none !important;
+    }
+    
+    /* Force nav links container to show its children */
+    .nav-links.active {
+        overflow: visible !important;
+        max-height: none !important;
+        clip: none !important;
+        clip-path: none !important;
+        mask: none !important;
+        transform: none !important;
+    }
+    
+    /* Hover effects */
+    .nav-links.active .nav-link:hover,
+    .nav-links.active .nav-link:focus,
+    .nav-links.active .nav-link:active {
+        background-color: rgba(0, 166, 81, 0.1) !important;
+        color: #00a651 !important;
+    }
+    
+    /* Force icons in nav links to be visible */
+    .nav-links.active .nav-link i {
+        display: inline-block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        margin-left: 10px !important;
+        pointer-events: none !important;
+        font-size: 16px !important;
+    }
+    
+    /* Remove any transforms or animations that might hide links */
+    .nav-links.active .nav-link,
+    .nav-links.active li {
+        transition: background-color 0.3s ease !important;
+        animation: none !important;
+    }
+    
+    /* Ensure hamburger doesn't block nav area when active */
+    .hamburger.active {
+        top: 10px !important;
+        right: 10px !important;
+        width: 40px !important;
+        height: 40px !important;
+        z-index: 10000 !important;
+    }
+    
+    /* Add visible background to nav links for debugging */
+    .nav-links.active .nav-link {
+        border: 1px solid rgba(0, 166, 81, 0.2) !important;
+        margin-bottom: 1px !important;
+    }
+    
+    /* Force text to be selectable and visible */
+    .nav-links.active .nav-link * {
+        pointer-events: none !important;
+        user-select: none !important;
+        color: inherit !important;
+        display: inline !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Create a large click area for each nav link */
+    .nav-links.active .nav-link::after {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 1 !important;
+        cursor: pointer !important;
+        background-color: transparent !important;
+    }
+    
+    /* Debugging: Add colored backgrounds temporarily */
+    /*
+    .nav-links.active {
+        background-color: rgba(255, 0, 0, 0.9) !important;
+    }
+    
+    .nav-links.active .nav-link {
+        background-color: rgba(0, 255, 0, 0.5) !important;
+        border: 2px solid blue !important;
+    }
+    
+    .nav-links.active li {
+        background-color: rgba(255, 255, 0, 0.3) !important;
+    }
+    */
+}
+
+/* ============================================
+   ADDITIONAL OVERRIDES FOR COMMON CSS CONFLICTS
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* Override any Bootstrap or framework styles */
+    .navbar-nav .nav-link,
+    .nav .nav-link,
+    ul.nav-links .nav-link {
+        display: block !important;
+        width: auto !important;
+        height: auto !important;
+        min-height: 50px !important;
+    }
+    
+    /* Override any hidden or collapsed states */
+    .nav-links.active,
+    .nav-links.active > *,
+    .nav-links.active .nav-link {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+    
+    /* Remove any CSS that might cause 0 width/height */
+    .nav-links.active .nav-link {
+        min-width: 200px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Ensure text content is visible */
+    .nav-links.active .nav-link,
+    .nav-links.active .nav-link span,
+    .nav-links.active .nav-link * {
+        font-size: 16px !important;
+        line-height: 50px !important;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+    }
+}
