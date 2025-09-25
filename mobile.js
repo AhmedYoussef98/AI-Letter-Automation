@@ -755,3 +755,206 @@ if (typeof module !== 'undefined' && module.exports) {
         setupTouchEnhancements
     };
 }
+
+// ============================================
+// NAVIGATION CLICK FIX - Add to end of mobile.js
+// ============================================
+
+// Enhanced navigation link click handling
+function fixNavigationClicks() {
+    console.log('🔧 Fixing navigation clicks...');
+    
+    const navLinks = document.querySelector('.nav-links');
+    const hamburger = document.querySelector('.hamburger');
+    
+    if (!navLinks || !hamburger) {
+        console.error('❌ Navigation elements not found for click fix');
+        return;
+    }
+    
+    // Remove all existing event listeners and re-add them
+    const navLinkElements = navLinks.querySelectorAll('.nav-link');
+    console.log(`🔗 Found ${navLinkElements.length} nav links to fix`);
+    
+    navLinkElements.forEach((link, index) => {
+        // Clone the element to remove all existing event listeners
+        const newLink = link.cloneNode(true);
+        link.parentNode.replaceChild(newLink, link);
+        
+        // Add enhanced click handling
+        newLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log(`✅ Nav link ${index + 1} clicked:`, newLink.textContent.trim());
+            
+            // Close menu immediately
+            closeMenuImmediate();
+            
+            // Navigate after a small delay
+            setTimeout(() => {
+                const href = newLink.getAttribute('href');
+                if (href && href !== '#') {
+                    window.location.href = href;
+                }
+            }, 200);
+        });
+        
+        // Add touch handling
+        newLink.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log(`👆 Nav link ${index + 1} touched:`, newLink.textContent.trim());
+            
+            // Visual feedback
+            newLink.style.backgroundColor = 'rgba(0, 166, 81, 0.2)';
+            setTimeout(() => {
+                newLink.style.backgroundColor = '';
+            }, 150);
+            
+            // Close menu and navigate
+            closeMenuImmediate();
+            
+            setTimeout(() => {
+                const href = newLink.getAttribute('href');
+                if (href && href !== '#') {
+                    window.location.href = href;
+                }
+            }, 200);
+        });
+        
+        // Add hover effects for desktop
+        newLink.addEventListener('mouseenter', function() {
+            if (window.innerWidth > 768) return; // Only on mobile
+            this.style.backgroundColor = 'rgba(0, 166, 81, 0.1)';
+        });
+        
+        newLink.addEventListener('mouseleave', function() {
+            if (window.innerWidth > 768) return; // Only on mobile
+            this.style.backgroundColor = '';
+        });
+        
+        // Style the link to ensure it's clickable
+        newLink.style.cssText = `
+            display: flex !important;
+            align-items: center !important;
+            padding: 15px 20px !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+            font-size: 16px !important;
+            min-height: 50px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            color: var(--text-light, #333) !important;
+            text-decoration: none !important;
+            transition: background-color 0.3s ease !important;
+            position: relative !important;
+            z-index: 10000 !important;
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            background-color: transparent !important;
+        `;
+        
+        console.log(`✅ Fixed nav link ${index + 1}`);
+    });
+    
+    // Function to close menu immediately
+    function closeMenuImmediate() {
+        console.log('❌ Closing menu immediately...');
+        
+        // Update hamburger
+        hamburger.classList.remove('active');
+        const spans = hamburger.querySelectorAll('span');
+        spans[0].style.transform = 'none';
+        spans[1].style.opacity = '1';
+        spans[2].style.transform = 'none';
+        
+        // Hide navigation
+        navLinks.style.right = '-100%';
+        navLinks.style.pointerEvents = 'none';
+        navLinks.classList.remove('active');
+        
+        // Hide overlay
+        const overlay = document.querySelector('.nav-overlay');
+        if (overlay) {
+            overlay.style.opacity = '0';
+            overlay.style.visibility = 'hidden';
+            overlay.style.pointerEvents = 'none';
+            overlay.classList.remove('active');
+        }
+        
+        // Restore body scroll
+        document.body.style.overflow = '';
+        document.body.classList.remove('nav-open');
+    }
+    
+    // Test navigation links
+    setTimeout(() => {
+        testNavigationLinks();
+    }, 1000);
+    
+    function testNavigationLinks() {
+        console.log('🧪 Testing navigation links...');
+        
+        navLinkElements.forEach((link, index) => {
+            const rect = link.getBoundingClientRect();
+            const computedStyle = window.getComputedStyle(link);
+            
+            console.log(`🔗 Nav link ${index + 1} test:`, {
+                text: link.textContent.trim(),
+                visible: rect.width > 0 && rect.height > 0,
+                width: rect.width,
+                height: rect.height,
+                zIndex: computedStyle.zIndex,
+                pointerEvents: computedStyle.pointerEvents,
+                position: computedStyle.position,
+                clickable: rect.width > 0 && rect.height > 0 && computedStyle.pointerEvents !== 'none'
+            });
+            
+            // Visual test - flash the link
+            const originalBg = link.style.backgroundColor;
+            link.style.backgroundColor = 'yellow';
+            setTimeout(() => {
+                link.style.backgroundColor = originalBg;
+            }, 500 + (index * 200)); // Stagger the flashes
+        });
+        
+        console.log('🟡 Navigation links should flash yellow one by one');
+    }
+    
+    console.log('✅ Navigation click fix complete!');
+}
+
+// Call the fix function when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', fixNavigationClicks);
+} else {
+    fixNavigationClicks();
+}
+
+// Also fix navigation when the mobile navigation is set up
+const originalSetupMobileNavigation = setupMobileNavigation;
+setupMobileNavigation = function() {
+    originalSetupMobileNavigation.call(this);
+    setTimeout(fixNavigationClicks, 500); // Fix after setup
+};
+
+// Add a test function you can call from console
+window.testNavigation = function() {
+    console.log('🧪 Manual navigation test...');
+    
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach((link, index) => {
+        console.log(`Testing link ${index + 1}:`, link.textContent.trim());
+        
+        // Simulate click
+        link.style.backgroundColor = 'red';
+        setTimeout(() => {
+            link.style.backgroundColor = '';
+        }, 1000);
+    });
+    
+    console.log('🔴 All navigation links should flash red');
+    console.log('💡 Try clicking them now!');
+};
+
+console.log('✅ Navigation click fix loaded!');
+console.log('💡 You can test navigation by typing: window.testNavigation() in console');
