@@ -1,11 +1,12 @@
 // Mobile Enhancements for AI Letter Generator
-// Add this to your main.js file or create a separate mobile.js file
+// Complete mobile.js file
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeMobileEnhancements();
 });
 
 function initializeMobileEnhancements() {
+    console.log('🚀 Initializing mobile enhancements...');
     setupMobileNavigation();
     setupMobileTableConversion();
     setupMobileFilters();
@@ -15,65 +16,304 @@ function initializeMobileEnhancements() {
 
 // Mobile Navigation with Hamburger Menu
 function setupMobileNavigation() {
+    console.log('🔧 Setting up mobile navigation...');
+    
     const navContainer = document.querySelector('.nav-container');
     const navLinks = document.querySelector('.nav-links');
     
-    // Create hamburger menu button
+    if (!navContainer || !navLinks) {
+        console.error('❌ Navigation elements not found!');
+        console.log('Available elements:', {
+            navContainer: !!navContainer,
+            navLinks: !!navLinks,
+            allNavs: document.querySelectorAll('nav').length,
+            allUls: document.querySelectorAll('ul').length
+        });
+        return;
+    }
+
+    // Remove any existing hamburger
+    const existingHamburger = document.querySelector('.hamburger');
+    if (existingHamburger) {
+        existingHamburger.remove();
+    }
+
+    // Create hamburger menu button with inline styles for immediate visibility
     const hamburger = document.createElement('div');
     hamburger.className = 'hamburger';
     hamburger.innerHTML = '<span></span><span></span><span></span>';
     
-    // Create overlay for mobile menu
-    const overlay = document.createElement('div');
-    overlay.className = 'nav-overlay';
-    document.body.appendChild(overlay);
+    // Apply critical styles directly to ensure visibility
+    hamburger.style.cssText = `
+        display: flex !important;
+        flex-direction: column !important;
+        position: fixed !important;
+        top: 15px !important;
+        right: 15px !important;
+        z-index: 99999 !important;
+        cursor: pointer !important;
+        padding: 12px !important;
+        background-color: rgba(0, 166, 81, 0.95) !important;
+        border-radius: 6px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 50px !important;
+        height: 50px !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        user-select: none !important;
+        -webkit-user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    `;
     
-    // Insert hamburger before nav-links
-    navContainer.insertBefore(hamburger, navLinks);
-    
-    // Toggle menu functionality
-    hamburger.addEventListener('click', function() {
-        hamburger.classList.toggle('active');
-        navLinks.classList.toggle('active');
-        overlay.classList.toggle('active');
-        document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+    // Style the hamburger lines
+    const spans = hamburger.querySelectorAll('span');
+    spans.forEach((span, index) => {
+        span.style.cssText = `
+            width: 25px !important;
+            height: 3px !important;
+            background-color: white !important;
+            display: block !important;
+            margin: 3px 0 !important;
+            border-radius: 2px !important;
+            transition: all 0.3s ease !important;
+            transform-origin: center !important;
+        `;
     });
     
-    // Close menu when overlay is clicked
-    overlay.addEventListener('click', function() {
+    // Add hamburger to body
+    document.body.appendChild(hamburger);
+    console.log('✅ Hamburger button created and added to body');
+
+    // Create or find overlay
+    let overlay = document.querySelector('.nav-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'nav-overlay';
+        overlay.style.cssText = `
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background-color: rgba(0, 0, 0, 0.5) !important;
+            z-index: 9998 !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            transition: all 0.3s ease !important;
+            pointer-events: none !important;
+        `;
+        document.body.appendChild(overlay);
+        console.log('✅ Overlay created');
+    }
+
+    // Style nav-links for mobile
+    navLinks.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        right: -100% !important;
+        width: 80% !important;
+        max-width: 300px !important;
+        height: 100vh !important;
+        background-color: var(--card-light, #ffffff) !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 80px 0 20px 0 !important;
+        transition: right 0.3s ease !important;
+        z-index: 9999 !important;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2) !important;
+        pointer-events: none !important;
+        overflow-y: auto !important;
+    `;
+
+    // Navigation state management
+    let isMenuOpen = false;
+    
+    function toggleMenu() {
+        console.log('🍔 Toggle menu called, current state:', isMenuOpen);
+        
+        if (isMenuOpen) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    }
+    
+    function openMenu() {
+        console.log('✅ Opening menu...');
+        isMenuOpen = true;
+        
+        // Update hamburger
+        hamburger.classList.add('active');
+        const spans = hamburger.querySelectorAll('span');
+        spans[0].style.transform = 'rotate(-45deg) translate(-5px, 6px)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'rotate(45deg) translate(-5px, -6px)';
+        
+        // Show navigation
+        navLinks.style.right = '0';
+        navLinks.style.pointerEvents = 'auto';
+        navLinks.classList.add('active');
+        
+        // Show overlay
+        overlay.style.opacity = '1';
+        overlay.style.visibility = 'visible';
+        overlay.style.pointerEvents = 'auto';
+        overlay.classList.add('active');
+        
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+        document.body.classList.add('nav-open');
+        
+        // Style individual nav links for mobile
+        const navLinksElements = navLinks.querySelectorAll('.nav-link');
+        navLinksElements.forEach(link => {
+            link.style.cssText = `
+                padding: 15px 20px !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+                display: flex !important;
+                align-items: center !important;
+                font-size: 16px !important;
+                min-height: 50px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                color: var(--text-light, #333) !important;
+                text-decoration: none !important;
+                transition: background-color 0.3s ease !important;
+            `;
+            
+            // Add hover effect
+            link.addEventListener('mouseenter', () => {
+                link.style.backgroundColor = 'rgba(0, 166, 81, 0.1)';
+            });
+            
+            link.addEventListener('mouseleave', () => {
+                link.style.backgroundColor = 'transparent';
+            });
+        });
+    }
+    
+    function closeMenu() {
+        console.log('❌ Closing menu...');
+        isMenuOpen = false;
+        
+        // Reset hamburger
         hamburger.classList.remove('active');
+        const spans = hamburger.querySelectorAll('span');
+        spans[0].style.transform = 'none';
+        spans[1].style.opacity = '1';
+        spans[2].style.transform = 'none';
+        
+        // Hide navigation
+        navLinks.style.right = '-100%';
+        navLinks.style.pointerEvents = 'none';
         navLinks.classList.remove('active');
+        
+        // Hide overlay
+        overlay.style.opacity = '0';
+        overlay.style.visibility = 'hidden';
+        overlay.style.pointerEvents = 'none';
         overlay.classList.remove('active');
+        
+        // Restore body scroll
         document.body.style.overflow = '';
+        document.body.classList.remove('nav-open');
+    }
+
+    // Event listeners with better mobile support
+    hamburger.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('🍔 Hamburger CLICKED');
+        toggleMenu();
     });
-    
-    // Close menu when nav link is clicked
+
+    hamburger.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('👆 Hamburger TOUCH START');
+        hamburger.style.transform = 'scale(0.95)';
+    });
+
+    hamburger.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('👆 Hamburger TOUCH END');
+        hamburger.style.transform = 'scale(1)';
+        toggleMenu();
+    });
+
+    // Close menu when overlay clicked
+    overlay.addEventListener('click', function(e) {
+        console.log('🌫️ Overlay clicked - closing menu');
+        closeMenu();
+    });
+
+    // Close menu when nav link clicked
     navLinks.addEventListener('click', function(e) {
-        if (e.target.classList.contains('nav-link')) {
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.style.overflow = '';
+        const clickedLink = e.target.closest('.nav-link');
+        if (clickedLink) {
+            console.log('🔗 Nav link clicked:', clickedLink.textContent.trim());
+            setTimeout(() => closeMenu(), 150); // Small delay for UX
         }
     });
-    
-    // Hide hamburger on desktop
+
+    // Handle window resize
     function handleResize() {
-        if (window.innerWidth > 768) {
-            hamburger.style.display = 'none';
-            navLinks.style.position = 'static';
-            navLinks.style.right = 'auto';
-            navLinks.classList.remove('active');
-            overlay.classList.remove('active');
-            hamburger.classList.remove('active');
-            document.body.style.overflow = '';
-        } else {
+        const isMobile = window.innerWidth <= 768;
+        
+        if (isMobile) {
+            console.log('📱 Mobile view - showing hamburger');
             hamburger.style.display = 'flex';
+        } else {
+            console.log('💻 Desktop view - hiding hamburger');
+            hamburger.style.display = 'none';
+            closeMenu();
+            
+            // Reset nav-links for desktop
+            navLinks.style.cssText = '';
+            navLinks.classList.remove('active');
         }
     }
     
     window.addEventListener('resize', handleResize);
     handleResize(); // Initial call
+
+    // Test hamburger functionality
+    setTimeout(() => {
+        testHamburgerFunctionality();
+    }, 1000);
+    
+    function testHamburgerFunctionality() {
+        const rect = hamburger.getBoundingClientRect();
+        const computedStyle = window.getComputedStyle(hamburger);
+        
+        console.log('🔍 Hamburger test:', {
+            visible: rect.width > 0 && rect.height > 0,
+            width: rect.width,
+            height: rect.height,
+            top: rect.top,
+            right: rect.right,
+            zIndex: computedStyle.zIndex,
+            position: computedStyle.position,
+            display: computedStyle.display,
+            pointerEvents: computedStyle.pointerEvents,
+            backgroundColor: computedStyle.backgroundColor
+        });
+        
+        // Visual test - make hamburger flash
+        const originalBg = hamburger.style.backgroundColor;
+        hamburger.style.backgroundColor = 'red';
+        setTimeout(() => {
+            hamburger.style.backgroundColor = originalBg;
+        }, 1000);
+        
+        console.log('🔴 Hamburger should flash red for 1 second');
+    }
+
+    console.log('✅ Mobile navigation setup complete!');
 }
 
 // Convert Tables to Mobile Cards
@@ -93,6 +333,11 @@ function setupMobileTableConversion() {
             if (!mobileGrid) {
                 mobileGrid = document.createElement('div');
                 mobileGrid.className = 'mobile-letters-grid';
+                mobileGrid.style.cssText = `
+                    display: grid;
+                    gap: 1rem;
+                    padding: 1rem;
+                `;
                 tableContainer.appendChild(mobileGrid);
             }
             
@@ -108,8 +353,8 @@ function setupMobileTableConversion() {
                         id: cells[0].textContent.trim(),
                         date: cells[1].textContent.trim(),
                         type: cells[2].textContent.trim(),
-                        reviewStatus: cells[3].querySelector('.status-badge').textContent.trim(),
-                        sendStatus: cells[4].querySelector('.status-badge').textContent.trim(),
+                        reviewStatus: cells[3].querySelector('.status-badge')?.textContent.trim() || cells[3].textContent.trim(),
+                        sendStatus: cells[4].querySelector('.status-badge')?.textContent.trim() || cells[4].textContent.trim(),
                         recipient: cells[5].textContent.trim(),
                         subject: cells[6].textContent.trim(),
                         reviewer: cells[7].textContent.trim(),
@@ -134,74 +379,62 @@ function setupMobileTableConversion() {
         const card = document.createElement('div');
         card.className = `mobile-letter-card ${data.isHighlighted ? 'highlighted-letter' : ''}`;
         
+        card.style.cssText = `
+            background-color: var(--card-light, #ffffff);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-light, #e0e0e0);
+            transition: all 0.3s ease;
+        `;
+        
         card.innerHTML = `
-            <div class="card-header">
-                <div class="card-id">${data.id}</div>
-                <div class="card-date">${data.date}</div>
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border-light, #e0e0e0);">
+                <div class="card-id" style="font-weight: 700; color: var(--primary-color, #00a651); font-size: 1.1rem;">${data.id}</div>
+                <div class="card-date" style="font-size: 0.85rem; color: #666; text-align: left; direction: ltr;">${data.date}</div>
             </div>
             
-            <div class="card-content">
-                <div class="card-row">
-                    <span class="card-label">النوع:</span>
-                    <span class="card-value">${data.type}</span>
+            <div class="card-content" style="display: grid; gap: 0.75rem; margin-bottom: 1rem;">
+                <div class="card-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                    <span class="card-label" style="font-weight: 600; color: var(--text-light, #333); font-size: 0.9rem; min-width: 80px;">النوع:</span>
+                    <span class="card-value" style="flex: 1; text-align: left; font-size: 0.9rem; color: var(--text-light, #333);">${data.type}</span>
                 </div>
                 
-                <div class="card-row">
-                    <span class="card-label">المستلم:</span>
-                    <span class="card-value">${data.recipient}</span>
+                <div class="card-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                    <span class="card-label" style="font-weight: 600; color: var(--text-light, #333); font-size: 0.9rem; min-width: 80px;">المستلم:</span>
+                    <span class="card-value" style="flex: 1; text-align: left; font-size: 0.9rem; color: var(--text-light, #333);">${data.recipient}</span>
                 </div>
                 
                 ${data.writer && data.writer !== '-' ? `
-                <div class="card-row">
-                    <span class="card-label">الكاتب:</span>
-                    <span class="card-value">${data.writer}</span>
+                <div class="card-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                    <span class="card-label" style="font-weight: 600; color: var(--text-light, #333); font-size: 0.9rem; min-width: 80px;">الكاتب:</span>
+                    <span class="card-value" style="flex: 1; text-align: left; font-size: 0.9rem; color: var(--text-light, #333);">${data.writer}</span>
                 </div>
                 ` : ''}
                 
-                <div class="card-row">
-                    <span class="card-label">حالة المراجعة:</span>
-                    <span class="card-value">
-                        <span class="mobile-status-badge ${getStatusClass(data.reviewStatus)}">${data.reviewStatus}</span>
+                <div class="card-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                    <span class="card-label" style="font-weight: 600; color: var(--text-light, #333); font-size: 0.9rem; min-width: 80px;">حالة المراجعة:</span>
+                    <span class="card-value" style="flex: 1; text-align: left; font-size: 0.9rem; color: var(--text-light, #333);">
+                        <span class="mobile-status-badge ${getStatusClass(data.reviewStatus)}" style="padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">${data.reviewStatus}</span>
                     </span>
                 </div>
                 
-                <div class="card-row">
-                    <span class="card-label">حالة الإرسال:</span>
-                    <span class="card-value">
-                        <span class="mobile-status-badge ${getStatusClass(data.sendStatus)}">${data.sendStatus}</span>
-                    </span>
-                </div>
-                
-                <div class="card-subject">
-                    <div class="card-label">الموضوع:</div>
+                <div class="card-subject" style="grid-column: 1 / -1; background-color: rgba(0, 166, 81, 0.05); padding: 0.75rem; border-radius: 6px; border-right: 3px solid var(--primary-color, #00a651);">
+                    <div class="card-label" style="font-weight: 600; color: var(--text-light, #333); font-size: 0.9rem;">الموضوع:</div>
                     <div style="margin-top: 0.5rem; font-weight: 500;">${data.subject}</div>
                 </div>
-                
-                ${data.reviewer && data.reviewer !== '-' ? `
-                <div class="card-row">
-                    <span class="card-label">المراجع:</span>
-                    <span class="card-value">${data.reviewer}</span>
-                </div>
-                ` : ''}
-                
-                ${data.notes && data.notes !== '-' ? `
-                <div class="card-row">
-                    <span class="card-label">الملاحظات:</span>
-                    <span class="card-value">${data.notes}</span>
-                </div>
-                ` : ''}
             </div>
             
-            <div class="card-actions">
-                <button class="mobile-action-btn primary" onclick="reviewLetter('${data.id}')" title="مراجعة">
+            <div class="card-actions" style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-light, #e0e0e0);">
+                <button class="mobile-action-btn primary" onclick="reviewLetter('${data.id}')" style="flex: 1; min-width: 80px; padding: 0.75rem 1rem; border-radius: 8px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease; background-color: var(--primary-color, #00a651); color: white;">
                     <i class="fas fa-eye"></i>
                     مراجعة
                 </button>
-                <button class="mobile-action-btn secondary" onclick="downloadLetter('${data.id}')" title="تحميل">
+                <button class="mobile-action-btn secondary" onclick="downloadLetter('${data.id}')" style="flex: 1; min-width: 80px; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease; background-color: transparent; color: var(--secondary-color, #0066cc); border: 1px solid var(--secondary-color, #0066cc);">
                     <i class="fas fa-download"></i>
                     تحميل
                 </button>
-                <button class="mobile-action-btn danger" onclick="deleteLetter('${data.id}')" title="حذف">
+                <button class="mobile-action-btn danger" onclick="deleteLetter('${data.id}')" style="flex: 1; min-width: 80px; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease; background-color: transparent; color: var(--danger, #dc3545); border: 1px solid var(--danger, #dc3545);">
                     <i class="fas fa-trash"></i>
                     حذف
                 </button>
@@ -247,6 +480,23 @@ function setupMobileFilters() {
                 toggleButton = document.createElement('button');
                 toggleButton.className = 'mobile-filter-toggle';
                 toggleButton.innerHTML = '<i class="fas fa-filter"></i> تصفية النتائج';
+                toggleButton.style.cssText = `
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.5rem;
+                    padding: 1rem;
+                    background-color: var(--primary-color, #00a651);
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    margin-bottom: 1rem;
+                    width: 100%;
+                    min-height: 56px;
+                `;
                 
                 // Wrap existing content
                 const existingContent = filtersSection.innerHTML;
@@ -256,24 +506,38 @@ function setupMobileFilters() {
                 const filtersContent = document.createElement('div');
                 filtersContent.className = 'filters-content';
                 filtersContent.innerHTML = existingContent;
+                filtersContent.style.display = 'none';
                 filtersSection.appendChild(filtersContent);
                 
                 // Add clear button
                 const clearButton = document.createElement('button');
                 clearButton.className = 'mobile-filter-clear';
                 clearButton.innerHTML = '<i class="fas fa-times"></i> مسح الفلاتر';
+                clearButton.style.cssText = `
+                    background-color: transparent;
+                    color: var(--danger, #dc3545);
+                    border: 1px solid var(--danger, #dc3545);
+                    padding: 0.75rem;
+                    border-radius: 8px;
+                    font-size: 0.9rem;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    min-height: 44px;
+                    margin-top: 1rem;
+                `;
                 filtersContent.appendChild(clearButton);
                 
                 // Toggle functionality
                 toggleButton.addEventListener('click', function() {
-                    filtersContent.classList.toggle('active');
-                    const icon = toggleButton.querySelector('i');
-                    if (filtersContent.classList.contains('active')) {
-                        icon.className = 'fas fa-times';
-                        toggleButton.innerHTML = '<i class="fas fa-times"></i> إغلاق الفلاتر';
-                    } else {
-                        icon.className = 'fas fa-filter';
+                    const isActive = filtersContent.style.display === 'flex';
+                    if (isActive) {
+                        filtersContent.style.display = 'none';
                         toggleButton.innerHTML = '<i class="fas fa-filter"></i> تصفية النتائج';
+                    } else {
+                        filtersContent.style.display = 'flex';
+                        filtersContent.style.flexDirection = 'column';
+                        filtersContent.style.gap = '1rem';
+                        toggleButton.innerHTML = '<i class="fas fa-times"></i> إغلاق الفلاتر';
                     }
                 });
                 
@@ -294,17 +558,9 @@ function setupMobileFilters() {
                         searchInput.dispatchEvent(new Event('input'));
                     }
                     
-                    filtersContent.classList.remove('active');
+                    filtersContent.style.display = 'none';
                     toggleButton.innerHTML = '<i class="fas fa-filter"></i> تصفية النتائج';
                 });
-            }
-        } else {
-            // Remove mobile filter toggle on desktop
-            const toggleButton = filtersSection.querySelector('.mobile-filter-toggle');
-            const filtersContent = filtersSection.querySelector('.filters-content');
-            
-            if (toggleButton && filtersContent) {
-                filtersSection.innerHTML = filtersContent.innerHTML.replace('<button class="mobile-filter-clear".*?</button>', '');
             }
         }
     }
@@ -330,86 +586,6 @@ function setupTouchEnhancements() {
         button.addEventListener('touchcancel', function() {
             this.style.transform = '';
         });
-    });
-    
-    // Prevent double-tap zoom on certain elements
-    const preventDoubleTap = document.querySelectorAll('.action-icon, .mobile-action-btn, .submit-button');
-    
-    preventDoubleTap.forEach(element => {
-        element.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            element.click();
-        });
-    });
-    
-    // Add swipe to delete functionality for mobile cards
-    setupSwipeToDelete();
-}
-
-// Swipe to Delete for Mobile Cards
-function setupSwipeToDelete() {
-    let startX, startY, currentX, currentY;
-    let isSwipping = false;
-    
-    document.addEventListener('touchstart', function(e) {
-        const card = e.target.closest('.mobile-letter-card');
-        if (!card) return;
-        
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        isSwipping = false;
-    });
-    
-    document.addEventListener('touchmove', function(e) {
-        if (!startX || !startY) return;
-        
-        const card = e.target.closest('.mobile-letter-card');
-        if (!card) return;
-        
-        currentX = e.touches[0].clientX;
-        currentY = e.touches[0].clientY;
-        
-        const diffX = startX - currentX;
-        const diffY = startY - currentY;
-        
-        // Check if it's a horizontal swipe
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
-            isSwipping = true;
-            
-            // Show delete indicator
-            if (diffX > 0) { // Swipe left
-                card.style.transform = `translateX(-${Math.min(diffX, 100)}px)`;
-                card.style.backgroundColor = 'rgba(220, 53, 69, 0.1)';
-            }
-        }
-    });
-    
-    document.addEventListener('touchend', function(e) {
-        const card = e.target.closest('.mobile-letter-card');
-        if (!card || !isSwipping) {
-            if (card) {
-                card.style.transform = '';
-                card.style.backgroundColor = '';
-            }
-            startX = startY = null;
-            return;
-        }
-        
-        const diffX = startX - currentX;
-        
-        if (diffX > 80) { // Swipe threshold
-            // Show delete confirmation
-            const cardId = card.querySelector('.card-id').textContent.trim();
-            if (confirm('هل تريد حذف هذا الخطاب؟')) {
-                deleteLetter(cardId);
-            }
-        }
-        
-        // Reset card position
-        card.style.transform = '';
-        card.style.backgroundColor = '';
-        startX = startY = null;
-        isSwipping = false;
     });
 }
 
@@ -493,9 +669,12 @@ function showFieldError(field, message) {
     }
     
     errorElement.textContent = message;
-    errorElement.style.color = 'var(--danger)';
-    errorElement.style.fontSize = '0.85rem';
-    errorElement.style.marginTop = '0.25rem';
+    errorElement.style.cssText = `
+        color: var(--danger, #dc3545);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        display: block;
+    `;
     
     // Add shake animation
     field.style.animation = 'shake 0.5s ease-in-out';
@@ -518,90 +697,20 @@ function isValidEmail(email) {
 }
 
 // Utility function to get status class (if not already defined)
-if (typeof getStatusClass !== 'function') {
-    function getStatusClass(status) {
-        const statusMap = {
-            'جاهز للإرسال': 'status-ready',
-            'في الانتظار': 'status-waiting',
-            'يحتاج إلى تحسينات': 'status-needs-improvement',
-            'مرفوض': 'status-rejected',
-            'تم الإرسال': 'status-ready'
-        };
-        return statusMap[status] || 'status-waiting';
-    }
+function getStatusClass(status) {
+    const statusMap = {
+        'جاهز للإرسال': 'status-ready',
+        'في الانتظار': 'status-waiting',
+        'يحتاج إلى تحسينات': 'status-needs-improvement',
+        'مرفوض': 'status-rejected',
+        'تم الإرسال': 'status-ready'
+    };
+    return statusMap[status] || 'status-waiting';
 }
 
-// Mobile Loading States
-function showMobileLoader(message = 'جاري التحميل...') {
-    let loader = document.querySelector('.mobile-loader');
-    if (!loader) {
-        loader = document.createElement('div');
-        loader.className = 'mobile-loader';
-        loader.innerHTML = `
-            <div class="mobile-spinner"></div>
-            <p class="mobile-loader-text">${message}</p>
-        `;
-        document.body.appendChild(loader);
-        
-        // Add mobile loader styles
-        const style = document.createElement('style');
-        style.textContent = `
-            .mobile-loader {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.8);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                z-index: 9999;
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
-            }
-            
-            .mobile-loader.active {
-                opacity: 1;
-                visibility: visible;
-            }
-            
-            .mobile-spinner {
-                width: 40px;
-                height: 40px;
-                border: 4px solid rgba(255, 255, 255, 0.3);
-                border-top-color: var(--primary-color);
-                border-radius: 50%;
-                animation: spin 1s linear infinite;
-            }
-            
-            .mobile-loader-text {
-                color: white;
-                margin-top: 1rem;
-                font-size: 1rem;
-                text-align: center;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    loader.querySelector('.mobile-loader-text').textContent = message;
-    loader.classList.add('active');
-    return loader;
-}
-
-function hideMobileLoader() {
-    const loader = document.querySelector('.mobile-loader');
-    if (loader) {
-        loader.classList.remove('active');
-    }
-}
-
-// Add CSS for shake animation
-const shakeStyle = document.createElement('style');
-shakeStyle.textContent = `
+// Add CSS for animations
+const style = document.createElement('style');
+style.textContent = `
     @keyframes shake {
         0%, 100% { transform: translateX(0); }
         25% { transform: translateX(-5px); }
@@ -609,179 +718,40 @@ shakeStyle.textContent = `
     }
     
     .field-error {
-        border-color: var(--danger) !important;
+        border-color: var(--danger, #dc3545) !important;
         box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1) !important;
     }
+    
+    .status-ready {
+        background-color: rgba(40, 167, 69, 0.2);
+        color: var(--success, #28a745);
+    }
+    
+    .status-waiting {
+        background-color: rgba(255, 165, 0, 0.2);
+        color: var(--warning, #ffa500);
+    }
+    
+    .status-needs-improvement {
+        background-color: rgba(220, 53, 69, 0.2);
+        color: var(--danger, #dc3545);
+    }
+    
+    .status-rejected {
+        background-color: rgba(220, 53, 69, 0.3);
+        color: var(--danger, #dc3545);
+    }
 `;
-document.head.appendChild(shakeStyle);
+document.head.appendChild(style);
+
+console.log('✅ Mobile.js loaded successfully!');
 
 // Export functions for use in other files
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        showMobileLoader,
-        hideMobileLoader,
         setupMobileNavigation,
         setupMobileTableConversion,
         setupMobileFilters,
         setupTouchEnhancements
     };
 }
-// ADD THIS TO YOUR mobile.js FILE FOR DEBUGGING
-
-// SIMPLIFIED HAMBURGER MENU FIX
-// Replace your existing setupMobileNavigation function with this:
-
-function setupMobileNavigation() {
-    console.log('🔧 Setting up mobile navigation...');
-    
-    const navContainer = document.querySelector('.nav-container');
-    const navLinks = document.querySelector('.nav-links');
-    
-    if (!navContainer || !navLinks) {
-        console.error('❌ Navigation elements not found!');
-        return;
-    }
-    
-    // Find or create hamburger
-    let hamburger = document.querySelector('.hamburger');
-    if (!hamburger) {
-        hamburger = document.createElement('div');
-        hamburger.className = 'hamburger';
-        hamburger.innerHTML = '<span></span><span></span><span></span>';
-        document.body.appendChild(hamburger); // Append to body instead of nav-container
-        console.log('✅ Hamburger button created and added to body');
-    }
-    
-    // Find or create overlay
-    let overlay = document.querySelector('.nav-overlay');
-    if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.className = 'nav-overlay';
-        document.body.appendChild(overlay);
-        console.log('✅ Overlay created');
-    }
-    
-    // CRITICAL: Remove any existing event listeners
-    hamburger.replaceWith(hamburger.cloneNode(true));
-    hamburger = document.querySelector('.hamburger');
-    
-    // Simple toggle function
-    function toggleMenu() {
-        console.log('🍔 Toggle menu called');
-        
-        const isActive = hamburger.classList.contains('active');
-        
-        if (isActive) {
-            // Close menu
-            console.log('❌ Closing menu...');
-            hamburger.classList.remove('active');
-            navLinks.classList.remove('active');
-            overlay.classList.remove('active');
-            document.body.classList.remove('nav-open');
-            document.body.style.overflow = '';
-        } else {
-            // Open menu
-            console.log('✅ Opening menu...');
-            hamburger.classList.add('active');
-            navLinks.classList.add('active');
-            overlay.classList.add('active');
-            document.body.classList.add('nav-open');
-            document.body.style.overflow = 'hidden';
-        }
-    }
-    
-    // Add multiple event types to hamburger for better compatibility
-    hamburger.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('🍔 Hamburger CLICKED');
-        toggleMenu();
-    });
-    
-    hamburger.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('👆 Hamburger TOUCHED');
-    });
-    
-    hamburger.addEventListener('touchend', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('👆 Hamburger TOUCH END');
-        toggleMenu();
-    });
-    
-    // Close menu when overlay clicked
-    overlay.addEventListener('click', function(e) {
-        console.log('🌫️ Overlay clicked');
-        toggleMenu();
-    });
-    
-    // Close menu when nav link clicked
-    navLinks.addEventListener('click', function(e) {
-        if (e.target.classList.contains('nav-link') || e.target.closest('.nav-link')) {
-            console.log('🔗 Nav link clicked - closing menu');
-            setTimeout(() => toggleMenu(), 100); // Small delay for UX
-        }
-    });
-    
-    // Test hamburger visibility and clickability
-    function testHamburger() {
-        const rect = hamburger.getBoundingClientRect();
-        const isVisible = rect.width > 0 && rect.height > 0;
-        const computedStyle = window.getComputedStyle(hamburger);
-        
-        console.log('🔍 Hamburger test:', {
-            visible: isVisible,
-            width: rect.width,
-            height: rect.height,
-            zIndex: computedStyle.zIndex,
-            position: computedStyle.position,
-            pointerEvents: computedStyle.pointerEvents,
-            display: computedStyle.display
-        });
-        
-        // Make hamburger flash to show its location
-        hamburger.style.backgroundColor = 'red';
-        setTimeout(() => {
-            hamburger.style.backgroundColor = '';
-        }, 500);
-    }
-    
-    // Run test after setup
-    setTimeout(testHamburger, 1000);
-    
-    // Handle window resize
-    function handleResize() {
-        if (window.innerWidth > 768) {
-            hamburger.style.display = 'none';
-            navLinks.classList.remove('active');
-            overlay.classList.remove('active');
-            hamburger.classList.remove('active');
-            document.body.classList.remove('nav-open');
-            document.body.style.overflow = '';
-        } else {
-            hamburger.style.display = 'flex';
-        }
-    }
-    
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    
-    console.log('✅ Mobile navigation setup complete!');
-    
-    // Add click test area around hamburger
-    document.addEventListener('click', function(e) {
-        const rect = hamburger.getBoundingClientRect();
-        const clickX = e.clientX;
-        const clickY = e.clientY;
-        
-        if (clickX >= rect.left && clickX <= rect.right && 
-            clickY >= rect.top && clickY <= rect.bottom) {
-            console.log('🎯 Click detected in hamburger area!');
-        }
-    });
-}
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', setupMobileNavigation);
