@@ -1447,3 +1447,179 @@
         text-overflow: ellipsis !important;
     }
 }
+/* ============================================
+   HIDE HAMBURGER WHEN MENU IS OPEN - Add to mobile-styles.css
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* Hide hamburger button when navigation is active */
+    .hamburger.active {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    
+    /* Navigation menu when active - full screen */
+    .nav-links.active {
+        position: fixed !important;
+        top: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 100vh !important;
+        background-color: var(--card-light, #ffffff) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 0 !important;
+        z-index: 9999 !important;
+        pointer-events: auto !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        overflow-y: auto !important;
+        box-shadow: none !important;
+    }
+    
+    /* Dark mode navigation */
+    body.dark-mode .nav-links.active {
+        background-color: var(--card-dark, #2a2a2a) !important;
+    }
+    
+    /* Add close button to navigation menu */
+    .nav-links.active::before {
+        content: '✕' !important;
+        position: absolute !important;
+        top: 20px !important;
+        right: 20px !important;
+        width: 40px !important;
+        height: 40px !important;
+        background-color: var(--primary-color, #00a651) !important;
+        color: white !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 20px !important;
+        font-weight: bold !important;
+        cursor: pointer !important;
+        z-index: 10000 !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .nav-links.active::before:hover {
+        transform: scale(1.1) !important;
+        background-color: #008840 !important;
+    }
+    
+    /* Navigation header area */
+    .nav-links.active {
+        padding-top: 80px !important;
+    }
+    
+    /* Navigation links styling - make them very clickable */
+    .nav-links.active .nav-link {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        padding: 20px 30px !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+        font-size: 18px !important;
+        min-height: 60px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        color: var(--text-light, #333) !important;
+        text-decoration: none !important;
+        background-color: transparent !important;
+        position: relative !important;
+        z-index: 9998 !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        border: none !important;
+        margin: 0 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+    
+    /* Dark mode nav links */
+    body.dark-mode .nav-links.active .nav-link {
+        color: var(--text-dark, #ffffff) !important;
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* Navigation link hover effects */
+    .nav-links.active .nav-link:hover,
+    .nav-links.active .nav-link:focus,
+    .nav-links.active .nav-link:active {
+        background-color: rgba(0, 166, 81, 0.1) !important;
+        color: var(--primary-color, #00a651) !important;
+        transform: translateX(10px) !important;
+        padding-left: 40px !important;
+    }
+    
+    /* Navigation link icons */
+    .nav-links.active .nav-link i {
+        margin-left: 15px !important;
+        font-size: 20px !important;
+        width: 25px !important;
+        color: var(--primary-color, #00a651) !important;
+        pointer-events: none !important;
+    }
+    
+    /* List items */
+    .nav-links.active li {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Remove overlay when using full-screen navigation */
+    .nav-overlay.active {
+        display: none !important;
+    }
+    
+    /* Navigation active state - show immediately */
+    .nav-links.active {
+        transform: none !important;
+        transition: none !important;
+        right: 0 !important;
+    }
+    
+    /* Hide original hamburger completely when menu is open */
+    body.nav-open .hamburger {
+        display: none !important;
+    }
+    
+    /* Ensure navigation takes full priority when open */
+    body.nav-open {
+        overflow: hidden !important;
+    }
+    
+    body.nav-open .nav-links {
+        display: flex !important;
+    }
+}
+
+/* ============================================
+   DEBUGGING - Temporary backgrounds (remove after testing)
+   ============================================ */
+@media (max-width: 768px) {
+    /* Uncomment to see navigation areas clearly */
+    /*
+    .nav-links.active {
+        background-color: rgba(0, 255, 0, 0.9) !important;
+    }
+    
+    .nav-links.active .nav-link {
+        background-color: rgba(255, 255, 0, 0.3) !important;
+        border: 2px solid red !important;
+    }
+    */
+}
