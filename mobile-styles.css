@@ -989,3 +989,244 @@
     }
     */
 }
+
+/* ============================================
+   NAVIGATION LAYER FIX - Add to end of mobile-styles.css
+   ============================================ */
+
+@media (max-width: 768px) {
+    /* FIX: Proper z-index layering for mobile navigation */
+    
+    /* Layer 1: Overlay (lowest) */
+    .nav-overlay {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        z-index: 9990 !important; /* Lowest layer */
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transition: all 0.3s ease !important;
+        pointer-events: none !important;
+    }
+    
+    .nav-overlay.active {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Layer 2: Navigation Menu (middle) */
+    .nav-links {
+        position: fixed !important;
+        top: 0 !important;
+        right: -100% !important;
+        width: 80% !important;
+        max-width: 300px !important;
+        height: 100vh !important;
+        background-color: var(--card-light, #ffffff) !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        align-items: stretch !important;
+        padding: 20px 0 20px 0 !important; /* Reduced top padding */
+        transition: right 0.3s ease !important;
+        z-index: 9995 !important; /* Middle layer - above overlay */
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2) !important;
+        pointer-events: none !important;
+        overflow-y: auto !important;
+    }
+    
+    .nav-links.active {
+        right: 0 !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Layer 3: Navigation Links (high) - Make them VERY clickable */
+    .nav-links .nav-link {
+        display: flex !important;
+        align-items: center !important;
+        padding: 15px 20px !important;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+        font-size: 16px !important;
+        min-height: 50px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        color: var(--text-light, #333) !important;
+        text-decoration: none !important;
+        transition: background-color 0.3s ease !important;
+        position: relative !important;
+        z-index: 9996 !important; /* Higher than nav-links container */
+        pointer-events: auto !important;
+        cursor: pointer !important;
+        background-color: transparent !important;
+    }
+    
+    .nav-links .nav-link:hover,
+    .nav-links .nav-link:active,
+    .nav-links .nav-link:focus {
+        background-color: rgba(0, 166, 81, 0.1) !important;
+        color: var(--primary-color, #00a651) !important;
+    }
+    
+    /* Layer 4: Hamburger/Close Button (highest) - But only in specific area */
+    .hamburger {
+        position: fixed !important;
+        top: 15px !important;
+        right: 15px !important;
+        width: 50px !important;
+        height: 50px !important;
+        z-index: 9999 !important; /* Highest layer */
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        cursor: pointer !important;
+        padding: 12px !important;
+        background-color: rgba(0, 166, 81, 0.95) !important;
+        border-radius: 6px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+        pointer-events: auto !important;
+        touch-action: manipulation !important;
+        user-select: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+    
+    /* CRITICAL FIX: When menu is open, reduce hamburger click area to not block nav links */
+    .hamburger.active {
+        /* Keep same position but make it less intrusive */
+        width: 40px !important;
+        height: 40px !important;
+        top: 20px !important;
+        right: 20px !important;
+        /* Ensure it doesn't block navigation area */
+        clip-path: circle(20px at center) !important; /* Circular click area */
+    }
+    
+    /* Navigation area should be clear of hamburger interference */
+    .nav-links.active {
+        /* Create safe zone away from hamburger button */
+        padding-right: 80px !important; /* Space to avoid hamburger */
+    }
+    
+    /* Hamburger spans styling */
+    .hamburger span {
+        width: 25px !important;
+        height: 3px !important;
+        background-color: white !important;
+        display: block !important;
+        margin: 3px 0 !important;
+        border-radius: 2px !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    /* Active hamburger (X state) */
+    .hamburger.active span:nth-child(1) {
+        transform: rotate(-45deg) translate(-5px, 6px) !important;
+    }
+    
+    .hamburger.active span:nth-child(2) {
+        opacity: 0 !important;
+    }
+    
+    .hamburger.active span:nth-child(3) {
+        transform: rotate(45deg) translate(-5px, -6px) !important;
+    }
+    
+    /* ADDITIONAL FIX: Make sure nav list items are properly structured */
+    .nav-links li {
+        width: 100% !important;
+        margin: 0 !important;
+        list-style: none !important;
+        position: relative !important;
+        z-index: 9997 !important; /* Even higher than nav-link */
+        pointer-events: auto !important;
+    }
+    
+    /* Dark mode support */
+    body.dark-mode .nav-links {
+        background-color: var(--card-dark, #2a2a2a) !important;
+    }
+    
+    body.dark-mode .nav-links .nav-link {
+        color: var(--text-dark, #ffffff) !important;
+        border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    /* DEBUGGING: Temporarily add backgrounds to see layers */
+    /*
+    .nav-links.active {
+        background-color: rgba(255, 0, 0, 0.3) !important;
+    }
+    
+    .nav-links .nav-link {
+        background-color: rgba(0, 255, 0, 0.3) !important;
+        border: 1px solid blue !important;
+    }
+    
+    .hamburger {
+        background-color: rgba(255, 255, 0, 0.9) !important;
+        border: 2px solid red !important;
+    }
+    */
+}
+
+/* ============================================
+   TOUCH IMPROVEMENTS FOR NAVIGATION LINKS
+   ============================================ */
+@media (max-width: 768px) {
+    /* Make nav links more touch-friendly */
+    .nav-links .nav-link {
+        -webkit-tap-highlight-color: rgba(0, 166, 81, 0.2) !important;
+        tap-highlight-color: rgba(0, 166, 81, 0.2) !important;
+    }
+    
+    /* Add touch feedback */
+    .nav-links .nav-link:active {
+        background-color: rgba(0, 166, 81, 0.2) !important;
+        transform: scale(0.98) !important;
+    }
+    
+    /* Ensure icons in nav links are not blocking clicks */
+    .nav-links .nav-link i {
+        pointer-events: none !important;
+        margin-left: 10px !important;
+    }
+    
+    /* Ensure nav text is not blocking clicks */
+    .nav-links .nav-link span,
+    .nav-links .nav-link * {
+        pointer-events: none !important;
+    }
+}
+
+/* ============================================
+   FALLBACK: Force clickability
+   ============================================ */
+@media (max-width: 768px) {
+    /* Nuclear option - make EVERYTHING in nav-links clickable */
+    .nav-links.active * {
+        pointer-events: none !important;
+    }
+    
+    .nav-links.active .nav-link {
+        pointer-events: auto !important;
+        display: block !important;
+        position: relative !important;
+        z-index: 10000 !important;
+    }
+    
+    /* Create invisible click areas over navigation links */
+    .nav-links .nav-link::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        z-index: 1 !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+    }
+}
