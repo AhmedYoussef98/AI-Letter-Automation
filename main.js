@@ -1,3 +1,4 @@
+// Optimized Main.js with Performance Improvements
 // Theme Toggle
 const themeToggle = document.getElementById('themeToggle');
 const body = document.body;
@@ -6,7 +7,9 @@ const body = document.body;
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme === 'dark') {
     body.classList.add('dark-mode');
-    themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+    if (themeToggle) {
+        themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+    }
 }
 
 if (themeToggle) {
@@ -24,89 +27,126 @@ if (themeToggle) {
     });
 }
 
-// Letter History Functions
-function loadLetterHistory() {
-    const tableBody = document.getElementById("lettersTableBody");
-    const noData = document.getElementById("noData");
+// OPTIMIZATION: Enhanced Letter History Functions with Performance Monitoring
+async function loadLetterHistory() {
+    console.log('🚀 Loading letter history with optimizations...');
     
-    // Load data from Google Sheets
-    loadSubmissionsData().then(letters => {
-        if (letters.length === 0) {
-            tableBody.style.display = "none";
-            noData.style.display = "block";
-        } else {
-            renderLettersTable(letters);
-            setupFilters(letters);
-        }
-    });
+    // Show quick stats while loading
+    showQuickStats();
+    
+    // Use progressive loading for better UX
+    await loadLetterHistoryProgressive();
+    
+    // Update quick stats with real data
+    updateQuickStats();
 }
 
-function renderLettersTable(letters) {
-    const tableBody = document.getElementById("lettersTableBody");
-    tableBody.innerHTML = "";
+function showQuickStats() {
+    const container = document.querySelector('.main-container');
+    const existingStats = document.querySelector('.quick-actions');
     
-    // Check if there's a letter ID to highlight from URL parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const highlightId = urlParams.get("highlight");
-    
-    letters.forEach(letter => {
-        const row = document.createElement("tr");
-        
-        // Add highlight class if this is the letter to highlight
-        if (highlightId && letter.id === highlightId) {
-            row.classList.add("highlighted-letter");
-        }
-        
-        // Status color classes
-        const reviewStatusClass = getStatusClass(letter.reviewStatus);
-        const sendStatusClass = getStatusClass(letter.sendStatus);
-        
-        row.innerHTML = `
-            <td>${letter.id}</td>
-            <td>${letter.date}</td>
-            <td>${translateLetterType(letter.type)}</td>
-            <td><span class="status-badge ${reviewStatusClass}">${letter.reviewStatus}</span></td>
-            <td><span class="status-badge ${sendStatusClass}">${letter.sendStatus}</span></td>
-            <td>${letter.recipient}</td>
-            <td>${letter.subject}</td>
-            <td>${letter.reviewerName || "-"}</td>
-            <td>${letter.reviewNotes || "-"}</td>
-            <td>${letter.writer || "-"}</td>
-            <td>
-                <div class="action-buttons">
-                    <button class="action-icon" onclick="reviewLetter(\'${letter.id}\')" title="مراجعة">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="action-icon" onclick="downloadLetter(\'${letter.id}\')" title="تحميل وطباعة">
-                        <i class="fas fa-download"></i>
-                    </button>
-                    <button class="action-icon delete" onclick="deleteLetter(\'${letter.id}\')" title="حذف">
-                        <i class="fas fa-trash"></i>
-                    </button>
+    if (!existingStats && container) {
+        const quickActions = document.createElement('div');
+        quickActions.className = 'quick-actions';
+        quickActions.innerHTML = `
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalLetters">--</div>
+                    <div class="stat-label">إجمالي الخطابات</div>
                 </div>
-            </td>
+                <div class="stat-item">
+                    <div class="stat-value" id="pendingReview">--</div>
+                    <div class="stat-label">في انتظار المراجعة</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="readyToSend">--</div>
+                    <div class="stat-label">جاهز للإرسال</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="thisMonth">--</div>
+                    <div class="stat-label">هذا الشهر</div>
+                </div>
+            </div>
+            <div class="quick-actions-buttons">
+                <button class="quick-action-btn refresh" onclick="refreshLetterCache()">
+                    <i class="fas fa-sync-alt"></i>
+                    تحديث
+                </button>
+                <button class="quick-action-btn export" onclick="exportLettersToCSV()">
+                    <i class="fas fa-download"></i>
+                    تصدير
+                </button>
+            </div>
         `;
         
-        tableBody.appendChild(row);
-    });
-    
-    // Scroll to highlighted letter if it exists
-    if (highlightId) {
-        setTimeout(() => {
-            const highlightedRow = document.querySelector(".highlighted-letter");
-            if (highlightedRow) {
-                highlightedRow.scrollIntoView({ 
-                    behavior: "smooth", 
-                    block: "center" 
-                });
-                
-                // Remove highlight after 3 seconds
-                setTimeout(() => {
-                    highlightedRow.classList.remove("highlighted-letter");
-                }, 3000);
-            }
-        }, 500); // Small delay to ensure table is rendered
+        const pageHeader = document.querySelector('.page-header');
+        if (pageHeader) {
+            pageHeader.insertAdjacentElement('afterend', quickActions);
+        }
     }
+}
+
+function updateQuickStats() {
+    const cachedLetters = letterCache.get('submissions_data') || [];
+    
+    if (cachedLetters.length === 0) return;
+    
+    const stats = calculateLetterStats(cachedLetters);
+    
+    const totalLettersEl = document.getElementById('totalLetters');
+    const pendingReviewEl = document.getElementById('pendingReview');
+    const readyToSendEl = document.getElementById('readyToSend');
+    const thisMonthEl = document.getElementById('thisMonth');
+    
+    if (totalLettersEl) {
+        animateNumberChange(totalLettersEl, stats.total);
+    }
+    if (pendingReviewEl) {
+        animateNumberChange(pendingReviewEl, stats.pending);
+    }
+    if (readyToSendEl) {
+        animateNumberChange(readyToSendEl, stats.ready);
+    }
+    if (thisMonthEl) {
+        animateNumberChange(thisMonthEl, stats.thisMonth);
+    }
+}
+
+function calculateLetterStats(letters) {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    return {
+        total: letters.length,
+        pending: letters.filter(l => l.reviewStatus === 'في الانتظار').length,
+        ready: letters.filter(l => l.reviewStatus === 'جاهز للإرسال').length,
+        thisMonth: letters.filter(l => {
+            const letterDate = new Date(l.date);
+            return letterDate.getMonth() === currentMonth && letterDate.getFullYear() === currentYear;
+        }).length
+    };
+}
+
+function animateNumberChange(element, newValue) {
+    const currentValue = parseInt(element.textContent) || 0;
+    const increment = newValue > currentValue ? 1 : -1;
+    let current = currentValue;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        element.textContent = current;
+        
+        if (current === newValue) {
+            clearInterval(timer);
+        }
+    }, 50);
+}
+
+// OPTIMIZATION: Enhanced rendering with batching
+function renderLettersTable(letters) {
+    // Use the optimized function from sheets.js
+    renderLettersTableOptimized(letters);
 }
 
 function getStatusClass(status) {
@@ -130,129 +170,51 @@ function translateLetterType(type) {
     return typeMap[type] || type;
 }
 
-// NEW: Sort letters function
-function sortLetters(letters, sortType) {
-    if (!sortType) return letters;
-    
-    const sortedLetters = [...letters]; // Create a copy to avoid mutating original array
-    
-    switch (sortType) {
-        case 'date-new-old':
-            return sortedLetters.sort((a, b) => {
-                const dateA = new Date(a.date);
-                const dateB = new Date(b.date);
-                return dateB - dateA; // Newest first
-            });
-            
-        case 'date-old-new':
-            return sortedLetters.sort((a, b) => {
-                const dateA = new Date(a.date);
-                const dateB = new Date(b.date);
-                return dateA - dateB; // Oldest first
-            });
-            
-        case 'recipient-a-z':
-            return sortedLetters.sort((a, b) => {
-                return a.recipient.localeCompare(b.recipient, 'ar');
-            });
-            
-        case 'recipient-z-a':
-            return sortedLetters.sort((a, b) => {
-                return b.recipient.localeCompare(a.recipient, 'ar');
-            });
-            
-        case 'subject-a-z':
-            return sortedLetters.sort((a, b) => {
-                return a.subject.localeCompare(b.subject, 'ar');
-            });
-            
-        case 'subject-z-a':
-            return sortedLetters.sort((a, b) => {
-                return b.subject.localeCompare(a.subject, 'ar');
-            });
-            
-        case 'type-a-z':
-            return sortedLetters.sort((a, b) => {
-                return translateLetterType(a.type).localeCompare(translateLetterType(b.type), 'ar');
-            });
-            
-        case 'review-status':
-            // Sort by review status priority: جاهز للإرسال > في الانتظار > يحتاج إلى تحسينات > مرفوض
-            const statusPriority = {
-                'جاهز للإرسال': 1,
-                'في الانتظار': 2,
-                'يحتاج إلى تحسينات': 3,
-                'مرفوض': 4
-            };
-            return sortedLetters.sort((a, b) => {
-                const priorityA = statusPriority[a.reviewStatus] || 5;
-                const priorityB = statusPriority[b.reviewStatus] || 5;
-                return priorityA - priorityB;
-            });
-            
-        case 'writer-a-z':
-            return sortedLetters.sort((a, b) => {
-                const writerA = a.writer || 'zzz'; // Put empty writers at the end
-                const writerB = b.writer || 'zzz';
-                return writerA.localeCompare(writerB, 'ar');
-            });
-            
-        default:
-            return sortedLetters;
-    }
-}
-
-// UPDATED: Setup filters function with sorting
+// OPTIMIZATION: Use optimized filters from sheets.js
 function setupFilters(letters) {
-    const searchInput = document.getElementById('searchInput');
-    const typeFilter = document.getElementById('letterTypeFilter');
-    const reviewFilter = document.getElementById('reviewStatusFilter');
-    const sortFilter = document.getElementById('sortFilter'); // NEW: Sort filter
-    
-    const filterAndSortLetters = () => {
-        const searchTerm = searchInput.value.toLowerCase();
-        const selectedType = typeFilter.value;
-        const selectedReview = reviewFilter.value;
-        const selectedSort = sortFilter.value; // NEW: Get sort selection
-        
-        // First, apply filters
-        let filtered = letters.filter(letter => {
-            const matchesSearch = letter.recipient.toLowerCase().includes(searchTerm) || 
-                                letter.id.toLowerCase().includes(searchTerm) ||
-                                (letter.writer && letter.writer.toLowerCase().includes(searchTerm));
-            const matchesType = !selectedType || translateLetterType(letter.type) === selectedType;
-            const matchesReview = !selectedReview || letter.reviewStatus === selectedReview;
-            
-            return matchesSearch && matchesType && matchesReview;
-        });
-        
-        // Then, apply sorting
-        filtered = sortLetters(filtered, selectedSort);
-        
-        renderLettersTable(filtered);
-    };
-    
-    // Add event listeners for all filters including sort
-    searchInput.addEventListener('input', filterAndSortLetters);
-    typeFilter.addEventListener('change', filterAndSortLetters);
-    reviewFilter.addEventListener('change', filterAndSortLetters);
-    sortFilter.addEventListener('change', filterAndSortLetters); // NEW: Sort event listener
+    setupFiltersOptimized(letters);
 }
 
-// Letter Actions
+// OPTIMIZATION: Enhanced Letter Actions with Caching
 function reviewLetter(id) {
-    window.location.href = `review-letter.html?id=${id}`;
+    // Add loading state
+    showActionLoading(id, 'review');
+    
+    setTimeout(() => {
+        window.location.href = `review-letter.html?id=${id}`;
+    }, 100);
 }
 
-function printLetter(id) {
-    // Implement print functionality
-    window.print();
+function showActionLoading(id, action) {
+    const button = document.querySelector(`button[onclick*="${id}"][onclick*="${action}"]`);
+    if (button) {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        button.disabled = true;
+        
+        // Restore after 2 seconds if still on page
+        setTimeout(() => {
+            if (button.parentNode) {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            }
+        }, 2000);
+    }
 }
 
 async function downloadLetter(id) {
     try {
-        const letters = await loadSubmissionsData();
-        const letter = letters.find(l => l.id === id);
+        showActionLoading(id, 'download');
+        
+        // Get from cache first for faster lookup
+        const cachedLetters = letterCache.get('submissions_data') || [];
+        let letter = cachedLetters.find(l => l.id === id);
+        
+        // Fallback to fresh data if not in cache
+        if (!letter) {
+            const letters = await loadSubmissionsDataOptimized();
+            letter = letters.find(l => l.id === id);
+        }
         
         if (!letter || !letter.letterLink) {
             alert('رابط الخطاب غير متوفر');
@@ -263,7 +225,6 @@ async function downloadLetter(id) {
         
         // For Google Drive links, use the viewer URL
         if (letter.letterLink.includes('drive.google.com')) {
-            // Extract file ID and create viewer URL
             const fileId = extractGoogleDriveFileId(letter.letterLink);
             if (fileId) {
                 viewerUrl = `https://drive.google.com/file/d/${fileId}/view`;
@@ -297,11 +258,19 @@ function extractGoogleDriveFileId(url) {
 async function deleteLetter(id) {
     if (confirm("هل أنت متأكد من حذف هذا الخطاب؟")) {
         try {
+            showActionLoading(id, 'delete');
+            
             // Delete from Google Sheets
             await deleteLetterFromSheet(id);
-            alert("تم حذف الخطاب بنجاح");
-            // Reload the letter history to reflect changes without highlighting
-            window.location.href = "letter-history.html";
+            
+            // Show success message
+            showSuccessMessage("تم حذف الخطاب بنجاح");
+            
+            // Refresh the view after deletion
+            setTimeout(() => {
+                window.location.href = "letter-history.html";
+            }, 1500);
+            
         } catch (error) {
             console.error("Error deleting letter:", error);
             alert("حدث خطأ أثناء حذف الخطاب");
@@ -309,7 +278,27 @@ async function deleteLetter(id) {
     }
 }
 
-// Review Form Functions
+function showSuccessMessage(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.innerHTML = `
+        <div class="success-content">
+            <i class="fas fa-check-circle"></i>
+            <p>${message}</p>
+        </div>
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (successDiv.parentNode) {
+            successDiv.parentNode.removeChild(successDiv);
+        }
+    }, 3000);
+}
+
+// OPTIMIZATION: Enhanced Review Form Functions
 function loadLettersForReview() {
     const letterSelect = document.getElementById('letterSelect');
     
@@ -317,25 +306,44 @@ function loadLettersForReview() {
     const urlParams = new URLSearchParams(window.location.search);
     const preselectedId = urlParams.get('id');
     
-    loadSubmissionsData().then(letters => {
-        // Clear existing options first
-        letterSelect.innerHTML = '<option value="">اختر خطاباً</option>';
-        
-        letters.forEach(letter => {
-            const option = document.createElement('option');
-            option.value = letter.id;
-            option.textContent = `${letter.id} - ${letter.recipient} - ${letter.subject}`;
-            letterSelect.appendChild(option);
-        });
-        
-        // If there's a preselected ID from URL, select it and load the letter
-        if (preselectedId) {
-            letterSelect.value = preselectedId;
-            const reviewForm = document.getElementById('reviewForm');
+    // Load from cache first for faster response
+    const cachedLetters = letterCache.get('submissions_data');
+    
+    if (cachedLetters && cachedLetters.length > 0) {
+        populateLetterSelect(cachedLetters, preselectedId);
+    }
+    
+    // Load fresh data in background
+    loadSubmissionsDataOptimized().then(letters => {
+        if (letters.length > 0) {
+            populateLetterSelect(letters, preselectedId);
+        }
+    });
+}
+
+function populateLetterSelect(letters, preselectedId) {
+    const letterSelect = document.getElementById('letterSelect');
+    if (!letterSelect) return;
+    
+    // Clear existing options first
+    letterSelect.innerHTML = '<option value="">اختر خطاباً</option>';
+    
+    letters.forEach(letter => {
+        const option = document.createElement('option');
+        option.value = letter.id;
+        option.textContent = `${letter.id} - ${letter.recipient} - ${letter.subject}`;
+        letterSelect.appendChild(option);
+    });
+    
+    // If there's a preselected ID from URL, select it and load the letter
+    if (preselectedId) {
+        letterSelect.value = preselectedId;
+        const reviewForm = document.getElementById('reviewForm');
+        if (reviewForm) {
             reviewForm.style.display = 'block';
             loadLetterForReview(preselectedId);
         }
-    });
+    }
 }
 
 function setupReviewForm() {
@@ -344,71 +352,358 @@ function setupReviewForm() {
     const reviewCheckbox = document.getElementById('reviewComplete');
     const actionButtons = document.querySelectorAll('.action-button');
     
-    letterSelect.addEventListener('change', (e) => {
-        if (e.target.value) {
-            reviewForm.style.display = 'block';
-            loadLetterForReview(e.target.value);
-        } else {
-            reviewForm.style.display = 'none';
-        }
-    });
-    
-    reviewCheckbox.addEventListener('change', (e) => {
-        actionButtons.forEach(button => {
-            button.disabled = !e.target.checked;
+    if (letterSelect) {
+        letterSelect.addEventListener('change', (e) => {
+            if (e.target.value) {
+                if (reviewForm) reviewForm.style.display = 'block';
+                loadLetterForReview(e.target.value);
+            } else {
+                if (reviewForm) reviewForm.style.display = 'none';
+            }
         });
-    });
+    }
+    
+    if (reviewCheckbox) {
+        reviewCheckbox.addEventListener('change', (e) => {
+            actionButtons.forEach(button => {
+                button.disabled = !e.target.checked;
+            });
+        });
+    }
     
     // Setup action buttons
-    document.getElementById('readyButton').addEventListener('click', () => updateReviewStatus('جاهز للإرسال'));
-    document.getElementById('improvementButton').addEventListener('click', () => updateReviewStatus('يحتاج إلى تحسينات'));
-    document.getElementById('rejectedButton').addEventListener('click', () => updateReviewStatus('مرفوض'));
+    const readyButton = document.getElementById('readyButton');
+    const improvementButton = document.getElementById('improvementButton');
+    const rejectedButton = document.getElementById('rejectedButton');
+    
+    if (readyButton) {
+        readyButton.addEventListener('click', () => updateReviewStatus('جاهز للإرسال'));
+    }
+    if (improvementButton) {
+        improvementButton.addEventListener('click', () => updateReviewStatus('يحتاج إلى تحسينات'));
+    }
+    if (rejectedButton) {
+        rejectedButton.addEventListener('click', () => updateReviewStatus('مرفوض'));
+    }
 }
 
 function loadLetterForReview(id) {
-    // Load letter content from your data source
-    loadSubmissionsData().then(letters => {
-        const letter = letters.find(l => l.id === id);
-        const letterContent = document.getElementById('letterContentReview');
-        const reviewerNameInput = document.getElementById('reviewerName');
-        const reviewNotesInput = document.getElementById('reviewNotes');
-        
-        if (letter) {
-            // Display the actual letter content
-            letterContent.value = letter.content || 'محتوى الخطاب غير متوفر';
-            // Pre-fill reviewer name and notes if they exist
-            reviewerNameInput.value = letter.reviewerName || '';
-            reviewNotesInput.value = letter.reviewNotes || '';
-        } else {
-            letterContent.value = 'لم يتم العثور على الخطاب';
-        }
-    }).catch(error => {
-        console.error('Error loading letter:', error);
-        const letterContent = document.getElementById('letterContentReview');
+    // Try cache first
+    const cachedLetters = letterCache.get('submissions_data');
+    let letter = cachedLetters ? cachedLetters.find(l => l.id === id) : null;
+    
+    if (letter) {
+        displayLetterForReview(letter);
+    } else {
+        // Load from server if not in cache
+        loadSubmissionsDataOptimized().then(letters => {
+            letter = letters.find(l => l.id === id);
+            if (letter) {
+                displayLetterForReview(letter);
+            } else {
+                displayLetterError();
+            }
+        }).catch(error => {
+            console.error('Error loading letter:', error);
+            displayLetterError();
+        });
+    }
+}
+
+function displayLetterForReview(letter) {
+    const letterContent = document.getElementById('letterContentReview');
+    const reviewerNameInput = document.getElementById('reviewerName');
+    const reviewNotesInput = document.getElementById('reviewNotes');
+    
+    if (letterContent) {
+        letterContent.value = letter.content || 'محتوى الخطاب غير متوفر';
+    }
+    
+    if (reviewerNameInput) {
+        reviewerNameInput.value = letter.reviewerName || '';
+    }
+    
+    if (reviewNotesInput) {
+        reviewNotesInput.value = letter.reviewNotes || '';
+    }
+}
+
+function displayLetterError() {
+    const letterContent = document.getElementById('letterContentReview');
+    if (letterContent) {
         letterContent.value = 'حدث خطأ في تحميل محتوى الخطاب';
-    });
+    }
 }
 
 async function updateReviewStatus(status) {
-    const reviewerName = document.getElementById('reviewerName').value;
-    const notes = document.getElementById('reviewNotes').value;
-    const letterId = document.getElementById('letterSelect').value;
-    const letterContent = document.getElementById('letterContentReview').value; // NEW: Get the letter content
+    const reviewerName = document.getElementById('reviewerName')?.value;
+    const notes = document.getElementById('reviewNotes')?.value;
+    const letterId = document.getElementById('letterSelect')?.value;
+    const letterContent = document.getElementById('letterContentReview')?.value;
     
     if (!reviewerName) {
         alert('الرجاء إدخال اسم المراجع');
         return;
     }
     
+    if (!letterId) {
+        alert('الرجاء اختيار خطاب للمراجعة');
+        return;
+    }
+    
     try {
-        // Update the status in Google Sheets (now includes letter content)
-        await updateReviewStatusInSheet(letterId, status, reviewerName, notes, letterContent);
-        alert(`تم تحديث حالة المراجعة إلى: ${status}`);
+        // Show loading state
+        const activeButton = document.querySelector('.action-button:focus') || 
+                           document.querySelector(`.action-button.${status.includes('جاهز') ? 'ready' : status.includes('تحسينات') ? 'needs-improvement' : 'rejected'}`);
         
-        // Redirect to letter history
-        window.location.href = 'letter-history.html';
+        if (activeButton) {
+            const originalText = activeButton.innerHTML;
+            activeButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحديث...';
+            activeButton.disabled = true;
+        }
+        
+        // Update the status in Google Sheets
+        await updateReviewStatusInSheet(letterId, status, reviewerName, notes, letterContent);
+        
+        // Show success message
+        showSuccessMessage(`تم تحديث حالة المراجعة إلى: ${status}`);
+        
+        // Redirect to letter history with highlight
+        setTimeout(() => {
+            window.location.href = `letter-history.html?highlight=${letterId}`;
+        }, 1500);
+        
     } catch (error) {
         console.error('Error updating review status:', error);
         alert('حدث خطأ أثناء تحديث حالة المراجعة');
+        
+        // Restore button state
+        if (activeButton) {
+            activeButton.innerHTML = originalText;
+            activeButton.disabled = false;
+        }
     }
 }
+
+// OPTIMIZATION: CSV Export Function
+async function exportLettersToCSV() {
+    try {
+        const exportButton = document.querySelector('.quick-action-btn.export');
+        if (exportButton) {
+            const originalHTML = exportButton.innerHTML;
+            exportButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التصدير...';
+            exportButton.disabled = true;
+        }
+        
+        // Get fresh data
+        const letters = await loadSubmissionsDataOptimized();
+        
+        if (letters.length === 0) {
+            alert('لا توجد خطابات للتصدير');
+            return;
+        }
+        
+        // Create CSV content
+        const headers = [
+            'الرقم المرجعي',
+            'التاريخ',
+            'نوع الخطاب',
+            'المستلم',
+            'الموضوع',
+            'حالة المراجعة',
+            'حالة الإرسال',
+            'اسم المراجع',
+            'الملاحظات',
+            'الكاتب'
+        ];
+        
+        const csvContent = [
+            headers.join(','),
+            ...letters.map(letter => [
+                letter.id,
+                letter.date,
+                translateLetterType(letter.type),
+                letter.recipient,
+                letter.subject,
+                letter.reviewStatus,
+                letter.sendStatus,
+                letter.reviewerName || '',
+                letter.reviewNotes || '',
+                letter.writer || ''
+            ].map(field => `"${field}"`).join(','))
+        ].join('\n');
+        
+        // Download CSV
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `letter-history-${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        showSuccessMessage('تم تصدير البيانات بنجاح');
+        
+    } catch (error) {
+        console.error('Error exporting CSV:', error);
+        alert('حدث خطأ أثناء تصدير البيانات');
+    } finally {
+        // Restore button state
+        const exportButton = document.querySelector('.quick-action-btn.export');
+        if (exportButton) {
+            exportButton.innerHTML = '<i class="fas fa-download"></i> تصدير';
+            exportButton.disabled = false;
+        }
+    }
+}
+
+// OPTIMIZATION: Performance Monitoring
+function initializePerformanceMonitoring() {
+    if (window.perfMonitor) {
+        // Monitor page load time
+        window.addEventListener('load', () => {
+            const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+            console.log(`📊 Page load time: ${loadTime}ms`);
+            
+            if (loadTime > 3000) {
+                console.warn('⚠️ Slow page load detected');
+                showPerformanceHint();
+            }
+        });
+        
+        // Monitor memory usage (if available)
+        if (performance.memory) {
+            setInterval(() => {
+                const memoryInfo = performance.memory;
+                const usedMB = Math.round(memoryInfo.usedJSHeapSize / 1024 / 1024);
+                const totalMB = Math.round(memoryInfo.totalJSHeapSize / 1024 / 1024);
+                
+                if (usedMB > 100) { // More than 100MB
+                    console.warn(`⚠️ High memory usage: ${usedMB}MB / ${totalMB}MB`);
+                }
+            }, 30000); // Check every 30 seconds
+        }
+    }
+}
+
+function showPerformanceHint() {
+    const hint = document.createElement('div');
+    hint.className = 'performance-hint';
+    hint.innerHTML = `
+        <div class="hint-content">
+            <i class="fas fa-lightbulb"></i>
+            <p>لتحسين الأداء، يمكنك مسح ذاكرة التخزين المؤقت</p>
+            <button onclick="clearAppCache()" class="hint-btn">مسح الذاكرة</button>
+            <button onclick="this.parentElement.parentElement.remove()" class="hint-close">×</button>
+        </div>
+    `;
+    
+    document.body.appendChild(hint);
+    
+    setTimeout(() => {
+        if (hint.parentNode) {
+            hint.parentNode.removeChild(hint);
+        }
+    }, 10000);
+}
+
+function clearAppCache() {
+    letterCache.clear();
+    localStorage.removeItem('theme');
+    localStorage.clear();
+    
+    showSuccessMessage('تم مسح ذاكرة التخزين المؤقت');
+    
+    setTimeout(() => {
+        location.reload();
+    }, 1500);
+}
+
+// OPTIMIZATION: Initialize optimizations when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Initializing optimized main.js...');
+    
+    // Initialize performance monitoring
+    initializePerformanceMonitoring();
+    
+    // Set up intersection observer for lazy loading
+    setupIntersectionObserver();
+    
+    // Initialize page-specific optimizations
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    switch (currentPage) {
+        case 'letter-history.html':
+            console.log('📋 Initializing letter history page...');
+            loadLetterHistory();
+            break;
+            
+        case 'review-letter.html':
+            console.log('🔍 Initializing review letter page...');
+            loadLettersForReview();
+            setupReviewForm();
+            break;
+            
+        case 'create-letter.html':
+            console.log('✏️ Initializing create letter page...');
+            // Initialize create letter optimizations
+            break;
+            
+        default:
+            console.log('🏠 Initializing default page...');
+            break;
+    }
+});
+
+function setupIntersectionObserver() {
+    // Set up intersection observer for performance optimization
+    const observerOptions = {
+        rootMargin: '50px',
+        threshold: 0.1
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Element is visible, can trigger actions if needed
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+    
+    // Observe elements that need lazy loading
+    const lazyElements = document.querySelectorAll('.lazy-load');
+    lazyElements.forEach(element => {
+        observer.observe(element);
+    });
+}
+
+// OPTIMIZATION: Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    console.log('🧹 Cleaning up optimizations...');
+    
+    // Stop background sync
+    if (window.backgroundSync) {
+        window.backgroundSync.stop();
+    }
+    
+    // Log performance summary
+    if (window.perfMonitor) {
+        window.perfMonitor.logSummary();
+    }
+    
+    // Save any pending cache updates
+    if (window.letterCache) {
+        window.letterCache.saveToStorage();
+    }
+});
+
+// Export functions for global access
+window.loadLetterHistory = loadLetterHistory;
+window.reviewLetter = reviewLetter;
+window.downloadLetter = downloadLetter;
+window.deleteLetter = deleteLetter;
+window.exportLettersToCSV = exportLettersToCSV;
+window.clearAppCache = clearAppCache;
