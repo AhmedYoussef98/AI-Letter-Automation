@@ -217,7 +217,7 @@ async function downloadLetter(id) {
         }
         
         if (!letter || !letter.letterLink) {
-            alert('رابط الخطاب غير متوفر');
+            notify.warning('رابط الخطاب غير متوفر');
             return;
         }
         
@@ -236,7 +236,7 @@ async function downloadLetter(id) {
         
     } catch (error) {
         console.error('Error opening letter:', error);
-        alert('حدث خطأ أثناء فتح الخطاب');
+        notify.error('حدث خطأ أثناء فتح الخطاب');
     }
 }
 
@@ -256,27 +256,25 @@ function extractGoogleDriveFileId(url) {
 }
 
 async function deleteLetter(id) {
-    if (confirm("هل أنت متأكد من حذف هذا الخطاب؟")) {
-        try {
-            showActionLoading(id, 'delete');
-            
-            // Delete from Google Sheets
-            await deleteLetterFromSheet(id);
-            
-            // Show success message
-            showSuccessMessage("تم حذف الخطاب بنجاح");
-            
-            // Refresh the view after deletion
-            setTimeout(() => {
-                window.location.href = "letter-history.html";
-            }, 1500);
-            
-        } catch (error) {
-            console.error("Error deleting letter:", error);
-            alert("حدث خطأ أثناء حذف الخطاب");
+    if (notify.confirm("هل أنت متأكد من حذف هذا الخطاب؟",
+            async () => {
+                // Confirmed
+                try {
+                    await deleteLetterFromSheet(id);
+                    notify.success("تم حذف الخطاب بنجاح");
+                    setTimeout(() => {
+                        window.location.href = "letter-history.html";
+                    }, 1000);
+                } catch (error) {
+                    console.error("Error deleting letter:", error);
+                    notify.error("حدث خطأ أثناء حذف الخطاب");
+                }
+            },
+            () => {
+                // Cancelled - do nothing
+            }
+        );
         }
-    }
-}
 
 function showSuccessMessage(message) {
     const successDiv = document.createElement('div');
@@ -442,12 +440,12 @@ async function updateReviewStatus(status) {
     const letterContent = document.getElementById('letterContentReview')?.value;
     
     if (!reviewerName) {
-        alert('الرجاء إدخال اسم المراجع');
+        notify.warning('الرجاء إدخال اسم المراجع');
         return;
     }
     
     if (!letterId) {
-        alert('الرجاء اختيار خطاب للمراجعة');
+        notify.warning('الرجاء اختيار خطاب للمراجعة');
         return;
     }
     
@@ -475,7 +473,7 @@ async function updateReviewStatus(status) {
         
     } catch (error) {
         console.error('Error updating review status:', error);
-        alert('حدث خطأ أثناء تحديث حالة المراجعة');
+        notify.error('حدث خطأ أثناء تحديث حالة المراجعة');
         
         // Restore button state
         if (activeButton) {
@@ -707,3 +705,4 @@ window.downloadLetter = downloadLetter;
 window.deleteLetter = deleteLetter;
 window.exportLettersToCSV = exportLettersToCSV;
 window.clearAppCache = clearAppCache;
+
