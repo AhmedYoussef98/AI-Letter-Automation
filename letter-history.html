@@ -410,9 +410,14 @@
         </div>
     </main>
 
-    <script src="sheets.js"></script>
     <script src="notifications.js"></script>
+    <script src="sheets.js"></script>
     <script src="main.js"></script>
+    <script>
+        // Debug check
+        console.log('notifications.js loaded:', typeof notify !== 'undefined');
+        console.log('loadLetterHistory loaded:', typeof loadLetterHistory === 'function');
+    </script>
     
     <script>
         // COMPLETE FIXED SCRIPT
@@ -685,6 +690,7 @@
     </script>
 </body>
 </html>
+
 
 
 
