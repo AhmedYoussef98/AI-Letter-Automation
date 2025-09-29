@@ -81,11 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     sessionStorage.setItem('loggedInUser', JSON.stringify(userData));
                     window.location.href = 'index.html';
                 } else {
-                    alert('Login failed: ' + result.message);
+                    notify.error('Login failed: ' + result.message);
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                alert('An error occurred during login.');
+                notify.error('An error occurred during login.');
             }
         });
     }
