@@ -1,5 +1,4 @@
-// Complete Fixed Main.js with All Function Definitions and Notifications
-
+// Complete Updated Main.js with Fixed Status Bar and Performance Improvements
 // Theme Toggle
 const themeToggle = document.getElementById('themeToggle');
 const body = document.body;
@@ -28,7 +27,10 @@ if (themeToggle) {
     });
 }
 
-// MAIN LETTER HISTORY FUNCTION
+// ==============================================
+// MAIN LETTER HISTORY FUNCTIONS WITH FIXED STATUS BAR
+// ==============================================
+
 async function loadLetterHistory() {
     console.log('🚀 Loading letter history with optimizations...');
     
@@ -39,10 +41,10 @@ async function loadLetterHistory() {
             loadingNotification = notify.loading('جاري تحميل البيانات...');
         }
         
-        // Show quick stats while loading
+        // FIRST: Show quick stats bar immediately
         showQuickStats();
         
-        // Use progressive loading for better UX
+        // THEN: Use progressive loading for better UX
         await loadLetterHistoryProgressive();
         
         // Hide loading notification
@@ -50,10 +52,10 @@ async function loadLetterHistory() {
             notify.hide(loadingNotification);
         }
         
-        // Update quick stats with real data
+        // FINALLY: Update quick stats with real data
         updateQuickStats();
         
-        console.log('✅ Letter history loaded successfully');
+        console.log('✅ Letter history loaded successfully with status bar');
         
     } catch (error) {
         console.error('❌ Error in loadLetterHistory:', error);
@@ -68,7 +70,195 @@ async function loadLetterHistory() {
     }
 }
 
-// PROGRESSIVE LOADING FUNCTION
+// FIXED STATUS BAR FUNCTION
+function showQuickStats() {
+    console.log('📊 Creating quick stats bar...');
+    
+    // Wait a moment to ensure DOM is ready
+    setTimeout(() => {
+        const container = document.querySelector('.main-container');
+        const existingStats = document.querySelector('.quick-actions');
+        
+        // Remove existing stats if they exist
+        if (existingStats) {
+            existingStats.remove();
+        }
+        
+        if (container) {
+            const quickActions = document.createElement('div');
+            quickActions.className = 'quick-actions';
+            quickActions.innerHTML = `
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalLetters">--</div>
+                        <div class="stat-label">إجمالي الخطابات</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="pendingReview">--</div>
+                        <div class="stat-label">في انتظار المراجعة</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="readyToSend">--</div>
+                        <div class="stat-label">جاهز للإرسال</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="thisMonth">--</div>
+                        <div class="stat-label">هذا الشهر</div>
+                    </div>
+                </div>
+                <div class="quick-actions-buttons">
+                    <button class="quick-action-btn refresh" onclick="refreshLetterCache()">
+                        <i class="fas fa-sync-alt"></i>
+                        تحديث
+                    </button>
+                    <button class="quick-action-btn export" onclick="exportLettersToCSV()">
+                        <i class="fas fa-download"></i>
+                        تصدير
+                    </button>
+                </div>
+            `;
+            
+            // Try multiple insertion strategies
+            const pageHeader = document.querySelector('.page-header');
+            const filtersSection = document.querySelector('.filters-section');
+            
+            if (pageHeader) {
+                // Insert after page header
+                pageHeader.insertAdjacentElement('afterend', quickActions);
+                console.log('✅ Quick stats bar inserted after page header');
+            } else if (filtersSection) {
+                // Insert before filters section
+                filtersSection.insertAdjacentElement('beforebegin', quickActions);
+                console.log('✅ Quick stats bar inserted before filters');
+            } else {
+                // Insert at the beginning of main container
+                container.insertBefore(quickActions, container.firstChild);
+                console.log('✅ Quick stats bar inserted at beginning of container');
+            }
+            
+            // Initialize with basic data immediately if available
+            const cachedData = letterCache ? letterCache.get('submissions_data') : null;
+            if (cachedData && cachedData.length > 0) {
+                updateQuickStatsImmediate(cachedData);
+            }
+            
+        } else {
+            console.error('❌ Could not find .main-container element for stats bar');
+        }
+    }, 100); // Small delay to ensure DOM is ready
+}
+
+// IMMEDIATE STATS UPDATE (before async operations complete)
+function updateQuickStatsImmediate(letters) {
+    if (!letters || letters.length === 0) return;
+    
+    console.log('📈 Updating stats immediately with', letters.length, 'letters');
+    
+    const stats = calculateLetterStats(letters);
+    
+    // Update immediately without animation for faster display
+    const totalLettersEl = document.getElementById('totalLetters');
+    const pendingReviewEl = document.getElementById('pendingReview');
+    const readyToSendEl = document.getElementById('readyToSend');
+    const thisMonthEl = document.getElementById('thisMonth');
+    
+    if (totalLettersEl) totalLettersEl.textContent = stats.total;
+    if (pendingReviewEl) pendingReviewEl.textContent = stats.pending;
+    if (readyToSendEl) readyToSendEl.textContent = stats.ready;
+    if (thisMonthEl) thisMonthEl.textContent = stats.thisMonth;
+}
+
+// ENHANCED STATS UPDATE WITH ANIMATION
+function updateQuickStats() {
+    // Get the latest data
+    const cachedLetters = letterCache ? letterCache.get('submissions_data') : [];
+    
+    if (cachedLetters.length === 0) {
+        console.log('⚠️ No cached letters found for stats update');
+        return;
+    }
+    
+    console.log('📈 Updating stats with animation for', cachedLetters.length, 'letters');
+    
+    const stats = calculateLetterStats(cachedLetters);
+    
+    const totalLettersEl = document.getElementById('totalLetters');
+    const pendingReviewEl = document.getElementById('pendingReview');
+    const readyToSendEl = document.getElementById('readyToSend');
+    const thisMonthEl = document.getElementById('thisMonth');
+    
+    if (totalLettersEl) {
+        animateNumberChange(totalLettersEl, stats.total);
+    }
+    if (pendingReviewEl) {
+        animateNumberChange(pendingReviewEl, stats.pending);
+    }
+    if (readyToSendEl) {
+        animateNumberChange(readyToSendEl, stats.ready);
+    }
+    if (thisMonthEl) {
+        animateNumberChange(thisMonthEl, stats.thisMonth);
+    }
+    
+    console.log('✅ Stats updated:', stats);
+}
+
+// CALCULATE STATISTICS
+function calculateLetterStats(letters) {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    return {
+        total: letters.length,
+        pending: letters.filter(l => l.reviewStatus === 'في الانتظار').length,
+        ready: letters.filter(l => l.reviewStatus === 'جاهز للإرسال').length,
+        thisMonth: letters.filter(l => {
+            const letterDate = new Date(l.date);
+            return letterDate.getMonth() === currentMonth && letterDate.getFullYear() === currentYear;
+        }).length
+    };
+}
+
+// ANIMATE NUMBER CHANGES
+function animateNumberChange(element, newValue) {
+    const currentValue = parseInt(element.textContent) || 0;
+    
+    if (currentValue === newValue) return;
+    
+    const increment = newValue > currentValue ? 1 : -1;
+    let current = currentValue;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        element.textContent = current;
+        
+        if (current === newValue) {
+            clearInterval(timer);
+        }
+    }, 50);
+}
+
+// FORCE REFRESH STATS BAR (utility function)
+function forceRefreshStatsBar() {
+    console.log('🔄 Force refreshing stats bar...');
+    
+    // Remove existing stats bar
+    const existingStats = document.querySelector('.quick-actions');
+    if (existingStats) {
+        existingStats.remove();
+    }
+    
+    // Recreate stats bar
+    showQuickStats();
+    
+    // Update with current data
+    setTimeout(() => {
+        updateQuickStats();
+    }, 200);
+}
+
+// ENHANCED PROGRESSIVE LOADING FUNCTION
 async function loadLetterHistoryProgressive() {
     console.log('🔄 Loading letter history progressively...');
     
@@ -81,6 +271,9 @@ async function loadLetterHistoryProgressive() {
             console.warn('⚠️ Optimized loading not available, using fallback');
             await basicLetterHistoryLoad();
         }
+        
+        console.log('✅ Progressive loading completed');
+        
     } catch (error) {
         console.error('❌ Error in progressive loading:', error);
         throw error;
@@ -90,6 +283,8 @@ async function loadLetterHistoryProgressive() {
 // FALLBACK BASIC LOADING
 async function basicLetterHistoryLoad() {
     try {
+        console.log('📊 Using basic letter history loading...');
+        
         const letters = await loadSubmissionsData();
         
         const tableBody = document.getElementById("lettersTableBody");
@@ -100,6 +295,8 @@ async function basicLetterHistoryLoad() {
             if (tableBody) tableBody.style.display = "none";
             if (noData) noData.style.display = "block";
             if (table) table.style.display = "none";
+            
+            console.log('ℹ️ No letters found');
         } else {
             // Render letters
             if (tableBody) {
@@ -135,12 +332,19 @@ async function basicLetterHistoryLoad() {
             if (tableBody) tableBody.style.display = "table-row-group";
             if (noData) noData.style.display = "none";
             if (table) table.style.display = "table";
+            
+            console.log(`✅ Rendered ${letters.length} letters in basic mode`);
         }
+        
     } catch (error) {
         console.error('❌ Error in basic letter history load:', error);
         throw error;
     }
 }
+
+// ==============================================
+// LETTER ACTION FUNCTIONS
+// ==============================================
 
 // REVIEW LETTER FUNCTION
 function reviewLetter(id) {
@@ -182,30 +386,74 @@ async function downloadLetter(id, format = 'pdf') {
         // Show loading state on button
         showActionLoading(id, 'download');
         
-        // Simulate download process (replace with your actual API call)
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Get from cache first for faster lookup
+        const cachedLetters = letterCache ? letterCache.get('submissions_data') : [];
+        let letter = cachedLetters ? cachedLetters.find(l => l.id === id) : null;
+        
+        // Fallback to fresh data if not in cache
+        if (!letter) {
+            const letters = await loadSubmissionsDataOptimized();
+            letter = letters.find(l => l.id === id);
+        }
         
         // Hide loading notification
         if (loadingNotification && typeof notify !== 'undefined') {
             notify.hide(loadingNotification);
         }
         
-        // Show success notification
-        if (typeof notify !== 'undefined') {
-            notify.success(`تم تحميل الخطاب بصيغة ${format.toUpperCase()} بنجاح`);
+        if (!letter || !letter.letterLink) {
+            if (typeof notify !== 'undefined') {
+                notify.warning('رابط الخطاب غير متوفر');
+            } else {
+                alert('رابط الخطاب غير متوفر');
+            }
+            return;
         }
         
-        // Here you would implement the actual download logic
-        // For now, we'll just simulate it
-        console.log(`✅ Letter ${id} downloaded as ${format}`);
+        let viewerUrl = letter.letterLink;
+        
+        // For Google Drive links, use the viewer URL
+        if (letter.letterLink.includes('drive.google.com')) {
+            const fileId = extractGoogleDriveFileId(letter.letterLink);
+            if (fileId) {
+                viewerUrl = `https://drive.google.com/file/d/${fileId}/view`;
+            }
+        }
+        
+        // Open in new tab
+        window.open(viewerUrl, '_blank');
+        
+        // Show success notification
+        if (typeof notify !== 'undefined') {
+            notify.success(`تم فتح الخطاب بصيغة ${format.toUpperCase()} بنجاح`);
+        }
+        
+        console.log(`✅ Letter ${id} opened as ${format}`);
         
     } catch (error) {
         console.error('❌ Error downloading letter:', error);
         
         if (typeof notify !== 'undefined') {
             notify.error(`خطأ في تحميل الخطاب: ${error.message}`);
+        } else {
+            alert('حدث خطأ أثناء فتح الخطاب');
         }
     }
+}
+
+function extractGoogleDriveFileId(url) {
+    const patterns = [
+        /\/file\/d\/([a-zA-Z0-9_-]+)/,
+        /open\?id=([a-zA-Z0-9_-]+)/,
+        /id=([a-zA-Z0-9_-]+)/
+    ];
+    
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+    }
+    
+    return null;
 }
 
 // DELETE LETTER FUNCTION
@@ -253,6 +501,8 @@ async function deleteLetter(letterId) {
         // Show success notification
         if (typeof notify !== 'undefined') {
             notify.success('تم حذف الخطاب بنجاح');
+        } else {
+            showSuccessMessage('تم حذف الخطاب بنجاح');
         }
         
         // Reload the table
@@ -269,6 +519,8 @@ async function deleteLetter(letterId) {
         
         if (typeof notify !== 'undefined') {
             notify.error(`خطأ في حذف الخطاب: ${error.message}`);
+        } else {
+            alert('حدث خطأ أثناء حذف الخطاب');
         }
     }
 }
@@ -284,6 +536,13 @@ async function exportLettersToCSV() {
             loadingNotification = notify.loading('جاري تصدير البيانات إلى CSV...');
         }
         
+        const exportButton = document.querySelector('.quick-action-btn.export');
+        if (exportButton) {
+            const originalHTML = exportButton.innerHTML;
+            exportButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التصدير...';
+            exportButton.disabled = true;
+        }
+        
         // Load letters data
         const letters = await loadSubmissionsDataOptimized();
         
@@ -294,6 +553,8 @@ async function exportLettersToCSV() {
             
             if (typeof notify !== 'undefined') {
                 notify.warning('لا توجد بيانات للتصدير');
+            } else {
+                alert('لا توجد خطابات للتصدير');
             }
             return;
         }
@@ -329,15 +590,16 @@ async function exportLettersToCSV() {
         ].join('\n');
         
         // Create and download file
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
+        const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', `letters_export_${new Date().toISOString().split('T')[0]}.csv`);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `letter-history-${new Date().toISOString().split('T')[0]}.csv`;
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
         
         // Hide loading notification
         if (loadingNotification && typeof notify !== 'undefined') {
@@ -347,6 +609,8 @@ async function exportLettersToCSV() {
         // Show success notification
         if (typeof notify !== 'undefined') {
             notify.success(`تم تصدير ${letters.length} خطاب إلى ملف CSV بنجاح`);
+        } else {
+            showSuccessMessage('تم تصدير البيانات بنجاح');
         }
         
     } catch (error) {
@@ -354,6 +618,15 @@ async function exportLettersToCSV() {
         
         if (typeof notify !== 'undefined') {
             notify.error(`خطأ في التصدير: ${error.message}`);
+        } else {
+            alert('حدث خطأ أثناء تصدير البيانات');
+        }
+    } finally {
+        // Restore button state
+        const exportButton = document.querySelector('.quick-action-btn.export');
+        if (exportButton) {
+            exportButton.innerHTML = '<i class="fas fa-download"></i> تصدير';
+            exportButton.disabled = false;
         }
     }
 }
@@ -409,6 +682,8 @@ async function clearAppCache() {
         // Show success notification
         if (typeof notify !== 'undefined') {
             notify.success('تم مسح البيانات المخزنة بنجاح');
+        } else {
+            showSuccessMessage('تم مسح ذاكرة التخزين المؤقت');
         }
         
         // Reload the page to refresh data
@@ -421,21 +696,234 @@ async function clearAppCache() {
         
         if (typeof notify !== 'undefined') {
             notify.error(`خطأ في مسح البيانات: ${error.message}`);
+        } else {
+            alert('حدث خطأ أثناء مسح البيانات');
         }
     }
 }
 
+// ==============================================
+// REVIEW FORM FUNCTIONS
+// ==============================================
+
+// LOAD LETTERS FOR REVIEW
+function loadLettersForReview() {
+    console.log('🔍 Loading letters for review...');
+    
+    const letterSelect = document.getElementById('letterSelect');
+    
+    // Check if we have a letter ID in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const preselectedId = urlParams.get('id');
+    
+    // Load from cache first for faster response
+    const cachedLetters = letterCache ? letterCache.get('submissions_data') : null;
+    
+    if (cachedLetters && cachedLetters.length > 0) {
+        populateLetterSelect(cachedLetters, preselectedId);
+    }
+    
+    // Load fresh data in background
+    loadSubmissionsDataOptimized().then(letters => {
+        if (letters.length > 0) {
+            populateLetterSelect(letters, preselectedId);
+        }
+    }).catch(error => {
+        console.error('Error loading letters for review:', error);
+    });
+}
+
+function populateLetterSelect(letters, preselectedId) {
+    const letterSelect = document.getElementById('letterSelect');
+    if (!letterSelect) return;
+    
+    // Clear existing options first
+    letterSelect.innerHTML = '<option value="">اختر خطاباً</option>';
+    
+    letters.forEach(letter => {
+        const option = document.createElement('option');
+        option.value = letter.id;
+        option.textContent = `${letter.id} - ${letter.recipient} - ${letter.subject}`;
+        letterSelect.appendChild(option);
+    });
+    
+    // If there's a preselected ID from URL, select it and load the letter
+    if (preselectedId) {
+        letterSelect.value = preselectedId;
+        const reviewForm = document.getElementById('reviewForm');
+        if (reviewForm) {
+            reviewForm.style.display = 'block';
+            loadLetterForReview(preselectedId);
+        }
+    }
+}
+
+function setupReviewForm() {
+    console.log('⚙️ Setting up review form...');
+    
+    const letterSelect = document.getElementById('letterSelect');
+    const reviewForm = document.getElementById('reviewForm');
+    const reviewCheckbox = document.getElementById('reviewComplete');
+    const actionButtons = document.querySelectorAll('.action-button');
+    
+    if (letterSelect) {
+        letterSelect.addEventListener('change', (e) => {
+            if (e.target.value) {
+                if (reviewForm) reviewForm.style.display = 'block';
+                loadLetterForReview(e.target.value);
+            } else {
+                if (reviewForm) reviewForm.style.display = 'none';
+            }
+        });
+    }
+    
+    if (reviewCheckbox) {
+        reviewCheckbox.addEventListener('change', (e) => {
+            actionButtons.forEach(button => {
+                button.disabled = !e.target.checked;
+            });
+        });
+    }
+    
+    // Setup action buttons
+    const readyButton = document.getElementById('readyButton');
+    const improvementButton = document.getElementById('improvementButton');
+    const rejectedButton = document.getElementById('rejectedButton');
+    
+    if (readyButton) {
+        readyButton.addEventListener('click', () => updateReviewStatus('جاهز للإرسال'));
+    }
+    if (improvementButton) {
+        improvementButton.addEventListener('click', () => updateReviewStatus('يحتاج إلى تحسينات'));
+    }
+    if (rejectedButton) {
+        rejectedButton.addEventListener('click', () => updateReviewStatus('مرفوض'));
+    }
+}
+
+function loadLetterForReview(id) {
+    console.log('📄 Loading letter for review:', id);
+    
+    // Try cache first
+    const cachedLetters = letterCache ? letterCache.get('submissions_data') : null;
+    let letter = cachedLetters ? cachedLetters.find(l => l.id === id) : null;
+    
+    if (letter) {
+        displayLetterForReview(letter);
+    } else {
+        // Load from server if not in cache
+        loadSubmissionsDataOptimized().then(letters => {
+            letter = letters.find(l => l.id === id);
+            if (letter) {
+                displayLetterForReview(letter);
+            } else {
+                displayLetterError();
+            }
+        }).catch(error => {
+            console.error('Error loading letter:', error);
+            displayLetterError();
+        });
+    }
+}
+
+function displayLetterForReview(letter) {
+    const letterContent = document.getElementById('letterContentReview');
+    const reviewerNameInput = document.getElementById('reviewerName');
+    const reviewNotesInput = document.getElementById('reviewNotes');
+    
+    if (letterContent) {
+        letterContent.value = letter.content || 'محتوى الخطاب غير متوفر';
+    }
+    
+    if (reviewerNameInput) {
+        reviewerNameInput.value = letter.reviewerName || '';
+    }
+    
+    if (reviewNotesInput) {
+        reviewNotesInput.value = letter.reviewNotes || '';
+    }
+}
+
+function displayLetterError() {
+    const letterContent = document.getElementById('letterContentReview');
+    if (letterContent) {
+        letterContent.value = 'حدث خطأ في تحميل محتوى الخطاب';
+    }
+}
+
+async function updateReviewStatus(status) {
+    console.log('📝 Updating review status to:', status);
+    
+    const reviewerName = document.getElementById('reviewerName')?.value;
+    const notes = document.getElementById('reviewNotes')?.value;
+    const letterId = document.getElementById('letterSelect')?.value;
+    const letterContent = document.getElementById('letterContentReview')?.value;
+    
+    if (!reviewerName) {
+        if (typeof notify !== 'undefined') {
+            notify.warning('الرجاء إدخال اسم المراجع');
+        } else {
+            alert('الرجاء إدخال اسم المراجع');
+        }
+        return;
+    }
+    
+    if (!letterId) {
+        if (typeof notify !== 'undefined') {
+            notify.warning('الرجاء اختيار خطاب للمراجعة');
+        } else {
+            alert('الرجاء اختيار خطاب للمراجعة');
+        }
+        return;
+    }
+    
+    try {
+        // Show loading state
+        const activeButton = document.querySelector('.action-button:focus') || 
+                           document.querySelector(`.action-button.${status.includes('جاهز') ? 'ready' : status.includes('تحسينات') ? 'needs-improvement' : 'rejected'}`);
+        
+        let originalText = '';
+        if (activeButton) {
+            originalText = activeButton.innerHTML;
+            activeButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحديث...';
+            activeButton.disabled = true;
+        }
+        
+        // Update the status in Google Sheets
+        await updateReviewStatusInSheet(letterId, status, reviewerName, notes, letterContent);
+        
+        // Show success message
+        if (typeof notify !== 'undefined') {
+            notify.success(`تم تحديث حالة المراجعة إلى: ${status}`);
+        } else {
+            showSuccessMessage(`تم تحديث حالة المراجعة إلى: ${status}`);
+        }
+        
+        // Redirect to letter history with highlight
+        setTimeout(() => {
+            window.location.href = `letter-history.html?highlight=${letterId}`;
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Error updating review status:', error);
+        
+        if (typeof notify !== 'undefined') {
+            notify.error('حدث خطأ أثناء تحديث حالة المراجعة');
+        } else {
+            alert('حدث خطأ أثناء تحديث حالة المراجعة');
+        }
+        
+        // Restore button state
+        if (activeButton) {
+            activeButton.innerHTML = originalText;
+            activeButton.disabled = false;
+        }
+    }
+}
+
+// ==============================================
 // HELPER FUNCTIONS
-
-function showQuickStats() {
-    console.log('📊 Showing quick stats...');
-    // Implementation for showing quick statistics
-}
-
-function updateQuickStats() {
-    console.log('🔄 Updating quick stats...');
-    // Implementation for updating statistics
-}
+// ==============================================
 
 function showActionLoading(id, action) {
     const button = document.querySelector(`button[onclick*="${id}"][onclick*="${action}"]`);
@@ -476,6 +964,26 @@ function translateLetterType(type) {
         'Co-op': 'تعاون'
     };
     return typeMap[type] || type;
+}
+
+function showSuccessMessage(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    successDiv.innerHTML = `
+        <div class="success-content">
+            <i class="fas fa-check-circle"></i>
+            <p>${message}</p>
+        </div>
+    `;
+    
+    document.body.appendChild(successDiv);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (successDiv.parentNode) {
+            successDiv.parentNode.removeChild(successDiv);
+        }
+    }, 3000);
 }
 
 // ENHANCED FORM VALIDATION WITH NOTIFICATIONS
@@ -537,12 +1045,95 @@ function initializeNetworkMonitoring() {
     });
 }
 
+// PERFORMANCE MONITORING
+function initializePerformanceMonitoring() {
+    if (window.perfMonitor) {
+        // Monitor page load time
+        window.addEventListener('load', () => {
+            const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+            console.log(`📊 Page load time: ${loadTime}ms`);
+            
+            if (loadTime > 3000) {
+                console.warn('⚠️ Slow page load detected');
+                showPerformanceHint();
+            }
+        });
+        
+        // Monitor memory usage (if available)
+        if (performance.memory) {
+            setInterval(() => {
+                const memoryInfo = performance.memory;
+                const usedMB = Math.round(memoryInfo.usedJSHeapSize / 1024 / 1024);
+                const totalMB = Math.round(memoryInfo.totalJSHeapSize / 1024 / 1024);
+                
+                if (usedMB > 100) { // More than 100MB
+                    console.warn(`⚠️ High memory usage: ${usedMB}MB / ${totalMB}MB`);
+                }
+            }, 30000); // Check every 30 seconds
+        }
+    }
+}
+
+function showPerformanceHint() {
+    const hint = document.createElement('div');
+    hint.className = 'performance-hint';
+    hint.innerHTML = `
+        <div class="hint-content">
+            <i class="fas fa-lightbulb"></i>
+            <p>لتحسين الأداء، يمكنك مسح ذاكرة التخزين المؤقت</p>
+            <button onclick="clearAppCache()" class="hint-btn">مسح الذاكرة</button>
+            <button onclick="this.parentElement.parentElement.remove()" class="hint-close">×</button>
+        </div>
+    `;
+    
+    document.body.appendChild(hint);
+    
+    setTimeout(() => {
+        if (hint.parentNode) {
+            hint.parentNode.removeChild(hint);
+        }
+    }, 10000);
+}
+
+function setupIntersectionObserver() {
+    // Set up intersection observer for performance optimization
+    const observerOptions = {
+        rootMargin: '50px',
+        threshold: 0.1
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Element is visible, can trigger actions if needed
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+    
+    // Observe elements that need lazy loading
+    const lazyElements = document.querySelectorAll('.lazy-load');
+    lazyElements.forEach(element => {
+        observer.observe(element);
+    });
+}
+
+// ==============================================
+// INITIALIZATION
+// ==============================================
+
 // INITIALIZE ON DOM CONTENT LOADED
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 Main.js initialized');
     
     // Initialize network monitoring
     initializeNetworkMonitoring();
+    
+    // Initialize performance monitoring
+    initializePerformanceMonitoring();
+    
+    // Set up intersection observer
+    setupIntersectionObserver();
     
     // Page-specific initialization
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
@@ -558,6 +1149,9 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('🔍 Initializing review letter page...');
             if (typeof loadLettersForReview === 'function') {
                 loadLettersForReview();
+            }
+            if (typeof setupReviewForm === 'function') {
+                setupReviewForm();
             }
             break;
             
@@ -585,6 +1179,30 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// CLEANUP ON PAGE UNLOAD
+window.addEventListener('beforeunload', () => {
+    console.log('🧹 Cleaning up optimizations...');
+    
+    // Stop background sync
+    if (window.backgroundSync) {
+        window.backgroundSync.stop();
+    }
+    
+    // Log performance summary
+    if (window.perfMonitor) {
+        window.perfMonitor.logSummary();
+    }
+    
+    // Save any pending cache updates
+    if (window.letterCache) {
+        window.letterCache.saveToStorage();
+    }
+});
+
+// ==============================================
+// GLOBAL EXPORTS
+// ==============================================
+
 // ENSURE FUNCTIONS ARE AVAILABLE BEFORE EXPORT
 console.log('🔧 Preparing function exports...');
 
@@ -600,6 +1218,12 @@ setTimeout(() => {
     window.exportLettersToCSV = exportLettersToCSV;
     window.clearAppCache = clearAppCache;
     window.validateFormWithNotifications = validateFormWithNotifications;
+    window.forceRefreshStatsBar = forceRefreshStatsBar;
+    window.updateQuickStats = updateQuickStats;
+    window.showQuickStats = showQuickStats;
+    window.loadLettersForReview = loadLettersForReview;
+    window.setupReviewForm = setupReviewForm;
+    window.updateReviewStatus = updateReviewStatus;
     
     // Verify exports
     console.log('✅ Function exports verification:');
@@ -609,6 +1233,8 @@ setTimeout(() => {
     console.log('  - deleteLetter:', typeof window.deleteLetter);
     console.log('  - exportLettersToCSV:', typeof window.exportLettersToCSV);
     console.log('  - clearAppCache:', typeof window.clearAppCache);
+    console.log('  - forceRefreshStatsBar:', typeof window.forceRefreshStatsBar);
+    console.log('  - showQuickStats:', typeof window.showQuickStats);
     
     // Notify that functions are ready
     if (typeof notify !== 'undefined') {
