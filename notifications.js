@@ -1,4 +1,3 @@
-<artifact identifier="notifications-js" type="application/vnd.ant.code" language="javascript" title="Custom Notification System">
 // Custom Notification System for AI Letter Generatorclass NotificationSystem {
 constructor() {
 this.container = null;
@@ -136,4 +135,3 @@ window.showWarning = (message) => notify.warning(message);
 window.showInfo = (message) => notify.info(message);
 window.showConfirm = (message, onConfirm, onCancel) => notify.confirm(message, onConfirm, onCancel);
 window.showLoading = (message) => notify.loading(message);
-</artifact>
