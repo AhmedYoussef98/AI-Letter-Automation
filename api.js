@@ -78,7 +78,7 @@ async function generateLetter(formData) {
         
     } catch (error) {
         console.error('Error generating letter:', error);
-        alert('حدث خطأ أثناء إنشاء الخطاب. الرجاء المحاولة مرة أخرى.');
+        notify.error('حدث خطأ أثناء إنشاء الخطاب. الرجاء المحاولة مرة أخرى.');
         return null;
     } finally {
         loader.classList.remove('active');
@@ -185,7 +185,7 @@ async function editLetter(letter, feedback, sessionId) {
         
     } catch (error) {
         console.error('Error editing letter:', error);
-        alert('حدث خطأ أثناء تعديل الخطاب. الرجاء المحاولة مرة أخرى.');
+        notify.error('حدث خطأ أثناء تعديل الخطاب. الرجاء المحاولة مرة أخرى.');
         return null;
     } finally {
         loader.classList.remove('active');
@@ -288,7 +288,7 @@ async function archiveLetter(formData) {
 
     } catch (error) {
         console.error('Error archiving letter:', error);
-        alert('حدث خطأ أثناء حفظ الخطاب. الرجاء المحاولة مرة أخرى.');
+        notify.error('حدث خطأ أثناء حفظ الخطاب. الرجاء المحاولة مرة أخرى.');
         return null;
     }
 }
