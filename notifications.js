@@ -1,4 +1,6 @@
-// Custom Notification System for AI Letter Generatorclass NotificationSystem {
+// Custom Notification System for AI Letter Generator
+
+class NotificationSystem {
 constructor() {
 this.container = null;
 this.init();
