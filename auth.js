@@ -101,12 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Basic validation
             if (!name || !email || !password) {
-                alert('الرجاء ملء جميع الحقول');
+                notify.warning('الرجاء ملء جميع الحقول');
                 return;
             }
             
             if (password.length < 6) {
-                alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+                notify.warning('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
                 return;
             }
             
@@ -141,14 +141,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (result.success) {
-                    alert('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول');
+                    notify.success('تم إنشاء الحساب بنجاح! يمكنك الآن تسجيل الدخول');
                     window.location.href = 'login.html';
                 } else {
-                    alert('فشل في إنشاء الحساب: ' + result.message);
+                    notify.error('فشل في إنشاء الحساب: ' + result.message);
                 }
             } catch (error) {
                 console.error('Signup error:', error);
-                alert('حدث خطأ أثناء إنشاء الحساب. الرجاء المحاولة مرة أخرى.');
+                notify.error('حدث خطأ أثناء إنشاء الحساب. الرجاء المحاولة مرة أخرى.');
             } finally {
                 // Reset button state
                 const submitButton = signupForm.querySelector('button[type="submit"]');
@@ -184,7 +184,7 @@ function handleGoogleSignIn(response) {
         
     } catch (error) {
         console.error('Error processing Google Sign-In:', error);
-        alert('حدث خطأ أثناء تسجيل الدخول بـ Google');
+        notify.error('حدث خطأ أثناء تسجيل الدخول بـ Google');
     }
 }
 
@@ -211,12 +211,12 @@ function handleGoogleSignUp(response) {
         
         // Store user data and redirect
         sessionStorage.setItem('loggedInUser', JSON.stringify(userData));
-        alert('تم إنشاء الحساب بنجاح باستخدام Google!');
+        notify.success('تم إنشاء الحساب بنجاح باستخدام Google!');
         window.location.href = 'index.html';
         
     } catch (error) {
         console.error('Error processing Google Sign-Up:', error);
-        alert('حدث خطأ أثناء إنشاء الحساب بـ Google');
+        notify.error('حدث خطأ أثناء إنشاء الحساب بـ Google');
     }
 }
 
