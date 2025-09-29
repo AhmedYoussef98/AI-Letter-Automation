@@ -452,7 +452,7 @@ async function updateReviewStatus(status) {
     try {
         // Show loading state
         const activeButton = document.querySelector('.action-button:focus') || 
-                           document.querySelector(`.action-button.${status.includes('جاهز') ? 'ready' : status.includes('تحسينات') ? 'needs-improvement' : 'rejected'}`);
+                   document.querySelector(`.action-button.${status.includes('جاهز') ? 'ready' : status.includes('تحسينات') ? 'needs-improvement' : 'rejected'}`);
         
         if (activeButton) {
             const originalText = activeButton.innerHTML;
@@ -705,4 +705,5 @@ window.downloadLetter = downloadLetter;
 window.deleteLetter = deleteLetter;
 window.exportLettersToCSV = exportLettersToCSV;
 window.clearAppCache = clearAppCache;
+
 
