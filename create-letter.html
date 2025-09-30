@@ -18,9 +18,9 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="index.html" class="logo" style="text-decoration: none; color: inherit;">
-                <img src="logo.png" alt="NetZero Logo">
-                <span>AI Letter Generator</span>
-            </a>
+    <img src="logo.png" alt="NetZero Logo">
+    <span>AI Letter Generator</span>
+</a>
             <ul class="nav-links">
                 <li><a href="create-letter.html" class="nav-link active">
                     <i class="fas fa-plus-circle"></i>
@@ -97,30 +97,37 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="memberName">اسم الموظف الموقع</label>
-                        <input type="text" id="memberName" name="member_name" placeholder="اختياري">
+                        <label for="letterPurpose">الغرض من الخطاب <span class="required">*</span></label>
+                        <input type="text" id="letterPurpose" name="title" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="prompt">موضوع الخطاب أو التفاصيل <span class="required">*</span></label>
-                        <textarea id="prompt" name="prompt" rows="4" placeholder="اكتب موضوع الخطاب أو التفاصيل التي تريد تضمينها" required></textarea>
+                        <label for="letterContent">محتوى الخطاب <span class="required">*</span></label>
+                        <textarea id="letterContent" name="prompt" rows="6" required></textarea>
                     </div>
-
+                    
                     <div class="form-group">
-                        <label>هل هذه أول مراسلة مع هذه الجهة؟ <span class="required">*</span></label>
+                        <label>هل هذه أول مراسلة؟ <span class="required">*</span></label>
                         <div class="radio-group">
                             <label>
                                 <input type="radio" name="is_first" value="true" required>
-                                نعم، أول مراسلة
+                                نعم
                             </label>
                             <label>
                                 <input type="radio" name="is_first" value="false" required>
-                                لا، ليست أول مراسلة
+                                لا
                             </label>
                         </div>
                     </div>
 
-                    <button type="submit" class="submit-button">
+                    <div class="form-group">
+                        <label for="letterStyle">ضابط الاتصال</label>
+                        <select id="letterStyle" name="member_name">
+                            <option value="">اختر الاسم (اختياري)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-button" id="generateButton">
                         <i class="fas fa-magic"></i>
                         إنشاء الخطاب
                     </button>
@@ -129,64 +136,92 @@
 
             <section class="preview-section" id="previewSection" style="display: none;">
                 <h2>معاينة الخطاب</h2>
-                
-                <!-- Session Status Indicator -->
-                <div style="margin-bottom: 1rem;">
-                    <small>حالة الجلسة: <span id="sessionStatus" class="session-status-inactive">غير نشط</span></small>
-                </div>
-                
-                <textarea id="letterPreview" class="letter-preview" readonly></textarea>
-                
-                <!-- Template Selection -->
-                <div class="template-selection">
-                    <h3>اختر العملية:</h3>
-                    <div class="template-options">
-                        <label class="template-option">
-                            <input type="radio" name="action" value="save" checked>
-                            <span><i class="fas fa-save"></i> حفظ الخطاب</span>
-                        </label>
-                        <label class="template-option">
-                            <input type="radio" name="action" value="edit">
-                            <span><i class="fas fa-edit"></i> تعديل الخطاب</span>
-                        </label>
+                <div class="preview-container">
+                    <!-- Document Template Preview -->
+                    <div class="document-template" id="documentTemplate">
+                        <div class="document-header">
+                            <div class="company-logo">
+                                <img src="logo.png" alt="NetZero Logo">
+                                <div class="company-name">NetZero</div>
+                            </div>
+                            <div class="company-info">
+                                <div class="date" id="currentDate"></div>
+                                <div>AL-HAYYAD AL-SAFRI FOR ENVIRONMENTAL SERVICES</div>
+                                <div>خدمات الحياد الصفري للبيئة</div>
+                            </div>
+                        </div>
+                        
+                        <div class="letter-body" id="mainLetterContent">
+                            <!-- Generated letter content will be inserted here -->
+                        </div>
+                        
+                        <div class="signature-section">
+                            <div></div>
+                        </div>
+                        
+                        <div class="document-footer">
+                            <p>هذا الخطاب تم إنشاؤه باستخدام منصة الذكاء الاصطناعي لإنشاء الخطابات</p>
+                        </div>
                     </div>
                     
-                    <!-- Edit Section -->
-                    <div id="editSection" style="display: none;">
-                        <div class="form-group">
-                            <label for="editFeedback">تعليقات التعديل <span class="required">*</span></label>
-                            <textarea id="editFeedback" placeholder="اكتب التعديلات التي تريدها على الخطاب (مثال: اجعل الأسلوب أكثر رسمية، أضف شكر في النهاية، إلخ...)"></textarea>
+                    <!-- Hidden textarea for backward compatibility -->
+                    <textarea id="letterPreview" class="letter-preview" style="display: none;"></textarea>
+                    
+                    <div class="template-selection">
+                        <h3>الإجراءات</h3>
+                        <div class="template-options">
+                            <label class="template-option">
+                                <input type="radio" name="template" value="template1" checked>
+                                <span>القالب الرسمي</span>
+                            </label>
+                            <label class="template-option">
+                                <input type="radio" name="template" value="template2">
+                                <span>تعديل الخطاب</span>
+                            </label>
                         </div>
-                        <button type="button" id="editButton" class="submit-button">
-                            <i class="fas fa-edit"></i>
-                            تعديل الخطاب
+                        
+                        <!-- Edit feedback section - shown when "تعديل الخطاب" is selected -->
+                        <div id="editSection" style="display: none; margin-top: 1rem;">
+                            <div class="form-group">
+                                <label for="editFeedback">التعديلات المطلوبة</label>
+                                <textarea id="editFeedback" rows="4" placeholder="اكتب التعديلات التي تريد إجراءها على الخطاب هنا..."></textarea>
+                            </div>
+                            <button type="button" class="submit-button" id="editButton">
+                                <i class="fas fa-edit"></i>
+                                تعديل
+                            </button>
+                            
+                            <!-- Session Status Indicator -->
+                            <div id="sessionStatus" style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="sessionStatusText">لم يتم إنشاء جلسة تعديل بعد</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="save-button" id="saveButton">
+                        <i class="fas fa-save"></i>
+                        حفظ ومتابعة
+                    </button>
+                    
+                    <!-- Letter Validation Display Section -->
+                    <div id="validationSection" class="validation-section" style="display: none; margin-top: 1.5rem;">
+                        <h4>
+                            <i class="fas fa-check-circle"></i>
+                            تحليل جودة الخطاب
+                        </h4>
+                        
+                        <div id="validationContent" class="validation-content">
+                            <!-- Validation results will be displayed here -->
+                        </div>
+                        
+                        <button id="refreshValidationButton" class="validation-refresh-btn">
+                            <i class="fas fa-sync-alt"></i>
+                            إعادة تحليل
                         </button>
                     </div>
-                    
-                    <!-- Save Button -->
-                    <button type="button" id="saveButton" class="save-button">
-                        <i class="fas fa-save"></i>
-                        حفظ في قاعدة البيانات
-                    </button>
-                </div>
-
-                <!-- Letter Validation Section -->
-                <div id="validationSection" class="validation-section" style="display: none;">
-                    <h4><i class="fas fa-check-circle"></i> تحليل جودة الخطاب</h4>
-                    <div id="validationContent" class="validation-content">
-                        <!-- Validation results will be populated here -->
-                    </div>
-                    <button type="button" id="refreshValidationButton" class="validation-refresh-btn">
-                        <i class="fas fa-sync-alt"></i>
-                        إعادة تحليل
-                    </button>
                 </div>
             </section>
-        </div>
-
-        <!-- Document Template -->
-        <div id="documentTemplate" style="display: none;">
-            <!-- Document template content will be populated here -->
         </div>
     </main>
 
@@ -194,16 +229,14 @@
         <div class="spinner"></div>
         <p>جاري إنشاء الخطاب...</p>
     </div>
-
     <script src="notifications.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="sheets.js"></script>
     <script src="api.js"></script>
     <script src="main.js"></script>
     <script src="document-template.js"></script>
-    
     <script>
-        // Global variables to track the current edit session and validation
+        // Global variable to track the current edit session
         let currentEditSession = null;
         let currentValidation = null;
 
@@ -228,135 +261,159 @@
                 }
             });
 
-            // Handle letter type selection
-            letterTypeSelect.addEventListener("change", function() {
-                const selectedType = this.value;
-                
-                // Hide all conditional groups first
-                previousLetterGroup.style.display = "none";
-                receivedLetterGroup.style.display = "none";
-                
-                // Remove required attributes
-                previousLetterSelect.removeAttribute("required");
-                receivedLetterSelect.removeAttribute("required");
-                
-                // Show appropriate group based on selection
-                if (selectedType === "خطاب إلحاقي") {
-                    previousLetterGroup.style.display = "block";
-                    previousLetterSelect.setAttribute("required", "true");
-                    loadPreviousLetters();
-                } else if (selectedType === "خطاب رد على خطاب من الجهة") {
-                    receivedLetterGroup.style.display = "block";
-                    receivedLetterSelect.setAttribute("required", "true");
-                    loadReceivedLetters();
-                }
-            });
-
-            // IMPROVED FORM SUBMISSION - NO FALSE WARNINGS
             document.getElementById("letterForm").addEventListener("submit", function(event) {
-                console.log('📝 Form submission started');
-                
-                // Only prevent double submission, no validation warnings
-                const submitButton = this.querySelector('button[type="submit"]');
-                if (submitButton && submitButton.disabled) {
+                const recipientInput = document.getElementById("recipient");
+                const recipientValue = recipientInput.value.trim();
+
+                if (recipientValue.length > 0 && recipientValue.split(" ").length < 2) {
+                    notify.warning("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
+                    recipientInput.focus();
                     event.preventDefault();
-                    console.log('⚠️ Form already submitting, prevented double submission');
                     return;
                 }
-                
-                // Let the form submit - API will handle validation
-                console.log('✅ Form submitted successfully');
             });
 
-            // Handle action selection (save/edit)
-            const actionRadios = document.querySelectorAll('input[name="action"]');
+            // Handle letter type selection
+            letterTypeSelect.addEventListener("change", function() {
+                if (this.value === "خطاب إلحاقي") {
+                    previousLetterGroup.style.display = "block";
+                    previousLetterSelect.setAttribute("required", "true");
+                    receivedLetterGroup.style.display = "none";
+                    receivedLetterSelect.removeAttribute("required");
+                    receivedLetterSelect.value = "";
+                    loadPreviousLetters();
+                } else if (this.value === "خطاب رد على خطاب من الجهة") {
+                    receivedLetterGroup.style.display = "block";
+                    receivedLetterSelect.setAttribute("required", "true");
+                    previousLetterGroup.style.display = "none";
+                    previousLetterSelect.removeAttribute("required");
+                    previousLetterSelect.value = "";
+                    loadReceivedLetters();
+                } else {
+                    previousLetterGroup.style.display = "none";
+                    previousLetterSelect.removeAttribute("required");
+                    previousLetterSelect.value = "";
+                    receivedLetterGroup.style.display = "none";
+                    receivedLetterSelect.removeAttribute("required");
+                    receivedLetterSelect.value = "";
+                }
+            });
+            
+            // Handle template selection for edit functionality
+            const templateRadios = document.querySelectorAll('input[name="template"]');
             const editSection = document.getElementById('editSection');
-            const saveButton = document.getElementById('saveButton');
-
-            actionRadios.forEach(radio => {
+            
+            templateRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
-                    if (this.value === 'edit') {
+                    if (this.value === 'template2') {
+                        // Show edit section
                         editSection.style.display = 'block';
-                        saveButton.style.display = 'none';
+                        console.log('Edit section shown');
+                        updateSessionStatus();
                     } else {
+                        // Hide edit section and cleanup session
                         editSection.style.display = 'none';
-                        saveButton.style.display = 'block';
+                        document.getElementById('editFeedback').value = '';
+                        cleanupEditSession();
                     }
                 });
             });
-
-            // IMPROVED EDIT BUTTON HANDLER
+            
+            // Edit button event handler with session management
             const editButton = document.getElementById('editButton');
             if (editButton) {
                 editButton.addEventListener('click', async function() {
-                    console.log('✏️ Edit button clicked');
+                    console.log('Edit button clicked');
+                    
+                    const letterContent = document.getElementById('letterPreview').value;
+                    const feedback = document.getElementById('editFeedback').value.trim();
+                    
+                    if (!feedback) {
+                        notify.warning('الرجاء إدخال التعديلات المطلوبة');
+                        return;
+                    }
+                    
+                    if (!letterContent) {
+                        notify.warning('لا يوجد محتوى خطاب للتعديل. الرجاء إنشاء خطاب أولاً');
+                        return;
+                    }
                     
                     try {
-                        const feedback = document.getElementById('editFeedback')?.value;
-                        const letterContent = document.getElementById('letterPreview')?.value;
-                        
-                        if (!feedback || feedback.trim() === '') {
-                            notify.warning('الرجاء إدخال تعليقات التعديل');
-                            return;
-                        }
-                        
-                        if (!letterContent || letterContent.trim() === '') {
-                            notify.warning('لا يوجد محتوى خطاب للتعديل');
-                            return;
-                        }
-                        
-                        // Show loading state
-                        const originalText = this.textContent;
-                        this.textContent = 'جاري التعديل...';
-                        this.disabled = true;
-                        
-                        // Create or use existing session
+                        // Create session only if it doesn't exist
                         if (!currentEditSession) {
-                            console.log('🔄 Creating new edit session...');
-                            updateSessionStatus('جاري إنشاء جلسة التعديل...', 'creating');
+                            console.log('Creating new chat session...');
+                            updateSessionStatus('إنشاء جلسة تعديل...', 'creating');
                             
-                            const sessionResult = await createChatSession(letterContent, 'تعديل خطاب');
-                            
-                            if (sessionResult && sessionResult.session_id) {
-                                currentEditSession = sessionResult.session_id;
-                                updateSessionStatus('جلسة التعديل نشطة', 'active');
-                                console.log('✅ Edit session created:', currentEditSession);
-                            } else {
-                                throw new Error('فشل في إنشاء جلسة التعديل');
+                            const sessionResponse = await createChatSession(letterContent);
+                            if (!sessionResponse || !sessionResponse.session_id) {
+                                throw new Error('Failed to create chat session for editing');
                             }
+                            
+                            currentEditSession = {
+                                id: sessionResponse.session_id,
+                                expiresIn: sessionResponse.expires_in,
+                                createdAt: new Date()
+                            };
+                            
+                            console.log('Chat session created:', currentEditSession.id);
+                            updateSessionStatus(`جلسة نشطة: ${currentEditSession.id.substring(0, 8)}...`, 'active');
+                        } else {
+                            console.log('Using existing session:', currentEditSession.id);
                         }
                         
-                        // Edit the letter
-                        console.log('✏️ Editing letter with session:', currentEditSession);
-                        const result = await editLetter(letterContent, feedback, currentEditSession);
+                        // Use existing session for edit
+                        console.log('Calling editLetter function with session:', currentEditSession.id);
+                        const result = await editLetter(letterContent, feedback, currentEditSession.id);
+                        
+                        console.log('Edit result:', result);
                         
                         if (result && result.updated_letter) {
+                            // Update the letter preview with the edited version
                             document.getElementById('letterPreview').value = result.updated_letter;
                             
-                            // Update document template if available
-                            if (typeof populateDocumentTemplate === 'function' && window.generatedLetterData) {
-                                populateDocumentTemplate({
+                            // Update the document template if available
+                            if (typeof populateDocumentTemplate === 'function') {
+                                const editedLetterData = {
                                     Letter: result.updated_letter,
-                                    Title: window.generatedLetterData.Title,
-                                    ID: window.generatedLetterData.ID
-                                });
+                                    Title: window.generatedLetterData?.Title || 'خطاب معدّل',
+                                    ID: window.generatedLetterData?.ID || 'EDITED'
+                                };
+                                
+                                const originalFormData = new FormData();
+                                originalFormData.append('recipient', 'المستلم');
+                                originalFormData.append('organization_name', 'الجهة');
+                                originalFormData.append('recipient_title', 'المحترم/ة');
+                                originalFormData.append('category', 'خطاب معدّل');
+                                originalFormData.append('title', editedLetterData.Title);
+                                
+                                populateDocumentTemplate(editedLetterData, originalFormData);
                             }
                             
-                            // Clear the feedback field
+                            // Update the stored letter data
+                            if (window.generatedLetterData) {
+                                window.generatedLetterData.Letter = result.updated_letter;
+                            }
+                            
+                            // Clear the feedback field for next edit
                             document.getElementById('editFeedback').value = '';
                             
-                            notify.success('تم تعديل الخطاب بنجاح!');
+                            // Re-validate the edited letter
+                            await validateAndDisplayResults(result.updated_letter);
                             
-                            // Validate the updated letter
-                            if (typeof validateAndDisplayResults === 'function') {
-                                await validateAndDisplayResults(result.updated_letter);
+                            // Show success message
+                            let successMessage = 'تم تعديل الخطاب بنجاح!';
+                            if (result.response_text) {
+                                successMessage += `\n\nرد النظام: ${result.response_text}`;
+                            }
+                            if (result.changes_made && result.changes_made.length > 0) {
+                                successMessage += `\n\nالتعديلات المُجراة: ${result.changes_made.join(', ')}`;
                             }
                             
+                            notify.success('تم تعديل الخطاب بنجاح!', 5000);
                         } else {
                             console.error('No updated letter in response:', result);
                             notify.error('حدث خطأ: لم يتم استلام الخطاب المعدّل من الخادم');
                         }
-                        
                     } catch (error) {
                         console.error('Error in edit button handler:', error);
                         notify.error('حدث خطأ أثناء تعديل الخطاب: ' + error.message);
@@ -364,41 +421,43 @@
                         // Reset session on error
                         currentEditSession = null;
                         updateSessionStatus('حدث خطأ في الجلسة', 'error');
-                    } finally {
-                        // Restore button state
-                        this.textContent = originalText;
-                        this.disabled = false;
                     }
                 });
             }
             
-            // IMPROVED SAVE BUTTON HANDLER - NO FALSE WARNINGS
+            // FIXED: Save button event handler with proper error handling
             const saveButton = document.getElementById('saveButton');
             if (saveButton) {
                 saveButton.addEventListener('click', async function() {
-                    console.log('💾 Save button clicked - starting save process');
+                    console.log('🔥 Save button clicked - starting save process');
                     
                     try {
-                        // Step 1: Get letter content (SILENT VALIDATION)
+                        // Step 1: Get letter content and validate
                         const letterContent = document.getElementById('letterPreview').value;
                         if (!letterContent || letterContent.trim() === '') {
-                            notify.warning('الرجاء إنشاء خطاب أولاً');
+                            notify.warning('لا يوجد محتوى خطاب للحفظ. الرجاء إنشاء خطاب أولاً');
                             return;
                         }
-                        console.log('✅ Letter content validated');
+                        console.log('✅ Letter content validated:', letterContent.substring(0, 100) + '...');
                         
-                        // Step 2: Get form fields (NO WARNINGS FOR MISSING FIELDS)
+                        // Step 2: Get required form fields
                         const letterTypeElement = document.getElementById('letterType');
                         const recipientElement = document.getElementById('recipient');
                         const is_firstRadio = document.querySelector('input[name="is_first"]:checked');
                         
-                        // SILENT LOGGING - No user warnings for API-handled validation
-                        console.log('📊 Form field status:');
-                        console.log('  - Letter Type:', letterTypeElement?.value || 'not set');
-                        console.log('  - Recipient:', recipientElement?.value || 'not set');
-                        console.log('  - Is First:', is_firstRadio?.value || 'not set');
+                        if (!letterTypeElement.value) {
+                            notify.warning('الرجاء اختيار نوع الخطاب');
+                            return;
+                        }
                         
-                        // Step 3: Cleanup edit session (SILENT - NO WARNINGS ON FAILURE)
+                        if (!is_firstRadio) {
+                            notify.warning('الرجاء تحديد ما إذا كانت هذه أول مراسلة');
+                            return;
+                        }
+                        
+                        console.log('✅ Form fields validated');
+                        
+                        // Step 3: Cleanup edit session (if exists) - but don't let it fail the save
                         try {
                             if (currentEditSession) {
                                 console.log('🧹 Cleaning up edit session...');
@@ -406,8 +465,8 @@
                                 console.log('✅ Edit session cleaned up');
                             }
                         } catch (cleanupError) {
-                            console.log('ℹ️ Session cleanup completed (non-critical)');
-                            // SILENT - don't warn user about session cleanup
+                            console.warn('⚠️ Session cleanup failed (non-critical):', cleanupError);
+                            // Don't stop the save process for session cleanup errors
                         }
                         
                         // Step 4: Prepare archive data
@@ -415,68 +474,60 @@
                         const formData = new FormData();
                         
                         formData.append('letter_content', letterContent);
-                        formData.append('letter_type', letterTypeElement?.value || '');
-                        formData.append('recipient', recipientElement?.value || 'غير محدد');
+                        formData.append('letter_type', letterTypeElement.value);
+                        formData.append('recipient', recipientElement.value || 'غير محدد');
                         formData.append('template', 'default_template.html');
-                        formData.append('is_first', is_firstRadio?.value || 'true');
+                        formData.append('is_first', is_firstRadio.value);
                         
-                        // Add all other form fields without validation warnings
-                        const organizationNameElement = document.getElementById('organizationName');
-                        const recipientJobTitleElement = document.getElementById('recipientJobTitle');
-                        const recipientTitleElement = document.getElementById('recipientTitle');
-                        const otherRecipientTitleElement = document.getElementById('otherRecipientTitle');
-                        const memberNameElement = document.getElementById('memberName');
-                        const promptElement = document.getElementById('prompt');
+                        // Add title
+                        if (window.generatedLetterData && window.generatedLetterData.Title) {
+                            formData.append('title', window.generatedLetterData.Title);
+                        } else {
+                            formData.append('title', 'خطاب جديد');
+                        }
                         
-                        if (organizationNameElement) formData.append('organization_name', organizationNameElement.value || '');
-                        if (recipientJobTitleElement) formData.append('recipient_job_title', recipientJobTitleElement.value || '');
-                        if (recipientTitleElement) formData.append('recipient_title', recipientTitleElement.value || '');
-                        if (otherRecipientTitleElement) formData.append('other_recipient_title', otherRecipientTitleElement.value || '');
-                        if (memberNameElement) formData.append('member_name', memberNameElement.value || '');
-                        if (promptElement) formData.append('prompt', promptElement.value || '');
+                        // Add ID
+                        if (window.generatedLetterData && window.generatedLetterData.ID) {
+                            formData.append('ID', window.generatedLetterData.ID);
+                        } else {
+                            formData.append('ID', generateUniqueId());
+                        }
                         
-                        console.log('✅ Archive data prepared');
+                        console.log('✅ FormData prepared');
                         
-                        // Step 5: Show loading and disable button
-                        const originalText = this.textContent;
-                        this.textContent = 'جاري الحفظ...';
-                        this.disabled = true;
-                        
-                        // Step 6: Archive the letter
-                        console.log('📤 Archiving letter...');
+                        // Step 5: Call archive API
+                        console.log('🚀 Calling archive API...');
                         const result = await archiveLetter(formData);
                         
-                        if (result && result.success) {
-                            notify.success('تم حفظ الخطاب بنجاح! 🎉');
-                            console.log('✅ Letter archived successfully');
+                        if (result) {
+                            console.log('✅ Archive successful:', result);
+                            notify.success('تم حفظ الخطاب بنجاح!');
                             
-                            // Reset the session status
-                            updateSessionStatus('جاهز لإنشاء خطاب جديد', 'inactive');
-                            currentEditSession = null;
-                            
-                            // Optional: Reset form or redirect
-                            setTimeout(() => {
-                                const resetForm = confirm('هل تريد إنشاء خطاب جديد؟');
-                                if (resetForm) {
-                                    location.reload();
+                            // Optional: Check archive status
+                            const letterId = window.generatedLetterData?.ID || generateUniqueId();
+                            setTimeout(async () => {
+                                try {
+                                    const status = await getArchiveStatus(letterId);
+                                    console.log('📊 Archive status:', status);
+                                } catch (statusError) {
+                                    console.warn('⚠️ Archive status check failed:', statusError);
                                 }
                             }, 2000);
                             
+                            // Navigate to letter history
+                            window.location.href = `letter-history.html?highlight=${letterId}`;
                         } else {
-                            console.error('❌ Archive failed:', result);
-                            const errorMsg = result?.message || 'خطأ غير معروف';
-                            notify.error('فشل في حفظ الخطاب: ' + errorMsg);
+                            console.error('❌ Archive failed - no result returned');
+                            notify.error('فشل في حفظ الخطاب. الرجاء المحاولة مرة أخرى.');
                         }
                         
                     } catch (error) {
                         console.error('❌ Save process failed:', error);
                         notify.error('حدث خطأ أثناء حفظ الخطاب: ' + error.message);
-                    } finally {
-                        // Restore button state
-                        this.textContent = originalText;
-                        this.disabled = false;
                     }
                 });
+            } else {
+                console.error('❌ Save button not found!');
             }
             
             // Validation refresh button
@@ -485,69 +536,31 @@
                 refreshValidationButton.addEventListener('click', async function() {
                     const letterContent = document.getElementById('letterPreview').value;
                     if (letterContent) {
-                        try {
-                            await validateAndDisplayResults(letterContent);
-                        } catch (error) {
-                            console.log('ℹ️ Validation service temporarily unavailable');
-                            // Don't show error to user - validation is optional
-                        }
+                        await validateAndDisplayResults(letterContent);
                     } else {
-                        notify.info('لا يوجد محتوى خطاب للتحليل');
+                        notify.warning('لا يوجد محتوى خطاب للتحليل');
                     }
                 });
             }
         });
 
-        // Session status update function
-        function updateSessionStatus(message, status) {
-            const statusElement = document.getElementById('sessionStatus');
-            if (statusElement) {
-                statusElement.textContent = message;
-                statusElement.className = `session-status-${status}`;
-            }
-        }
-
-        // Session cleanup function
-        async function cleanupEditSession() {
-            if (currentEditSession) {
-                updateSessionStatus('جاري تنظيف الجلسة...', 'cleanup');
-                
-                try {
-                    if (typeof deleteChatSession === 'function') {
-                        await deleteChatSession(currentEditSession);
-                    }
-                    
-                    currentEditSession = null;
-                    updateSessionStatus('تم تنظيف الجلسة', 'cleanup-complete');
-                    
-                    setTimeout(() => {
-                        updateSessionStatus('غير نشط', 'inactive');
-                    }, 2000);
-                    
-                } catch (error) {
-                    console.log('ℹ️ Session cleanup completed with minor issues');
-                    updateSessionStatus('غير نشط', 'inactive');
-                }
-            }
-        }
-
-        // Function to validate letter and display results (IMPROVED - NO ERROR NOTIFICATIONS)
+        // Function to validate letter and display results
         async function validateAndDisplayResults(letterContent) {
             try {
-                console.log('🔍 Validating letter...');
+                console.log('Validating letter...');
                 const validation = await validateLetter(letterContent);
                 
                 if (validation && validation.status === 'success') {
                     currentValidation = validation.validation;
                     displayValidationResults(validation.validation);
+                    
+                    // Show validation section
                     document.getElementById('validationSection').style.display = 'block';
                 } else {
-                    console.log('ℹ️ Validation completed with issues (non-critical)');
-                    // Don't show error notifications for validation issues
+                    console.error('Validation failed:', validation);
                 }
             } catch (error) {
-                console.log('ℹ️ Validation service temporarily unavailable');
-                // Don't show error notifications for validation service issues
+                console.error('Error validating letter:', error);
             }
         }
 
@@ -591,39 +604,27 @@
             html += `</div></div>`;
             
             // Metrics
-            if (metrics) {
-                html += `<div class="validation-metrics">`;
-                html += `<h5><i class="fas fa-chart-bar"></i> المقاييس:</h5>`;
-                html += `<div class="metrics-grid">`;
-                
-                if (metrics.word_count !== undefined) {
-                    html += `<div class="metric-item">`;
-                    html += `<span class="metric-label">عدد الكلمات</span>`;
-                    html += `<span class="metric-value">${metrics.word_count}</span>`;
-                    html += `</div>`;
-                }
-                
-                if (metrics.character_count !== undefined) {
-                    html += `<div class="metric-item">`;
-                    html += `<span class="metric-label">عدد الأحرف</span>`;
-                    html += `<span class="metric-value">${metrics.character_count}</span>`;
-                    html += `</div>`;
-                }
-                
-                if (metrics.readability_score !== undefined) {
-                    html += `<div class="metric-item">`;
-                    html += `<span class="metric-label">سهولة القراءة</span>`;
-                    html += `<span class="metric-value">${metrics.readability_score.toFixed(1)}</span>`;
-                    html += `</div>`;
-                }
-                
-                html += `</div></div>`;
-            }
+            html += `<div class="validation-metrics">`;
+            html += `<h5><i class="fas fa-chart-bar"></i> إحصائيات الخطاب:</h5>`;
+            html += `<div class="metrics-grid">`;
+            html += `<div class="metric-item">`;
+            html += `<span class="metric-label">عدد الكلمات:</span>`;
+            html += `<span class="metric-value">${metrics.word_count}</span>`;
+            html += `</div>`;
+            html += `<div class="metric-item">`;
+            html += `<span class="metric-label">عدد الأحرف:</span>`;
+            html += `<span class="metric-value">${metrics.character_count}</span>`;
+            html += `</div>`;
+            html += `<div class="metric-item">`;
+            html += `<span class="metric-label">عدد الأسطر:</span>`;
+            html += `<span class="metric-value">${metrics.line_count}</span>`;
+            html += `</div>`;
+            html += `</div></div>`;
             
             // Suggestions
             if (suggestions.length > 0) {
                 html += `<div class="validation-suggestions">`;
-                html += `<h5><i class="fas fa-lightbulb"></i> اقتراحات للتحسين:</h5>`;
+                html += `<h5><i class="fas fa-lightbulb"></i> اقتراحات التحسين:</h5>`;
                 html += `<ul>`;
                 suggestions.forEach(suggestion => {
                     html += `<li>${suggestion}</li>`;
@@ -632,6 +633,57 @@
             }
             
             validationContent.innerHTML = html;
+        }
+
+        // Function to update session status indicator
+        function updateSessionStatus(message = null, status = 'inactive') {
+            const statusElement = document.getElementById('sessionStatusText');
+            if (statusElement) {
+                if (message) {
+                    statusElement.textContent = message;
+                } else {
+                    if (currentEditSession) {
+                        statusElement.textContent = `جلسة نشطة: ${currentEditSession.id.substring(0, 8)}...`;
+                    } else {
+                        statusElement.textContent = 'لم يتم إنشاء جلسة تعديل بعد';
+                    }
+                }
+                
+                // Update status styling
+                const statusContainer = document.getElementById('sessionStatus');
+                statusContainer.className = `session-status-${status}`;
+            }
+        }
+
+        // Function to cleanup edit session
+        async function cleanupEditSession() {
+            if (currentEditSession) {
+                try {
+                    console.log('Cleaning up edit session:', currentEditSession.id);
+                    updateSessionStatus('إنهاء الجلسة...', 'cleanup');
+                    
+                    // Delete the session from backend
+                    await deleteChatSession(currentEditSession.id);
+                    
+                    console.log('Edit session cleaned up successfully');
+                } catch (error) {
+                    console.error('Error cleaning up edit session:', error);
+                    throw error; // Re-throw so caller knows cleanup failed
+                } finally {
+                    currentEditSession = null;
+                    updateSessionStatus('تم إنهاء الجلسة', 'cleanup-complete');
+                    
+                    // Reset status after a short delay
+                    setTimeout(() => {
+                        updateSessionStatus();
+                    }, 2000);
+                }
+            }
+        }
+
+        // Generate unique ID for letters
+        function generateUniqueId() {
+            return 'L' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
         }
 
         // Function to load previous letters
@@ -680,55 +732,6 @@
                 // Note: This might not always work due to browser restrictions
                 cleanupEditSession();
             }
-        });
-    </script>
-
-    <!-- VALIDATION WARNING FIXES -->
-    <script>
-        // QUICK FIX: Disable false positive validation warnings
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🔧 Applying validation warning fixes...');
-            
-            // 1. Improve recipient validation to be non-intrusive
-            const recipientInput = document.getElementById("recipient");
-            if (recipientInput) {
-                // Add non-intrusive validation only on blur, not during form submission
-                recipientInput.addEventListener('blur', function() {
-                    const value = this.value.trim();
-                    if (value.length > 0 && value.split(" ").length === 1 && value.length > 2) {
-                        // Only show helpful info message, not warning
-                        if (typeof notify !== 'undefined') {
-                            notify.info('تلميح: يُفضل إدخال الاسم الأول والثاني للمرسل إليه');
-                        }
-                    }
-                });
-            }
-            
-            // 2. Filter out validation warnings during successful operations
-            if (typeof notify !== 'undefined') {
-                const originalWarning = notify.warning;
-                
-                // Filter out common false positive warnings
-                const ignoredWarnings = [
-                    'الرجاء اختيار نوع الخطاب',
-                    'الرجاء تحديد ما إذا كانت هذه أول مراسلة',
-                    'يرجى إدخال الاسم الأول والثاني للمرسل إليه'
-                ];
-                
-                notify.warning = function(message, duration) {
-                    // Only show warnings that aren't in the ignored list during form submission
-                    const isFormSubmitting = document.querySelector('#letterForm button[type="submit"]')?.disabled;
-                    const isIgnoredWarning = ignoredWarnings.some(ignored => message.includes(ignored));
-                    
-                    if (!isFormSubmitting || !isIgnoredWarning) {
-                        return originalWarning.call(this, message, duration);
-                    } else {
-                        console.log('ℹ️ Filtered form validation warning:', message);
-                    }
-                };
-            }
-            
-            console.log('✅ Validation warning fixes applied successfully');
         });
     </script>
 </body>
