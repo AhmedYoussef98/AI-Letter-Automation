@@ -371,7 +371,7 @@ async function updateArchiveLetter(letterId, content) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                endpoint: 'archive/update',  // or 'update-archive' depending on your backend
+                endpoint: 'archive-update',  // or 'update-archive' depending on your backend
                 data: payload
             })
         });
