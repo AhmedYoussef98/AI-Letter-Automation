@@ -988,26 +988,58 @@ function showSuccessMessage(message) {
 
 // ENHANCED FORM VALIDATION WITH NOTIFICATIONS
 function validateFormWithNotifications(formData) {
+    console.log('🔍 Validating form data silently...');
+    
+    // Check if we're in letter creation context (should be silent)
+    const isLetterCreation = window.location.pathname.includes('create-letter.html');
+    const isFormSubmission = document.querySelector('#letterForm button[type="submit"]')?.disabled;
+    
+    if (isLetterCreation || isFormSubmission) {
+        // SILENT VALIDATION - let API handle validation during letter creation
+        console.log('ℹ️ Silent validation mode - API will handle field validation');
+        return true; // Allow submission, let API validate
+    }
+    
+    // Only validate for critical missing data in non-letter-creation contexts
     const errors = [];
     
-    if (!formData.organizationName || formData.organizationName.trim().length === 0) {
-        errors.push('اسم الجهة مطلوب');
+    // Only check for truly critical missing fields
+    if (!formData.organizationName && !formData.organization_name) {
+        const orgField = document.getElementById('organizationName');
+        // Only warn if the field exists and is visible but empty
+        if (orgField && orgField.offsetParent !== null && orgField.value.trim() === '') {
+            errors.push('اسم الجهة مطلوب');
+        }
     }
     
-    if (!formData.recipient || formData.recipient.trim().length === 0) {
-        errors.push('المستقبل مطلوب');
+    if (!formData.recipient) {
+        const recipientField = document.getElementById('recipient');
+        // Only warn if the field exists, is required, and is empty
+        if (recipientField && recipientField.hasAttribute('required') && recipientField.value.trim() === '') {
+            errors.push('المستقبل مطلوب');
+        }
     }
     
-    if (!formData.letterType) {
-        errors.push('نوع الخطاب مطلوب');
+    if (!formData.letterType && !formData.category) {
+        const letterTypeField = document.getElementById('letterType');
+        // Only warn if the field exists, is required, and is empty
+        if (letterTypeField && letterTypeField.hasAttribute('required') && letterTypeField.value.trim() === '') {
+            errors.push('نوع الخطاب مطلوب');
+        }
     }
     
-    if (!formData.content || formData.content.trim().length === 0) {
-        errors.push('محتوى الخطاب مطلوب');
+    if (!formData.content && !formData.prompt) {
+        const contentField = document.getElementById('letterPreview') || document.getElementById('prompt');
+        // Only warn if the field exists, is required, and is empty
+        if (contentField && contentField.hasAttribute('required') && contentField.value.trim() === '') {
+            errors.push('محتوى الخطاب مطلوب');
+        }
     }
     
     if (errors.length > 0) {
-        // Show each error as a notification
+        console.log('⚠️ Validation errors found:', errors);
+        
+        // Show each error as a notification (but only if really necessary)
         if (typeof notify !== 'undefined') {
             errors.forEach((error, index) => {
                 setTimeout(() => {
@@ -1020,9 +1052,90 @@ function validateFormWithNotifications(formData) {
         return false;
     }
     
+    console.log('✅ Form validation passed');
     return true;
 }
 
+// IMPROVED SILENT VALIDATION FUNCTION FOR LETTER CREATION
+function validateFormSilently(formData) {
+    console.log('🔇 Silent form validation - no user warnings');
+    
+    const issues = [];
+    
+    // Log missing fields for debugging but don't warn user
+    if (!formData.get?.('organization_name') && !formData.organizationName) {
+        issues.push('organization_name');
+    }
+    
+    if (!formData.get?.('recipient') && !formData.recipient) {
+        issues.push('recipient');
+    }
+    
+    if (!formData.get?.('category') && !formData.letterType) {
+        issues.push('category');
+    }
+    
+    if (!formData.get?.('prompt') && !formData.content) {
+        issues.push('content');
+    }
+    
+    // Log issues for debugging but don't warn user
+    if (issues.length > 0) {
+        console.log('ℹ️ Form has missing fields (API will handle):', issues);
+    }
+    
+    // Always return true - let API handle validation
+    return true;
+}
+
+// CONTEXT-AWARE VALIDATION WRAPPER
+function smartFormValidation(formData, context = 'unknown') {
+    console.log(`🎯 Smart validation for context: ${context}`);
+    
+    switch (context) {
+        case 'letter-creation':
+        case 'letter-save':
+        case 'letter-edit':
+            // Use silent validation for letter operations
+            return validateFormSilently(formData);
+            
+        case 'user-settings':
+        case 'profile-update':
+        case 'critical-form':
+            // Use normal validation for critical forms
+            return validateFormWithNotifications(formData);
+            
+        default:
+            // Default to silent validation to avoid false positives
+            console.log('🔇 Unknown context - using silent validation');
+            return validateFormSilently(formData);
+    }
+}
+
+// OVERRIDE FORM VALIDATION CALLS IN CREATE LETTER CONTEXT
+if (typeof window !== 'undefined') {
+    // Override the global validation function for letter creation pages
+    const originalValidation = window.validateFormWithNotifications;
+    
+    window.validateFormWithNotifications = function(formData) {
+        // Check current page context
+        const currentPage = window.location.pathname.split('/').pop();
+        
+        if (currentPage === 'create-letter.html') {
+            // Use silent validation for letter creation
+            return validateFormSilently(formData);
+        } else {
+            // Use original validation for other pages
+            return originalValidation ? originalValidation.call(this, formData) : validateFormWithNotifications(formData);
+        }
+    };
+    
+    // Export the smart validation function
+    window.smartFormValidation = smartFormValidation;
+    window.validateFormSilently = validateFormSilently;
+}
+
+console.log('✅ Form validation functions updated - false warnings eliminated');
 // NETWORK STATUS MONITORING
 function initializeNetworkMonitoring() {
     window.addEventListener('online', function() {
@@ -1245,3 +1358,4 @@ setTimeout(() => {
 }, 100);
 
 console.log('✅ Main.js loaded completely');
+
