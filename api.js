@@ -349,3 +349,38 @@ if (document.getElementById('letterForm')) {
 function generateUniqueId() {
     return 'L' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 }
+// Add this function to your api.js file
+
+// Update Archive Letter - NEW FUNCTION for sending to archive endpoint
+async function updateArchiveLetter(letterId, content) {
+    try {
+        const payload = {
+            letter_id: letterId,
+            content: content,
+            template: "default_template"
+        };
+
+        console.log('Sending archive update:', payload);
+
+        const response = await fetch('/api/v1/archive/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || 'Failed to update archive');
+        }
+        
+        const data = await response.json();
+        console.log('Archive updated successfully:', data);
+        return data;
+        
+    } catch (error) {
+        console.error('Error updating archive:', error);
+        throw error;
+    }
+}
