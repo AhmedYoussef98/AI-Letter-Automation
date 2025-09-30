@@ -851,6 +851,8 @@ function displayLetterError() {
     }
 }
 
+// Replace the existing updateReviewStatus function in main.js with this updated version
+
 async function updateReviewStatus(status) {
     console.log('📝 Updating review status to:', status);
     
@@ -889,7 +891,36 @@ async function updateReviewStatus(status) {
             activeButton.disabled = true;
         }
         
-        // Update the status in Google Sheets
+        // Check if status is "جاهز للإرسال" (Ready to Send)
+        if (status === 'جاهز للإرسال') {
+            console.log('📤 Sending letter to archive endpoint...');
+            
+            // Call the archive update endpoint
+            try {
+                await updateArchiveLetter(letterId, letterContent);
+                
+                if (typeof notify !== 'undefined') {
+                    notify.success('تم إرسال الخطاب إلى الأرشيف بنجاح');
+                }
+            } catch (archiveError) {
+                console.error('Archive update failed:', archiveError);
+                
+                if (typeof notify !== 'undefined') {
+                    notify.error('حدث خطأ أثناء إرسال الخطاب إلى الأرشيف');
+                } else {
+                    alert('حدث خطأ أثناء إرسال الخطاب إلى الأرشيف');
+                }
+                
+                // Restore button state
+                if (activeButton) {
+                    activeButton.innerHTML = originalText;
+                    activeButton.disabled = false;
+                }
+                return;
+            }
+        }
+        
+        // Update the status in Google Sheets (for all statuses)
         await updateReviewStatusInSheet(letterId, status, reviewerName, notes, letterContent);
         
         // Show success message
@@ -920,7 +951,6 @@ async function updateReviewStatus(status) {
         }
     }
 }
-
 // ==============================================
 // HELPER FUNCTIONS
 // ==============================================
@@ -1358,4 +1388,5 @@ setTimeout(() => {
 }, 100);
 
 console.log('✅ Main.js loaded completely');
+
 
