@@ -351,6 +351,8 @@ function generateUniqueId() {
 }
 // Add this function to your api.js file
 
+// Add this function to your api.js file
+
 // Update Archive Letter - NEW FUNCTION for sending to archive endpoint
 async function updateArchiveLetter(letterId, content) {
     try {
@@ -362,12 +364,16 @@ async function updateArchiveLetter(letterId, content) {
 
         console.log('Sending archive update:', payload);
 
-        const response = await fetch('/api/v1/archive/update', {
+        // Use the proxy pattern like other API calls
+        const response = await fetch('/api/proxy', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({
+                endpoint: 'archive/update',  // or 'update-archive' depending on your backend
+                data: payload
+            })
         });
         
         if (!response.ok) {
