@@ -136,6 +136,65 @@ module.exports = async (req, res) => {
             return;
         }
 
+        // Handle PUT requests
+        if (req.method === "PUT") {
+            console.log("Processing PUT request");
+            
+            let requestData;
+            try {
+                requestData = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+            } catch (parseError) {
+                console.error("JSON parse error:", parseError);
+                res.status(400).json({ error: "Invalid JSON in request body" });
+                return;
+            }
+            
+            const { endpoint, data } = requestData;
+            
+            let targetUrl;
+            switch (endpoint) {
+                case "update-archive":
+                    targetUrl = `${API_BASE_URL}/api/v1/archive/update`;
+                    break;
+                default:
+                    console.log("Invalid PUT endpoint:", endpoint);
+                    return res.status(400).json({ error: "Invalid endpoint" });
+            }
+            
+            try {
+                console.log(`Attempting ${endpoint} PUT call to:`, targetUrl);
+                console.log("Payload:", data);
+                
+                const response = await axios.put(targetUrl, data, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    httpsAgent: agent,
+                    timeout: 30000,
+                });
+                
+                console.log(`${endpoint} PUT success:`, response.status);
+                res.status(200).json(response.data);
+                
+            } catch (axiosError) {
+                console.error(`${endpoint} PUT error:`, axiosError.message);
+                if (axiosError.response) {
+                    console.error(`${endpoint} PUT response data:`, axiosError.response.data);
+                    console.error(`${endpoint} PUT response status:`, axiosError.response.status);
+                    res.status(axiosError.response.status).json({
+                        error: `${endpoint} PUT error`,
+                        message: axiosError.response.data || axiosError.message
+                    });
+                } else {
+                    res.status(500).json({
+                        error: "Internal server error",
+                        message: `Failed to call ${endpoint}. Please try again later.`
+                    });
+                }
+            }
+            return;
+        }
+
         // Handle POST requests
         const contentType = req.headers["content-type"] || "";
         
@@ -335,5 +394,6 @@ module.exports = async (req, res) => {
         });
     }
 };
+
 
 
