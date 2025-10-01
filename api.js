@@ -361,7 +361,7 @@ async function updateArchiveLetter(letterId, content) {
 
         // Use the proxy pattern like other API calls
         const response = await fetch('/api/proxy', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
