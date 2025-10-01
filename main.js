@@ -853,6 +853,8 @@ function displayLetterError() {
 
 // Replace the existing updateReviewStatus function in main.js with this updated version
 
+// Replace the existing updateReviewStatus function in main.js with this updated version
+
 async function updateReviewStatus(status) {
     console.log('📝 Updating review status to:', status);
     
@@ -1388,5 +1390,6 @@ setTimeout(() => {
 }, 100);
 
 console.log('✅ Main.js loaded completely');
+
 
 
