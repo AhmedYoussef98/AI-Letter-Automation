@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة قائمة المستخدمين المصرح لهم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 2em;
+        }
+
+        .header p {
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .message {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .add-user-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .add-user-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .input-wrapper label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .input-wrapper input,
+        .input-wrapper select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .input-wrapper input:focus,
+        .input-wrapper select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 8px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .whitelist-section {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h2 {
+            color: #333;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 15px 20px;
+            text-align: right;
+            font-weight: 600;
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-admin {
+            background: #e9d5ff;
+            color: #7c3aed;
+        }
+
+        .badge-user {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .badge-active {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .badge-inactive {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+
+        .instructions {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+
+        .instructions h3 {
+            color: #1e40af;
+            margin-bottom: 15px;
+        }
+
+        .instructions ul {
+            color: #1e3a8a;
+            padding-right: 20px;
+        }
+
+        .instructions li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .form-group {
+                flex-direction: column;
+            }
+
+            .input-wrapper {
+                width: 100%;
+            }
+
+            .table-wrapper {
+                overflow-x: scroll;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-shield-alt"></i>
+                إدارة قائمة المستخدمين المصرح لهم
+            </h1>
+            <p>إدارة صلاحيات الوصول إلى التطبيق | المسؤول: <span id="adminEmail">جارٍ التحميل...</span></p>
+        </div>
+
+        <!-- Message Display -->
+        <div id="messageBox" class="message"></div>
+
+        <!-- Add User Section -->
+        <div class="add-user-section">
+            <h2>
+                <i class="fas fa-user-plus"></i>
+                إضافة مستخدم جديد
+            </h2>
+            <div class="form-group">
+                <div class="input-wrapper" style="flex: 2;">
+                    <label for="newEmail">البريد الإلكتروني</label>
+                    <input 
+                        type="email" 
+                        id="newEmail" 
+                        placeholder="user@domain.com"
+                        autocomplete="off"
+                    >
+                </div>
+                <div class="input-wrapper">
+                    <label for="newRole">الدور</label>
+                    <select id="newRole">
+                        <option value="user">مستخدم</option>
+                        <option value="admin">مسؤول</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="addUserBtn" onclick="handleAddUser()">
+                    <i class="fas fa-plus"></i>
+                    إضافة مستخدم
+                </button>
+            </div>
+        </div>
+
+        <!-- Whitelist Table -->
+        <div class="whitelist-section">
+            <div class="section-header">
+                <h2>القائمة الحالية (<span id="userCount">0</span> مستخدم)</h2>
+                <button class="btn btn-secondary" onclick="loadWhitelist()">
+                    <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                    تحديث
+                </button>
+            </div>
+
+            <div id="tableContainer">
+                <!-- Loading state -->
+                <div class="loading" id="loadingState">
+                    <div class="spinner"></div>
+                    <p>جارٍ تحميل القائمة...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="instructions">
+            <h3>التعليمات</h3>
+            <ul>
+                <li>فقط المستخدمون الموجودون في القائمة بحالة "نشط" يمكنهم الوصول إلى التطبيق</li>
+                <li>المستخدمون المسؤولون يمكنهم إدارة القائمة ولديهم صلاحيات إضافية</li>
+                <li>المستخدمون العاديون لديهم صلاحيات الوصول الأساسية للتطبيق</li>
+                <li>لا يمكنك حذف نفسك من القائمة</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { 
+            addToWhitelist, 
+            removeFromWhitelist, 
+            getWhitelistEntries,
+            getCurrentUserEmail,
+            isCurrentUserAdmin
+        } from './api/whitelist.js';
+
+        let whitelistData = [];
+        let adminEmail = '';
+
+        // Check if user is admin
+        function checkAdminAccess() {
+            if (!isCurrentUserAdmin()) {
+                alert('ليس لديك صلاحيات الوصول إلى هذه الصفحة');
+                window.location.href = '/index.html';
+                return false;
+            }
+            return true;
+        }
+
+        // Initialize
+        async function init() {
+            if (!checkAdminAccess()) return;
+
+            adminEmail = getCurrentUserEmail();
+            document.getElementById('adminEmail').textContent = adminEmail || 'غير محدد';
+            
+            await loadWhitelist();
+
+            // Add enter key support
+            document.getElementById('newEmail').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleAddUser();
+                }
+            });
+        }
+
+        // Show message
+        function showMessage(text, type = 'success') {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = text;
+            messageBox.className = `message ${type}`;
+            messageBox.style.display = 'block';
+
+            setTimeout(() => {
+                messageBox.style.display = 'none';
+            }, 5000);
+        }
+
+        // Load whitelist
+        async function loadWhitelist() {
+            const loadingState = document.getElementById('loadingState');
+            const tableContainer = document.getElementById('tableContainer');
+            const refreshIcon = document.getElementById('refreshIcon');
+
+            loadingState.style.display = 'block';
+            refreshIcon.style.animation = 'spin 1s linear infinite';
+
+            try {
+                const result = await getWhitelistEntries(adminEmail);
+
+                if (result.success) {
+                    whitelistData = result.data || [];
+                    renderTable();
+                    showMessage('تم تحميل القائمة بنجاح', 'success');
+                } else {
+                    showMessage('فشل في تحميل القائمة: ' + result.message, 'error');
+                    tableContainer.innerHTML = '<div class="empty-state">فشل في تحميل البيانات</div>';
+                }
+            } catch (error) {
+                console.error('Error loading whitelist:', error);
+                showMessage('حدث خطأ أثناء تحميل القائمة', 'error');
+            } finally {
+                loadingState.style.display = 'none';
+                refreshIcon.style.animation = '';
+            }
+        }
+
+        // Render table
+        function renderTable() {
+            const tableContainer = document.getElementById('tableContainer');
+            const userCount = document.getElementById('userCount');
+
+            userCount.textContent = whitelistData.length;
+
+            if (whitelistData.length === 0) {
+                tableContainer.innerHTML = '<div class="empty-state">لا توجد مستخدمون في القائمة حتى الآن</div>';
+                return;
+            }
+
+            const tableHTML = `
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>البريد الإلكتروني</th>
+                                <th>الدور</th>
+                                <th>الحالة</th>
+                                <th>تمت الإضافة بواسطة</th>
+                                <th>تاريخ الإضافة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${whitelistData.map(entry => `
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-user" style="color: #999; margin-left: 8px;"></i>
+                                        ${entry.email}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-${entry.role}">
+                                            ${entry.role === 'admin' ? '<i class="fas fa-shield-alt"></i>' : ''}
+                                            ${entry.role === 'admin' ? 'مسؤول' : 'مستخدم'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-${entry.status}">
+                                            ${entry.status === 'active' ? 'نشط' : 'غير نشط'}
+                                        </span>
+                                    </td>
+                                    <td>${entry.addedBy || 'غير متوفر'}</td>
+                                    <td>${entry.dateAdded ? new Date(entry.dateAdded).toLocaleDateString('ar-EG') : 'غير متوفر'}</td>
+                                    <td>
+                                        <button 
+                                            class="btn btn-danger" 
+                                            onclick="handleRemoveUser('${entry.email}')"
+                                            ${entry.email === adminEmail ? 'disabled title="لا يمكنك حذف نفسك"' : ''}
+                                        >
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            tableContainer.innerHTML = tableHTML;
+        }
+
+        // Add user
+        async function handleAddUser() {
+            const emailInput = document.getElementById('newEmail');
+            const roleSelect = document.getElementById('newRole');
+            const addBtn = document.getElementById('addUserBtn');
+
+            const email = emailInput.value.trim();
+            const role = roleSelect.value;
+
+            if (!email) {
+                showMessage('الرجاء إدخال البريد الإلكتروني', 'error');
+                return;
+            }
+
+            if (!email.includes('@')) {
+                showMessage('الرجاء إدخال بريد إلكتروني صحيح', 'error');
+                return;
+            }
+
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الإضافة...';
+
+            try {
+                const result = await addToWhitelist(adminEmail, email, role);
+
+                if (result.success) {
+                    showMessage('تمت إضافة المستخدم بنجاح!', 'success');
+                    emailInput.value = '';
+                    roleSelect.value = 'user';
+                    await loadWhitelist();
+                } else {
+                    showMessage('فشلت الإضافة: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error adding user:', error);
+                showMessage('حدث خطأ أثناء إضافة المستخدم', 'error');
+            } finally {
+                addBtn.disabled = false;
+                addBtn.innerHTML = '<i class="fas fa-plus"></i> إضافة مستخدم';
+            }
+        }
+
+        // Remove user
+        async function handleRemoveUser(email) {
+            if (!confirm(`هل أنت متأكد من حذف ${email} من القائمة؟`)) {
+                return;
+            }
+
+            try {
+                const result = await removeFromWhitelist(adminEmail, email);
+
+                if (result.success) {
+                    showMessage('تم حذف المستخدم بنجاح!', 'success');
+                    await loadWhitelist();
+                } else {
+                    showMessage('فشل الحذف: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error removing user:', error);
+                showMessage('حدث خطأ أثناء حذف المستخدم', 'error');
+            }
+        }
+
+        // Make functions global
+        window.handleAddUser = handleAddUser;
+        window.handleRemoveUser = handleRemoveUser;
+        window.loadWhitelist = loadWhitelist;
+
+        // Initialize on page load
+        init();
+    </script>
+</body>
+</html>
