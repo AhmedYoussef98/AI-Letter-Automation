@@ -286,6 +286,9 @@ module.exports = async (req, res) => {
                 case "archive-letter":
                     targetUrl = `${API_BASE_URL}/api/v1/archive/letter`; // Updated endpoint
                     break;
+                case "update-archive":
+                    targetUrl = `${API_BASE_URL}/api/v1/archive/update`; // For Updating the already archived letters
+                    break;
                 default:
                     console.log("Invalid endpoint:", endpoint);
                     return res.status(400).json({ error: "Invalid endpoint" });
@@ -332,3 +335,4 @@ module.exports = async (req, res) => {
         });
     }
 };
+
