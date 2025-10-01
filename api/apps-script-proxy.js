@@ -1,4 +1,4 @@
-// api/apps-script-proxy.js
+// api/apps-script-proxy.js (UPDATED to handle both form data and JSON)
 export default async function handler(req, res) {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -14,18 +14,40 @@ export default async function handler(req, res) {
   }
 
   try {
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzWtObb3O5GG8s8XN-mduvzw2lFrUvaATUwx-qULzcxDUHeJDtZJiA9mbq9KZ4ey8xq/exec'; // Replace with your actual URL
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzWtObb3O5GG8s8XN-mduvzw2lFrUvaATUwx-qULzcxDUHeJDtZJiA9mbq9KZ4ey8xq/exec';
     
     console.log('Proxying request to Apps Script:', APPS_SCRIPT_URL);
-    console.log('Request data:', new URLSearchParams(req.body).toString());
+    console.log('Request Content-Type:', req.headers['content-type']);
+    
+    let body;
+    let contentType = 'application/x-www-form-urlencoded';
+    
+    // Check if request is JSON (for whitelist management)
+    if (req.headers['content-type']?.includes('application/json')) {
+      console.log('JSON request detected');
+      console.log('Request body:', req.body);
+      
+      // Convert JSON to FormData format for Apps Script
+      const params = new URLSearchParams();
+      Object.keys(req.body).forEach(key => {
+        params.append(key, req.body[key]);
+      });
+      body = params.toString();
+      console.log('Converted to URL params:', body);
+    } else {
+      // Handle form data (existing auth functionality)
+      console.log('Form data request detected');
+      body = new URLSearchParams(req.body).toString();
+      console.log('Request data:', body);
+    }
 
     const response = await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Type': contentType,
       },
-      body: new URLSearchParams(req.body).toString(),
-      redirect: 'follow' // Important: follow redirects
+      body: body,
+      redirect: 'follow'
     });
 
     console.log('Apps Script response status:', response.status);
