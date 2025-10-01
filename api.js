@@ -345,16 +345,11 @@ if (document.getElementById('letterForm')) {
     });
 }
 
-// Generate unique ID for letters
-function generateUniqueId() {
-    return 'L' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-}
-// Add this function to your api.js file
-
-// Add this function to your api.js file
-
-// Update Archive Letter - NEW FUNCTION for sending to archive endpoint
+// Update Archive Letter - NEW FUNCTION
 async function updateArchiveLetter(letterId, content) {
+    const loader = document.getElementById('loader');
+    if (loader) loader.classList.add('active');
+    
     try {
         const payload = {
             letter_id: letterId,
@@ -371,14 +366,15 @@ async function updateArchiveLetter(letterId, content) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                endpoint: 'update-archive',  // or 'update-archive' depending on your backend
+                endpoint: 'archive-update',
                 data: payload
             })
         });
         
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || 'Failed to update archive');
+            console.error('Archive update failed:', errorData);
+            throw new Error(errorData.message || `Failed to update archive (${response.status})`);
         }
         
         const data = await response.json();
@@ -388,5 +384,12 @@ async function updateArchiveLetter(letterId, content) {
     } catch (error) {
         console.error('Error updating archive:', error);
         throw error;
+    } finally {
+        if (loader) loader.classList.remove('active');
     }
+}
+
+// Generate unique ID for letters
+function generateUniqueId() {
+    return 'L' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 }
