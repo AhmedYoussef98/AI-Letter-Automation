@@ -366,7 +366,7 @@ async function updateArchiveLetter(letterId, content) {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                endpoint: 'archive-update',
+                endpoint: 'update-archive', //This endpoint is handled in api/proxy.js file
                 data: payload
             })
         });
