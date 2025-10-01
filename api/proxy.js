@@ -7,7 +7,7 @@ const fs = require("fs");
 module.exports = async (req, res) => {
     // Enable CORS - Updated to support new methods
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     
     if (req.method === "OPTIONS") {
@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
         return;
     }
     
-    if (!["GET", "POST", "DELETE"].includes(req.method)) {
+    if (!["GET", "PUT", "POST", "DELETE"].includes(req.method)) {
         res.status(405).json({ error: "Method not allowed" });
         return;
     }
@@ -335,4 +335,5 @@ module.exports = async (req, res) => {
         });
     }
 };
+
 
