@@ -455,27 +455,29 @@
             const loadingState = document.getElementById('loadingState');
             const tableContainer = document.getElementById('tableContainer');
             const refreshIcon = document.getElementById('refreshIcon');
-
-            loadingState.style.display = 'block';
-            refreshIcon.style.animation = 'spin 1s linear infinite';
-
+        
+            if (loadingState) loadingState.style.display = 'block';
+            if (refreshIcon) refreshIcon.style.animation = 'spin 1s linear infinite';
+        
             try {
                 const result = await getWhitelistEntries(adminEmail);
-
+        
                 if (result.success) {
                     whitelistData = result.data || [];
                     renderTable();
                     showMessage('تم تحميل القائمة بنجاح', 'success');
                 } else {
                     showMessage('فشل في تحميل القائمة: ' + result.message, 'error');
-                    tableContainer.innerHTML = '<div class="empty-state">فشل في تحميل البيانات</div>';
+                    if (tableContainer) {
+                        tableContainer.innerHTML = '<div class="empty-state">فشل في تحميل البيانات</div>';
+                    }
                 }
             } catch (error) {
                 console.error('Error loading whitelist:', error);
                 showMessage('حدث خطأ أثناء تحميل القائمة', 'error');
             } finally {
-                loadingState.style.display = 'none';
-                refreshIcon.style.animation = '';
+                if (loadingState) loadingState.style.display = 'none';
+                if (refreshIcon) refreshIcon.style.animation = '';
             }
         }
 
