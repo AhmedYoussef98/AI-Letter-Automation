@@ -78,7 +78,7 @@ async function generateLetter(formData) {
         
     } catch (error) {
         console.error('Error generating letter:', error);
-        alert('حدث خطأ أثناء إنشاء الخطاب. الرجاء المحاولة مرة أخرى.');
+        notify.error('حدث خطأ أثناء إنشاء الخطاب. الرجاء المحاولة مرة أخرى.');
         return null;
     } finally {
         loader.classList.remove('active');
@@ -185,7 +185,7 @@ async function editLetter(letter, feedback, sessionId) {
         
     } catch (error) {
         console.error('Error editing letter:', error);
-        alert('حدث خطأ أثناء تعديل الخطاب. الرجاء المحاولة مرة أخرى.');
+        notify.error('حدث خطأ أثناء تعديل الخطاب. الرجاء المحاولة مرة أخرى.');
         return null;
     } finally {
         loader.classList.remove('active');
@@ -288,7 +288,7 @@ async function archiveLetter(formData) {
 
     } catch (error) {
         console.error('Error archiving letter:', error);
-        alert('حدث خطأ أثناء حفظ الخطاب. الرجاء المحاولة مرة أخرى.');
+        notify.error('حدث خطأ أثناء حفظ الخطاب. الرجاء المحاولة مرة أخرى.');
         return null;
     }
 }
@@ -343,6 +343,50 @@ if (document.getElementById('letterForm')) {
             }
         }
     });
+}
+
+// Update Archive Letter - NEW FUNCTION
+async function updateArchiveLetter(letterId, content) {
+    const loader = document.getElementById('loader');
+    if (loader) loader.classList.add('active');
+    
+    try {
+        const payload = {
+            letter_id: letterId,
+            content: content,
+            template: "default_template"
+        };
+
+        console.log('Sending archive update:', payload);
+
+        // Use the proxy pattern like other API calls
+        const response = await fetch('/api/proxy', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                endpoint: 'update-archive', //This endpoint is handled in api/proxy.js file
+                data: payload
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Archive update failed:', errorData);
+            throw new Error(errorData.message || `Failed to update archive (${response.status})`);
+        }
+        
+        const data = await response.json();
+        console.log('Archive updated successfully:', data);
+        return data;
+        
+    } catch (error) {
+        console.error('Error updating archive:', error);
+        throw error;
+    } finally {
+        if (loader) loader.classList.remove('active');
+    }
 }
 
 // Generate unique ID for letters

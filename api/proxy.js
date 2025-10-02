@@ -7,7 +7,7 @@ const fs = require("fs");
 module.exports = async (req, res) => {
     // Enable CORS - Updated to support new methods
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     
     if (req.method === "OPTIONS") {
@@ -15,7 +15,7 @@ module.exports = async (req, res) => {
         return;
     }
     
-    if (!["GET", "POST", "DELETE"].includes(req.method)) {
+    if (!["GET", "PUT", "POST", "DELETE"].includes(req.method)) {
         res.status(405).json({ error: "Method not allowed" });
         return;
     }
@@ -130,6 +130,65 @@ module.exports = async (req, res) => {
                     res.status(500).json({
                         error: "Internal server error",
                         message: `Failed to call ${endpoint} endpoint`
+                    });
+                }
+            }
+            return;
+        }
+
+        // Handle PUT requests
+        if (req.method === "PUT") {
+            console.log("Processing PUT request");
+            
+            let requestData;
+            try {
+                requestData = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+            } catch (parseError) {
+                console.error("JSON parse error:", parseError);
+                res.status(400).json({ error: "Invalid JSON in request body" });
+                return;
+            }
+            
+            const { endpoint, data } = requestData;
+            
+            let targetUrl;
+            switch (endpoint) {
+                case "update-archive":
+                    targetUrl = `${API_BASE_URL}/api/v1/archive/update`;
+                    break;
+                default:
+                    console.log("Invalid PUT endpoint:", endpoint);
+                    return res.status(400).json({ error: "Invalid endpoint" });
+            }
+            
+            try {
+                console.log(`Attempting ${endpoint} PUT call to:`, targetUrl);
+                console.log("Payload:", data);
+                
+                const response = await axios.put(targetUrl, data, {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    httpsAgent: agent,
+                    timeout: 30000,
+                });
+                
+                console.log(`${endpoint} PUT success:`, response.status);
+                res.status(200).json(response.data);
+                
+            } catch (axiosError) {
+                console.error(`${endpoint} PUT error:`, axiosError.message);
+                if (axiosError.response) {
+                    console.error(`${endpoint} PUT response data:`, axiosError.response.data);
+                    console.error(`${endpoint} PUT response status:`, axiosError.response.status);
+                    res.status(axiosError.response.status).json({
+                        error: `${endpoint} PUT error`,
+                        message: axiosError.response.data || axiosError.message
+                    });
+                } else {
+                    res.status(500).json({
+                        error: "Internal server error",
+                        message: `Failed to call ${endpoint}. Please try again later.`
                     });
                 }
             }
@@ -286,6 +345,9 @@ module.exports = async (req, res) => {
                 case "archive-letter":
                     targetUrl = `${API_BASE_URL}/api/v1/archive/letter`; // Updated endpoint
                     break;
+                case "update-archive":
+                    targetUrl = `${API_BASE_URL}/api/v1/archive/update`; // For Updating the already archived letters
+                    break;
                 default:
                     console.log("Invalid endpoint:", endpoint);
                     return res.status(400).json({ error: "Invalid endpoint" });
@@ -332,3 +394,6 @@ module.exports = async (req, res) => {
         });
     }
 };
+
+
+

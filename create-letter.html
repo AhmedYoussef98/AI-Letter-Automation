@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <link rel="stylesheet" href="notifications.css">
     <link rel="stylesheet" href="mobile-styles.css">
     <script src="mobile.js"></script>
     <script src="auth-guard.js"></script>
@@ -228,6 +229,7 @@
         <div class="spinner"></div>
         <p>جاري إنشاء الخطاب...</p>
     </div>
+    <script src="notifications.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="sheets.js"></script>
     <script src="api.js"></script>
@@ -264,7 +266,7 @@
                 const recipientValue = recipientInput.value.trim();
 
                 if (recipientValue.length > 0 && recipientValue.split(" ").length < 2) {
-                    alert("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
+                    notify.warning("يرجى إدخال الاسم الأول والثاني للمرسل إليه.");
                     recipientInput.focus();
                     event.preventDefault();
                     return;
@@ -327,12 +329,12 @@
                     const feedback = document.getElementById('editFeedback').value.trim();
                     
                     if (!feedback) {
-                        alert('الرجاء إدخال التعديلات المطلوبة');
+                        notify.warning('الرجاء إدخال التعديلات المطلوبة');
                         return;
                     }
                     
                     if (!letterContent) {
-                        alert('لا يوجد محتوى خطاب للتعديل. الرجاء إنشاء خطاب أولاً');
+                        notify.warning('لا يوجد محتوى خطاب للتعديل. الرجاء إنشاء خطاب أولاً');
                         return;
                     }
                     
@@ -407,14 +409,14 @@
                                 successMessage += `\n\nالتعديلات المُجراة: ${result.changes_made.join(', ')}`;
                             }
                             
-                            alert(successMessage);
+                            notify.success('تم تعديل الخطاب بنجاح!', 5000);
                         } else {
                             console.error('No updated letter in response:', result);
-                            alert('حدث خطأ: لم يتم استلام الخطاب المعدّل من الخادم');
+                            notify.error('حدث خطأ: لم يتم استلام الخطاب المعدّل من الخادم');
                         }
                     } catch (error) {
                         console.error('Error in edit button handler:', error);
-                        alert('حدث خطأ أثناء تعديل الخطاب: ' + error.message);
+                        notify.error('حدث خطأ أثناء تعديل الخطاب: ' + error.message);
                         
                         // Reset session on error
                         currentEditSession = null;
@@ -433,7 +435,7 @@
                         // Step 1: Get letter content and validate
                         const letterContent = document.getElementById('letterPreview').value;
                         if (!letterContent || letterContent.trim() === '') {
-                            alert('لا يوجد محتوى خطاب للحفظ. الرجاء إنشاء خطاب أولاً');
+                            notify.warning('لا يوجد محتوى خطاب للحفظ. الرجاء إنشاء خطاب أولاً');
                             return;
                         }
                         console.log('✅ Letter content validated:', letterContent.substring(0, 100) + '...');
@@ -444,12 +446,12 @@
                         const is_firstRadio = document.querySelector('input[name="is_first"]:checked');
                         
                         if (!letterTypeElement.value) {
-                            alert('الرجاء اختيار نوع الخطاب');
+                            notify.warning('الرجاء اختيار نوع الخطاب');
                             return;
                         }
                         
                         if (!is_firstRadio) {
-                            alert('الرجاء تحديد ما إذا كانت هذه أول مراسلة');
+                            notify.warning('الرجاء تحديد ما إذا كانت هذه أول مراسلة');
                             return;
                         }
                         
@@ -499,7 +501,7 @@
                         
                         if (result) {
                             console.log('✅ Archive successful:', result);
-                            alert('تم حفظ الخطاب بنجاح!');
+                            notify.success('تم حفظ الخطاب بنجاح!');
                             
                             // Optional: Check archive status
                             const letterId = window.generatedLetterData?.ID || generateUniqueId();
@@ -516,12 +518,12 @@
                             window.location.href = `letter-history.html?highlight=${letterId}`;
                         } else {
                             console.error('❌ Archive failed - no result returned');
-                            alert('فشل في حفظ الخطاب. الرجاء المحاولة مرة أخرى.');
+                            notify.error('فشل في حفظ الخطاب. الرجاء المحاولة مرة أخرى.');
                         }
                         
                     } catch (error) {
                         console.error('❌ Save process failed:', error);
-                        alert('حدث خطأ أثناء حفظ الخطاب: ' + error.message);
+                        notify.error('حدث خطأ أثناء حفظ الخطاب: ' + error.message);
                     }
                 });
             } else {
@@ -536,7 +538,7 @@
                     if (letterContent) {
                         await validateAndDisplayResults(letterContent);
                     } else {
-                        alert('لا يوجد محتوى خطاب للتحليل');
+                        notify.warning('لا يوجد محتوى خطاب للتحليل');
                     }
                 });
             }

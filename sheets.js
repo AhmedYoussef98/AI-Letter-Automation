@@ -2,7 +2,7 @@
 const SPREADSHEET_ID = '1cLbTgbluZyWYHRouEgqHQuYQqKexHhu4st9ANzuaxGk';
 const API_KEY = 'AIzaSyBqF-nMxyZMrjmdFbULO9I_j75hXXaiq4A';
 const SHEETS_API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
-const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzWtObb3O5GG8s8XN-mduvzw2lFrUvaATUwx-qULzcxDUHeJDtZJiA9mbq9KZ4ey8xq/exec';
+const APPS_SCRIPT_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyAWuXZWJcyuImUc2yjM9Zb5aattFbNV9iQqS_uBwHnU2U6rv6Gb2drqKqp6EJQJjB-/exec';
 
 // OPTIMIZATION 1: Caching System
 class LetterCache {

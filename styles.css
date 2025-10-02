@@ -49,9 +49,9 @@ body.dark-mode .navbar {
 }
 
 .nav-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 1rem 2rem;
+    padding: 1rem 3rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -74,7 +74,7 @@ body.dark-mode .navbar {
 .nav-links {
     display: flex;
     list-style: none;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 .nav-link {
@@ -87,6 +87,8 @@ body.dark-mode .navbar {
     transition: color 0.3s ease;
     padding: 0.5rem 1rem;
     border-radius: 8px;
+    white-space: nowrap;
+    min-width: fit-content;
 }
 
 body.dark-mode .nav-link {
@@ -2511,4 +2513,26 @@ body.dark-mode .letters-table.loading::after {
     .quick-action-btn {
         transition: none;
     }
+}
+.nav-link.admin-link {
+    background: var(--primary-color);
+    color: white !important;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+}
+
+.nav-link.admin-link:hover {
+    background: #008f47;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 166, 81, 0.3);
+}
+
+body.dark-mode .nav-link.admin-link {
+    color: white !important;
+    background: var(--primary-color);
+}
+
+body.dark-mode .nav-link.admin-link:hover {
+    background: #008f47;
 }

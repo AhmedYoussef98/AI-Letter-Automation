@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <link rel="stylesheet" href="notifications.css">
     <link rel="stylesheet" href="mobile-styles.css">
     <script src="mobile.js"></script>
     <script src="auth-guard.js"></script>
@@ -409,8 +410,34 @@
         </div>
     </main>
 
-    <script src="sheets.js"></script>
-    <script src="main.js"></script>
+            <!-- Place at bottom of body, BEFORE closing </body> tag -->
+        <script src="sheets.js"></script>
+        <script src="notifications.js"></script>
+        <script src="main.js"></script>
+        
+        <script>
+            // Use window.load instead of DOMContentLoaded to ensure ALL scripts are loaded
+            window.addEventListener('load', async function() {
+                console.log('🚀 Letter History: Page fully loaded, starting initialization...');
+                
+                // Verify all required functions are available
+                if (typeof loadLetterHistory !== 'function') {
+                    console.error('❌ loadLetterHistory function not available!');
+                    if (typeof notify !== 'undefined') {
+                        notify.error('خطأ في تحميل النظام. الرجاء إعادة تحديث الصفحة.');
+                    }
+                    return;
+                }
+                
+                try {
+                    await loadLetterHistory();
+                    console.log('✅ Letter history loaded successfully');
+                } catch (error) {
+                    console.error('❌ Error loading letter history:', error);
+                    // Error notifications are handled inside loadLetterHistory
+                }
+            });
+        </script>
     
     <script>
         // COMPLETE FIXED SCRIPT
@@ -683,3 +710,8 @@
     </script>
 </body>
 </html>
+
+
+
+
+

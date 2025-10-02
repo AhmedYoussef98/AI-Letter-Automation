@@ -179,8 +179,12 @@ export async function addMultipleToWhitelist(adminEmail, users) {
  */
 export function isCurrentUserAdmin() {
     try {
-        const userRole = localStorage.getItem('userRole');
-        return userRole === 'admin';
+        // Read from sessionStorage where auth.js stores user data
+        const userDataStr = sessionStorage.getItem('loggedInUser');
+        if (!userDataStr) return false;
+        
+        const userData = JSON.parse(userDataStr);
+        return userData.role === 'admin';
     } catch (error) {
         console.error('Error checking admin status:', error);
         return false;
@@ -188,12 +192,20 @@ export function isCurrentUserAdmin() {
 }
 
 /**
- * Get current user's email from localStorage
+
+ * Get current user's email from sessionStorage
+
  * @returns {string|null}
  */
 export function getCurrentUserEmail() {
     try {
-        return localStorage.getItem('userEmail');
+
+        // Read from sessionStorage where auth.js stores user data
+        const userDataStr = sessionStorage.getItem('loggedInUser');
+        if (!userDataStr) return null;
+        
+        const userData = JSON.parse(userDataStr);
+        return userData.email;
     } catch (error) {
         console.error('Error getting current user email:', error);
         return null;

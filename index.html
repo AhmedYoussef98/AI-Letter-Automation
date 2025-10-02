@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <link rel="stylesheet" href="notifications.css">
     <link rel="stylesheet" href="mobile-styles.css">
     <script src="mobile.js"></script>
     <script src="auth-guard.js"></script>
@@ -32,6 +33,13 @@
                     <i class="fas fa-check-circle"></i>
                     مراجعة خطاب
                 </a></li>
+                <!-- ADD THIS -->
+                <li id="adminNavLink" style="display: none;">
+                    <a href="admin-panel.html" class="nav-link admin-link">
+                        <i class="fas fa-shield-alt"></i>
+                        لوحة الإدارة
+                    </a>
+                </li>
             </ul>
             <button class="theme-toggle" id="themeToggle">
                 <i class="fas fa-moon"></i>
@@ -69,8 +77,60 @@
             </div>
         </div>
     </main>
-
+    <script src="notifications.js"></script>
     <script src="main.js"></script>
+    <script type="module">
+    // Import the function to check admin status
+    import { isCurrentUserAdmin } from './api/whitelist.js';
+
+    // Check if user is admin and show the admin link
+    document.addEventListener('DOMContentLoaded', () => {
+        try {
+            if (isCurrentUserAdmin()) {
+                // Show admin link in navigation
+                const adminNavLink = document.getElementById('adminNavLink');
+                if (adminNavLink) {
+                    adminNavLink.style.display = 'block';
+                }
+
+                // Optional: Add admin button to hero section
+                addAdminButtonToHero();
+            }
+        } catch (error) {
+            console.error('Error checking admin status:', error);
+        }
+    });
+
+    // Optional: Add a prominent admin button in the hero section
+    function addAdminButtonToHero() {
+        const heroSection = document.querySelector('.hero-section');
+        if (!heroSection) return;
+
+        // Check if button already exists
+        if (document.getElementById('adminHeroButton')) return;
+
+        const adminButton = document.createElement('a');
+        adminButton.id = 'adminHeroButton';
+        adminButton.href = 'admin-panel.html';
+        adminButton.className = 'admin-hero-button';
+        adminButton.innerHTML = `
+            <i class="fas fa-shield-alt"></i>
+            لوحة إدارة المستخدمين
+        `;
+
+        // Insert after the hero subtitle
+        const heroSubtitle = heroSection.querySelector('.hero-subtitle');
+        if (heroSubtitle) {
+            heroSubtitle.insertAdjacentElement('afterend', adminButton);
+        } else {
+            heroSection.appendChild(adminButton);
+        }
+    }
+</script>
 </body>
 </html>
+
+
+
+
 
