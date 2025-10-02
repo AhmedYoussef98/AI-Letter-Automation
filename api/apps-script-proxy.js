@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzWtObb3O5GG8s8XN-mduvzw2lFrUvaATUwx-qULzcxDUHeJDtZJiA9mbq9KZ4ey8xq/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyAWuXZWJcyuImUc2yjM9Zb5aattFbNV9iQqS_uBwHnU2U6rv6Gb2drqKqp6EJQJjB-/exec';
     
     console.log('Proxying request to Apps Script:', APPS_SCRIPT_URL);
     console.log('Request Content-Type:', req.headers['content-type']);
