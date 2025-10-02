@@ -640,7 +640,7 @@
         // Check if user is admin
         function checkAdminAccess() {
             if (!isCurrentUserAdmin()) {
-                alert('ليس لديك صلاحيات الوصول إلى هذه الصفحة');
+                notify.alert('ليس لديك صلاحيات الوصول إلى هذه الصفحة');
                 window.location.href = '/index.html';
                 return false;
             }
