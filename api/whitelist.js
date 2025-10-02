@@ -192,11 +192,14 @@ export function isCurrentUserAdmin() {
 }
 
 /**
+
  * Get current user's email from sessionStorage
+
  * @returns {string|null}
  */
 export function getCurrentUserEmail() {
     try {
+
         // Read from sessionStorage where auth.js stores user data
         const userDataStr = sessionStorage.getItem('loggedInUser');
         if (!userDataStr) return null;
