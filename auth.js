@@ -1,5 +1,12 @@
-// auth.js - Updated with proper whitelist support
+// auth.js - Complete authentication with whitelist and domain filtering
 const PROXY_URL = '/api/apps-script-proxy';
+
+// GOOGLE SIGN-IN DOMAIN FILTERING (Optional - set empty array to allow all domains)
+const ALLOWED_GOOGLE_DOMAINS = ['nabatik.com']; // Add your allowed domains here
+// Example: const ALLOWED_GOOGLE_DOMAINS = ['company.com', 'partner.com'];
+// To disable filtering: const ALLOWED_GOOGLE_DOMAINS = [];
+
+// ==================== PASSWORD HASHING ====================
 
 async function hashPassword(password) {
   const encoder = new TextEncoder();
@@ -8,6 +15,35 @@ async function hashPassword(password) {
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
+
+// ==================== DOMAIN VALIDATION ====================
+
+function isEmailDomainAllowed(email) {
+    // If no domains specified, allow all
+    if (ALLOWED_GOOGLE_DOMAINS.length === 0) {
+        return { allowed: true };
+    }
+    
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+        return { 
+            allowed: false, 
+            message: 'صيغة البريد الإلكتروني غير صحيحة' 
+        };
+    }
+    
+    const domain = email.split('@')[1].toLowerCase();
+    
+    if (ALLOWED_GOOGLE_DOMAINS.map(d => d.toLowerCase()).includes(domain)) {
+        return { allowed: true };
+    }
+    
+    return { 
+        allowed: false, 
+        message: `يُسمح فقط بالبريد الإلكتروني من النطاقات: ${ALLOWED_GOOGLE_DOMAINS.join(', ')}`
+    };
+}
+
+// ==================== DRIVE URL CONVERSION ====================
 
 function convertDriveUrlToDirectUrl(driveUrl) {
     if (!driveUrl || typeof driveUrl !== 'string') {
@@ -36,11 +72,13 @@ function convertDriveUrlToDirectUrl(driveUrl) {
     return driveUrl;
 }
 
+// ==================== FORM HANDLERS ====================
+
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
 
-    // Login form handler
+    // ==================== LOGIN FORM ====================
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -66,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (result.success) {
-                    // Convert the image URL and save all user data including role
+                    // Save user data to sessionStorage including role
                     const userData = {
                         ...result.user,
                         imageUrl: convertDriveUrlToDirectUrl(result.user.imageUrl)
@@ -78,6 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Handle specific error codes
                     if (result.code === 'NOT_AUTHORIZED' || result.code === 'NOT_WHITELISTED') {
                         notify.error('الوصول مرفوض. حسابك غير مصرح له أو تم إلغاء تفعيله.');
+                    } else if (result.code === 'DOMAIN_NOT_ALLOWED') {
+                        notify.error('يُسمح فقط بالبريد الإلكتروني من نطاقات محددة.');
                     } else {
                         notify.error('فشل تسجيل الدخول: ' + result.message);
                     }
@@ -89,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Signup form handler
+    // ==================== SIGNUP FORM ====================
     if (signupForm) {
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -153,8 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// ========== UPDATED GOOGLE SIGN-IN HANDLERS ==========
+// ==================== GOOGLE SIGN-IN HANDLERS ====================
 
+/**
+ * Handle Google Sign-In with domain filtering and whitelist check
+ */
 async function handleGoogleSignIn(response) {
     console.log('Google Sign-In response:', response);
     
@@ -162,7 +205,14 @@ async function handleGoogleSignIn(response) {
         const payload = parseJwt(response.credential);
         console.log('User info from Google:', payload);
         
-        // IMPORTANT: Check with Apps Script whitelist
+        // STEP 1: Check domain (frontend validation)
+        const domainCheck = isEmailDomainAllowed(payload.email);
+        if (!domainCheck.allowed) {
+            notify.error(domainCheck.message);
+            return;
+        }
+        
+        // STEP 2: Check with Apps Script whitelist (backend validation)
         const checkResult = await checkGoogleAuthWithAppsScript({
             email: payload.email,
             name: payload.name,
@@ -178,6 +228,8 @@ async function handleGoogleSignIn(response) {
             // Handle whitelist rejection
             if (checkResult.code === 'NOT_WHITELISTED') {
                 notify.error('الوصول مرفوض. حساب Google هذا غير مصرح له بالوصول إلى التطبيق.');
+            } else if (checkResult.code === 'DOMAIN_NOT_ALLOWED') {
+                notify.error('يُسمح فقط بالبريد الإلكتروني من نطاقات محددة.');
             } else {
                 notify.error('فشل تسجيل الدخول: ' + checkResult.message);
             }
@@ -189,6 +241,9 @@ async function handleGoogleSignIn(response) {
     }
 }
 
+/**
+ * Handle Google Sign-Up with domain filtering and whitelist check
+ */
 async function handleGoogleSignUp(response) {
     console.log('Google Sign-Up response:', response);
     
@@ -196,7 +251,14 @@ async function handleGoogleSignUp(response) {
         const payload = parseJwt(response.credential);
         console.log('User info from Google:', payload);
         
-        // IMPORTANT: Check with Apps Script whitelist
+        // STEP 1: Check domain (frontend validation)
+        const domainCheck = isEmailDomainAllowed(payload.email);
+        if (!domainCheck.allowed) {
+            notify.error(domainCheck.message);
+            return;
+        }
+        
+        // STEP 2: Check with Apps Script whitelist (backend validation)
         const checkResult = await checkGoogleAuthWithAppsScript({
             email: payload.email,
             name: payload.name,
@@ -212,6 +274,8 @@ async function handleGoogleSignUp(response) {
             // Handle whitelist rejection
             if (checkResult.code === 'NOT_WHITELISTED') {
                 notify.error('التسجيل غير مسموح. حساب Google هذا غير مصرح له. يرجى التواصل مع المسؤول.');
+            } else if (checkResult.code === 'DOMAIN_NOT_ALLOWED') {
+                notify.error('يُسمح فقط بالبريد الإلكتروني من نطاقات محددة.');
             } else {
                 notify.error('فشل إنشاء الحساب: ' + checkResult.message);
             }
@@ -224,7 +288,7 @@ async function handleGoogleSignUp(response) {
 }
 
 /**
- * NEW: Check Google Auth with Apps Script whitelist
+ * Check Google Auth with Apps Script whitelist
  */
 async function checkGoogleAuthWithAppsScript(userData) {
     try {
@@ -252,7 +316,9 @@ async function checkGoogleAuthWithAppsScript(userData) {
     }
 }
 
-// Helper function to decode JWT token
+/**
+ * Helper function to decode JWT token from Google
+ */
 function parseJwt(token) {
     try {
         const base64Url = token.split('.')[1];
