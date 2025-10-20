@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "AI Letter Generator for NetZero",
   "scripts": {
-    "dev": "vercel dev",
-    "build": "echo 'No build required'"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "keywords": [],
   "author": "",
