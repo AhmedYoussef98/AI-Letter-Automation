@@ -1,0 +1,13 @@
+node_modules/
+.env
+.replit
+replit.nix
+*.log
+.DS_Store
+.vscode/
+*.swp
+*.swo
+*~
+.tmp/
+dist/
+build/
