@@ -1,47 +1,61 @@
-# AI Letter Generator - NetZero
+# Maktoub - منشئ الخطابات الذكي
 
 ## Project Overview
-AI Letter Generator is a web application that helps users create professional letters using AI. The application supports Arabic language and includes features for letter generation, validation, chat-based editing, and archival.
+Maktoub (مكتوب) is an AI-powered letter generation web application that helps users create professional letters using artificial intelligence. The application supports Arabic language and includes features for letter generation, validation, chat-based editing, and archival.
 
 ## Recent Changes (October 20, 2025)
 
-### Maktoub Branding Implementation - Dark Mode
-**NEW - Maktoub Dark Mode Theme Applied**
-- Implemented complete dark mode branding based on Figma design specifications
+### Complete Rebranding to Maktoub
+**COMPLETED - Full Application Rebranding**
+- Changed all branding from "AI Letter Generator" to "Maktoub" (مكتوب)
+- Updated all page titles, logos, and navigation elements
+- Maintained all existing functionality during rebranding
+
+### Maktoub Design System - Dark & Light Mode
+**COMPLETED - Dual Theme Implementation**
+- Implemented complete design system based on Figma specifications
 - Created modular CSS system in `/css/` folder:
   - `maktoub-theme.css`: Core design system with variables
   - `maktoub-auth.css`: Authentication pages styling
-  - `maktoub-override.css`: Theme integration layer
+  - `maktoub-override.css`: Dual theme system (dark & light modes)
 
 **Design Specifications from Figma:**
-- **Colors**:
-  - Primary Dark: #102320
-  - Primary Teal: #1EA896
-  - Light Accent: #A0ECDC
-  - Teal variations: #F1FCFA, #67E1CB
-  - Border: rgba(6, 100, 88, 0.5)
 
-- **Typography**: 
-  - Font family: Cairo, Tajawal (Arabic optimized)
-  - Sizes: 16px base, 28px headings
-  - Weights: 400 (regular), 700 (bold)
+**Dark Mode (Default):**
+- Background: #102320 (dark teal/forest green)
+- Cards: Dark teal with subtle borders
+- Text: White/light teal
+- Primary Button: #1EA896 (teal)
+- Borders: Teal borders with opacity
 
-- **Components**:
-  - Border radius: 6px
-  - Shadows: Subtle (0px 1px 2px rgba(0, 0, 0, 0.05))
-  - Navbar height: 78px
-  - Button padding: 9px 17px
+**Light Mode:**
+- Background: #F1FCFA (very light teal/mint)
+- Cards: White with subtle teal borders
+- Text: Dark (#102320)
+- Primary Button: #1EA896 (teal)
+- Navbar: White with subtle shadow
 
-**Theme Toggle Status:**
-- Theme toggle remains functional
-- Users can switch between dark and light modes
-- Light mode design pending (to be implemented when user provides specs)
-- To set dark mode as default, update `main.js` localStorage initialization
+**Typography**: 
+- Font family: Cairo, Tajawal (Arabic optimized)
+- Sizes: 16px base, 28px headings
+- Weights: 400 (regular), 700 (bold)
 
-**Files Modified:**
-- All HTML files updated to include new CSS
-- Created `/css/` folder for organized stylesheet management
-- Maintained backward compatibility with existing functionality
+**Components**:
+- Border radius: 6px
+- Shadows: Subtle (0px 1px 2px rgba(0, 0, 0, 0.05))
+- Navbar height: 78px
+- Button padding: 9px 17px
+
+**Theme Toggle:**
+- Fully functional theme toggle button in navbar
+- Users can switch between dark and light modes seamlessly
+- Theme preference saved in localStorage
+- Consistent branding across both themes
+
+**Files Updated:**
+- All HTML files (login, signup, index, create-letter, review-letter, letter-history, admin-panel)
+- Created comprehensive CSS theme system
+- All branding references updated to Maktoub
 
 ### Vercel to Replit Migration
 - **Migrated from Vercel serverless functions to Express.js server**
@@ -62,20 +76,21 @@ AI Letter Generator is a web application that helps users create professional le
 
 ### Frontend
 - **Static HTML pages** (Arabic RTL layout):
-  - `index.html`: Home page with feature cards
-  - `login.html`: Authentication page with Google Sign-In and email/password
-  - `signup.html`: New user registration
-  - `create-letter.html`: Letter generation interface
-  - `review-letter.html`: Letter review and editing
-  - `letter-history.html`: Archive of generated letters
-  - `admin-panel.html`: User management (admin only)
+  - `index.html`: Home page - منشئ الخطابات الذكي
+  - `login.html`: Authentication page - تسجيل الدخول
+  - `signup.html`: New user registration - إنشاء حساب جديد
+  - `create-letter.html`: Letter generation interface - إنشاء خطاب جديد
+  - `review-letter.html`: Letter review and editing - مراجعة خطاب
+  - `letter-history.html`: Archive of generated letters - سجل الخطابات
+  - `admin-panel.html`: User management (admin only) - لوحة الإدارة
 
 ### Styling System
 - **Maktoub Theme CSS** (`/css/` folder):
   - Modular design system with CSS variables
-  - Dark mode optimized with light mode ready
+  - Dual theme support (dark & light modes)
   - Component-based styling
   - Responsive design built-in
+  - Arabic RTL optimized
 
 ### Backend
 - **Express.js Server** (`server.js`):
@@ -91,7 +106,7 @@ AI Letter Generator is a web application that helps users create professional le
 4. **Archive System**: Store and manage generated letters
 5. **Authentication**: Google Sign-In + email/password with domain filtering
 6. **Admin Panel**: User management with whitelist control
-7. **Theme Toggle**: Dark/Light mode switching
+7. **Dual Theme Toggle**: Dark/Light mode switching with localStorage persistence
 
 ### External Dependencies
 - **External AI API**: https://128.140.37.194:5000 (requires HTTPS with self-signed cert)
@@ -118,7 +133,7 @@ The application uses the following configured values:
 - Port 5000 is required for Replit's webview functionality
 - Self-signed certificate handling enabled for external AI API
 - Arabic RTL layout throughout the application
-- Dark mode is the primary theme based on Maktoub branding
+- Dark mode is the default theme, light mode available via toggle
 
 ## Security Features
 - Domain-based email filtering for Google Sign-In
@@ -127,7 +142,9 @@ The application uses the following configured values:
 - Admin role separation with whitelist management
 - Client-server separation maintained
 
-## Next Steps (Pending)
-1. Light mode design implementation (awaiting Figma specs from user)
-2. Set dark mode as default in theme initialization
-3. Fine-tune any component-specific styling based on user feedback
+## Brand Identity
+- **Name**: Maktoub (مكتوب) - means "written" in Arabic
+- **Logo**: Teal icon with Maktoub branding
+- **Primary Color**: #1EA896 (Teal)
+- **Design Philosophy**: Clean, professional, Arabic-first interface
+- **Typography**: Cairo font family for optimal Arabic rendering
