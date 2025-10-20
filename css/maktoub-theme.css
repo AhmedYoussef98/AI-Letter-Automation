@@ -145,9 +145,10 @@ body {
     text-decoration: none;
 }
 
-.logo img {
-    height: 35px;
+.logo img.maktoub-logo {
+    height: 50px;
     width: auto;
+    max-width: 250px;
 }
 
 .nav-links {
