@@ -6,6 +6,7 @@ This update transforms the preview section of the AI Letter Generation applicati
 
 ### New Files Added
 
+
 1. **document-template.css** - Professional document styling with:
    - Clean, formal layout with proper spacing
    - Company header with logo and contact information
